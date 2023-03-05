@@ -1,0 +1,26 @@
+* kibela.el
+
+** 注意
+   このパッケージは開発途中のため突然仕様が変わることがあります
+
+** これは何?
+
+   Emacs から [[https://kibe.la][Kibela]] を操作するためのパッケージです
+
+** できること
+
+   現時点では記事の閲覧と更新ができます。
+
+   #+begin_example
+   (kibela-note-show ID)
+   #+end_example
+
+   で記事を取得し gfm-mode で表示します。
+
+   表示されたバッファは編集可能なので、編集後に
+
+   #+begin_example
+   M-x kibela-note-update
+   #+end_example
+
+   を実行することで記事を更新できます
