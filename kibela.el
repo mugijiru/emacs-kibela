@@ -4,9 +4,9 @@
 
 ;; Author: mugijiru <106833+mugijiru@users.noreply.github.com>
 ;; Maintainer: mugijiru <106833+mugijiru@users.noreply.github.com>
-;; URL: https://github.com/mugijiru/ivy-kibela
+;; URL: https://github.com/mugijiru/emacs-kibela
 ;; Version: 0.1.0
-;; Package-Requires: ((graphql "0.1.1") (request "0.3.3") (ivy "0.13.4"))
+;; Package-Requires: ((graphql "0.1.1") (request "0.3.3"))
 ;; Keywords: tools
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,6 @@
 
 (require 'graphql)
 (require 'request)
-(require 'ivy)
 (require 'json)
 
 (defcustom kibela-team nil
@@ -145,7 +144,7 @@
                                    (pp args)
                                    (message "Got error: %S" error-thrown))))))))
 
-(defun kibela-build-ivy-collection-from-note-templates (note-templates)
+(defun kibela-build-collection-from-note-templates (note-templates)
   (mapcar (lambda (note-template)
             (let* ((name (assoc-default 'name note-template))
                    (title (assoc-default 'evaluatedTitle note-template))
@@ -185,11 +184,9 @@
                 (lambda (&key data &allow-other-keys)
                   (let* ((response-data (assq 'data (graphql-simplify-response-edges data)))
                          (note-templates (assoc-default 'noteTemplates response-data))
-                         (collection (kibela-build-ivy-collection-from-note-templates note-templates)))
-                    (ivy-read "Note templates: "
-                              collection
-                              :caller 'kibela
-                              :action #'kibela-select-note-template-action))))
+                         (collection (kibela-build-collection-from-note-templates note-templates))
+                         (selected (completing-read "Note templates: " collection)))
+                    (kibela-select-note-template-action selected))))
       :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
                             (pp args)
                             (message "Got error: %S" error-thrown))))))
