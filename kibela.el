@@ -65,6 +65,16 @@
      name)))
   "デフォルトの投稿先グループを取得するためのクエリ")
 
+(defconst kibela-graphql-mutation-create-note
+  (graphql-mutation
+   (:arguments (($input . CreateNoteInput!))
+    (createNote
+     :arguments ((input . ($ input)))
+     (note
+      title
+      content))))
+  "Note を作成するためのクエリ")
+
 (defconst kibela-graphql-mutation-update-note
   (graphql-mutation
    (:arguments (($input . UpdateNoteInput!))
@@ -117,6 +127,51 @@
     (switch-to-buffer buffer)
     (insert (concat "# " title "\n\n"))
     (gfm-mode)))
+
+(defun kibela-note-create ()
+  "記事作成"
+  (interactive)
+  (let* ((query kibela-graphql-mutation-create-note)
+         (buffer-content (substring-no-properties (buffer-string)))
+         (title (substring-no-properties (first (split-string buffer-content "\n")) 2))
+         (content (string-join (cddr (split-string buffer-content "\n")) "\n"))
+         (coediting t) ;; TODO handle coediting
+         (draft json-false) ;; TODO handle coediting
+         (group-ids `(,(assoc-default 'id kibela-default-group)))
+         (data `(("query" . ,query)
+                 ("variables" . ((input . (("title" . ,title)
+                                           ("content" . ,content)
+                                           ("groupIds" . ,group-ids)
+                                           ("coediting" . ,coediting)
+                                           ("draft" . ,draft)))))))
+         (encoded-data (json-encode data)))
+    (request
+      (kibela-endpoint)
+      :type "POST"
+      :data encoded-data
+      :parser 'json-read
+      :encoding 'utf-8
+      :headers (kibela-headers)
+      :success (cl-function
+                (lambda (&key data &allow-other-keys)
+                  (let* ((errors (assoc-default 'errors data)))
+                    (cond (errors
+                           (let* ((message (mapconcat (lambda (error)
+                                                        (assoc-default 'message error))
+                                                      errors
+                                                      "\n")))
+                             (message (concat "Error: " message))))
+                          (t
+                           (let* ((json-data (assoc-default 'data data))
+                                  (create-note (assoc-default 'createNote json-data))
+                                  (note (assoc-default 'note create-note))
+                                  (title (assoc-default 'title note))
+                                  (buffer (get-buffer-create "*Kibela* newnote")))
+                             (kill-buffer buffer)
+                             (message (concat "create note '" title "' has succeed."))))))))
+      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
+                            (pp args)
+                            (message "Got error: %S" error-thrown))))))
 
 ;;;###autoload
 (defun kibela-note-show (id)
