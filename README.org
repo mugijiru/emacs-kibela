@@ -16,8 +16,16 @@
     M-x kibela-note-new
     #+end_example
 
-    で新しい記事を書くためのバッファが用意されます。
+    で新しい記事を書くための gfm-mode のバッファが用意されます。
     バッファを開く前に記事の title を聞かれます。
+
+    また
+
+    #+begin_example
+    M-x kibela-note-new-from-template
+    #+end_example
+
+    を使うと、記事テンプレートを選択して記事を書くことができます。
 
     記事を書いた後は
 
