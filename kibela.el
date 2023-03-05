@@ -43,6 +43,9 @@
 (defvar-local kibela-note-base nil
   "記事取得時の状態を保持する。記事更新時に利用する")
 
+(defvar kibela-default-group nil
+  "デフォルトの投稿先グループを保存する変数")
+
 (defconst kibela-graphql-query-note
   (graphql-query
    (:arguments (($id . ID!))
@@ -54,6 +57,13 @@
                 (groups id name)
                 canBeUpdated)))
   "Note を取得するためのクエリ")
+
+(defconst kibela-graphql-query-default-group
+  (graphql-query
+   ((defaultGroup
+     id
+     name)))
+  "デフォルトの投稿先グループを取得するためのクエリ")
 
 (defconst kibela-graphql-mutation-update-note
   (graphql-mutation
@@ -74,6 +84,29 @@
   `(("Content-Type" . "application/json")
     ("Accept" . "application/json")
     ("Authorization" . ,(concat "Bearer " kibela-access-token))))
+
+(defun kibela-store-default-group ()
+  "デフォルトの投稿先グループを取得する"
+  (cond (kibela-default-group
+         nil)
+        (t
+         (let* ((query kibela-graphql-query-default-group)
+                (data (json-encode `((query . ,query)))))
+           (request
+             (kibela-endpoint)
+             :type "POST"
+             :data data
+             :parser 'json-read
+             :encoding 'utf-8
+             :headers (kibela-headers)
+             :success (cl-function
+                       (lambda (&key data &allow-other-keys)
+                         (let* ((response-data (assoc-default 'data data))
+                                (group (assoc-default 'defaultGroup response-data)))
+                           (setq kibela-default-group group))))
+             :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
+                                   (pp args)
+                                   (message "Got error: %S" error-thrown))))))))
 
 ;;;###autoload
 (defun kibela-note-show (id)
