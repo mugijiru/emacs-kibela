@@ -4,7 +4,7 @@
 
 ;; Author: mugijiru <106833+mugijiru@users.noreply.github.com>
 ;; Maintainer: mugijiru <106833+mugijiru@users.noreply.github.com>
-;; URL: https://github.com/mugijiru/ivy-kibela
+;; URL: https://github.com/mugijiru/emacs-kibela
 ;; Version: 0.1.0
 ;; Package-Requires: ((graphql "0.1.1") (request "0.3.3") (ivy "0.13.4"))
 ;; Keywords: tools
