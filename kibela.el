@@ -224,12 +224,17 @@
          (title (substring-no-properties (first (split-string buffer-content "\n")) 2))
          (content (string-join (cddr (split-string buffer-content "\n")) "\n"))
          (coediting t) ;; TODO handle coediting
-         (draft json-false) ;; TODO handle coediting
-         (group-ids `(,(assoc-default 'id kibela-default-group)))
+         (draft json-false) ;; TODO handle draft
+         (group-ids (if kibela-note-template
+                        (plist-get kibela-note-template :group-ids)
+                      `(,(assoc-default 'id kibela-default-group))))
+         (folders (if kibela-note-template
+                      (plist-get kibela-note-template :folders)))
          (data `(("query" . ,query)
                  ("variables" . ((input . (("title" . ,title)
                                            ("content" . ,content)
                                            ("groupIds" . ,group-ids)
+                                           ("folders" . ,folders)
                                            ("coediting" . ,coediting)
                                            ("draft" . ,draft)))))))
          (encoded-data (json-encode data)))
@@ -256,6 +261,7 @@
                                   (title (assoc-default 'title note))
                                   (buffer (get-buffer-create "*Kibela* newnote")))
                              (kill-buffer buffer)
+                             (setq kibela-note-template nil)
                              (message (concat "create note '" title "' has succeed."))))))))
       :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
                             (pp args)
