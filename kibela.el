@@ -6,7 +6,7 @@
 ;; Maintainer: mugijiru <106833+mugijiru@users.noreply.github.com>
 ;; URL: https://github.com/mugijiru/ivy-kibela
 ;; Version: 0.1.0
-;; Package-Requires: ((graphql "0.1.1") (request "0.3.3"))
+;; Package-Requires: ((graphql "0.1.1") (request "0.3.3") (ivy "0.13.4"))
 ;; Keywords: tools
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -28,6 +28,7 @@
 
 (require 'graphql)
 (require 'request)
+(require 'ivy)
 (require 'json)
 
 (defcustom kibela-team nil
@@ -42,6 +43,9 @@
 
 (defvar-local kibela-note-base nil
   "記事取得時の状態を保持する。記事更新時に利用する")
+
+(defvar-local kibela-note-template nil
+  "使用する記事テンプレートを保持する。テンプレートから記事を作成する時に利用する")
 
 (defvar kibela-default-group nil
   "デフォルトの投稿先グループを保存する変数")
@@ -64,6 +68,29 @@
      id
      name)))
   "デフォルトの投稿先グループを取得するためのクエリ")
+
+(defconst kibela-graphql-query-note-templates
+  (graphql-query
+   ((noteTemplates
+     :arguments ((first . 100))
+     (edges
+      (node
+       id
+       name
+       title
+       evaluatedTitle
+       content
+       (groups
+        id
+        name)
+       (folders
+        id
+        fullName
+        evaluatedFullName
+        (group
+         id
+         name)))))))
+  "記事テンプレート一覧を取得するクエリ")
 
 (defconst kibela-graphql-mutation-create-note
   (graphql-mutation
@@ -118,6 +145,55 @@
                                    (pp args)
                                    (message "Got error: %S" error-thrown))))))))
 
+(defun kibela-build-ivy-collection-from-note-templates (note-templates)
+  (mapcar (lambda (note-template)
+            (let* ((name (assoc-default 'name note-template))
+                   (title (assoc-default 'evaluatedTitle note-template))
+                   (content (assoc-default 'content note-template))
+                   (groups (assoc-default 'groups note-template))
+                   (group-ids (mapcar (lambda (group) (assoc-default 'id group)) groups))
+                   (row-folders (assoc-default 'folders note-template))
+                   (folders (mapcar (lambda (folder)
+                                      (let* ((folder-name (assoc-default 'evaluatedFullName folder))
+                                             (group (assoc-default 'group folder))
+                                             (group-id (assoc-default 'id group)))
+                                        `((groupId . ,group-id) (folderName . ,folder-name))))
+                                    row-folders))
+                   (template `(:title ,title :content ,content :group-ids ,group-ids :folders ,folders)))
+              (propertize name 'template template)))
+          note-templates))
+
+(defun kibela-select-note-template-action (selected)
+  (let ((template (get-text-property 0 'template selected)))
+    (if template
+        (kibela--new-note-from-template template))))
+
+;;;###autoload
+(defun kibela-note-new-from-template ()
+  "記事テンプレートから選択したら新規作成用のバッファを表示するコマンド"
+  (interactive)
+  (let* ((query kibela-graphql-query-note-templates)
+         (request-data (json-encode `((query . ,query)))))
+    (request
+      (kibela-endpoint)
+      :type "POST"
+      :data request-data
+      :parser 'json-read
+      :encoding 'utf-8
+      :headers (kibela-headers)
+      :success (cl-function
+                (lambda (&key data &allow-other-keys)
+                  (let* ((response-data (assq 'data (graphql-simplify-response-edges data)))
+                         (note-templates (assoc-default 'noteTemplates response-data))
+                         (collection (kibela-build-ivy-collection-from-note-templates note-templates)))
+                    (ivy-read "Note templates: "
+                              collection
+                              :caller 'kibela
+                              :action #'kibela-select-note-template-action))))
+      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
+                            (pp args)
+                            (message "Got error: %S" error-thrown))))))
+
 ;;;###autoload
 (defun kibela-note-new (title)
   "記事を作成するバッファを用意する"
@@ -128,6 +204,18 @@
     (insert (concat "# " title "\n\n"))
     (gfm-mode)))
 
+(defun kibela--new-note-from-template (template)
+  "記事を作成するバッファを用意する"
+  (let* ((title (plist-get template :title))
+         (content (plist-get template :content))
+         (group-ids (plist-get template :group-ids))
+         (folders (plist-get template :folders))
+         (buffer (get-buffer-create "*Kibela* newnote")))
+    (switch-to-buffer buffer)
+    (insert (concat "# " title "\n\n" content))
+    (gfm-mode)
+    (setq kibela-note-template template)))
+
 (defun kibela-note-create ()
   "記事作成"
   (interactive)
@@ -136,12 +224,17 @@
          (title (substring-no-properties (first (split-string buffer-content "\n")) 2))
          (content (string-join (cddr (split-string buffer-content "\n")) "\n"))
          (coediting t) ;; TODO handle coediting
-         (draft json-false) ;; TODO handle coediting
-         (group-ids `(,(assoc-default 'id kibela-default-group)))
+         (draft json-false) ;; TODO handle draft
+         (group-ids (if kibela-note-template
+                        (plist-get kibela-note-template :group-ids)
+                      `(,(assoc-default 'id kibela-default-group))))
+         (folders (if kibela-note-template
+                      (plist-get kibela-note-template :folders)))
          (data `(("query" . ,query)
                  ("variables" . ((input . (("title" . ,title)
                                            ("content" . ,content)
                                            ("groupIds" . ,group-ids)
+                                           ("folders" . ,folders)
                                            ("coediting" . ,coediting)
                                            ("draft" . ,draft)))))))
          (encoded-data (json-encode data)))
@@ -168,6 +261,7 @@
                                   (title (assoc-default 'title note))
                                   (buffer (get-buffer-create "*Kibela* newnote")))
                              (kill-buffer buffer)
+                             (setq kibela-note-template nil)
                              (message (concat "create note '" title "' has succeed."))))))))
       :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
                             (pp args)
@@ -245,6 +339,7 @@
                                   (note (assoc-default 'note update-note))
                                   (title (assoc-default 'title note))
                                   (buffer (get-buffer-create (concat "*Kibela* " id))))
+                             (setq kibela-note-base nil)
                              (kill-buffer buffer)
                              (message (concat "update note '" title "' has succeed."))))))))
       :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
