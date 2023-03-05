@@ -109,6 +109,16 @@
                                    (message "Got error: %S" error-thrown))))))))
 
 ;;;###autoload
+(defun kibela-note-new (title)
+  "記事を作成するバッファを用意する"
+  (interactive "stitle: ")
+  (let ((buffer (get-buffer-create "*Kibela* newnote")))
+    (kibela-store-default-group)
+    (switch-to-buffer buffer)
+    (insert (concat "# " title "\n\n"))
+    (gfm-mode)))
+
+;;;###autoload
 (defun kibela-note-show (id)
   "記事表示"
   (let ((query kibela-graphql-query-note))
