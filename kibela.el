@@ -245,6 +245,7 @@
                                   (note (assoc-default 'note update-note))
                                   (title (assoc-default 'title note))
                                   (buffer (get-buffer-create (concat "*Kibela* " id))))
+                             (setq kibela-note-base nil)
                              (kill-buffer buffer)
                              (message (concat "update note '" title "' has succeed."))))))))
       :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
