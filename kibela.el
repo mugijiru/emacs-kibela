@@ -58,6 +58,15 @@
                 content
                 coediting
                 (groups id name)
+                (folders
+                 :arguments((first . 100))
+                 (edges
+                  (node
+                   id
+                   fullName
+                   (group
+                    id
+                    name))))
                 canBeUpdated)))
   "Note を取得するためのクエリ")
 
@@ -277,13 +286,20 @@
       :headers (kibela-headers)
       :success (cl-function
                 (lambda (&key data &allow-other-keys)
-                  (let* ((json-data (assoc-default 'data data))
+                  (let* ((json-data (assoc-default 'data (graphql-simplify-response-edges data)))
                          (note (assoc-default 'note json-data))
                          (title (assoc-default 'title note))
                          (content (assoc-default 'content note))
                          (coediting (assoc-default 'coediting note))
                          (groups (assoc-default 'groups note))
                          (group-ids (mapcar (lambda (group) (assoc-default 'id group)) groups))
+                         (row-folders (assoc-default 'folders note))
+                         (folders (mapcar (lambda (folder)
+                                            (let* ((folder-name (assoc-default 'fullName folder))
+                                                   (group (assoc-default 'group folder))
+                                                   (group-id (assoc-default 'id group)))
+                                              `((groupId . ,group-id) (folderName . ,folder-name))))
+                                          row-folders))
                          (buffer (get-buffer-create (concat "*Kibela* " id))))
                     (switch-to-buffer buffer)
                     (insert (concat "# " title "\n\n" content))
@@ -292,7 +308,11 @@
                           `(("title" . ,title)
                             ("content" . ,content)
                             ("coediting" . ,coediting)
-                            ("groupIds" . ,group-ids)))))))))
+                            ("groupIds" . ,group-ids)
+                            ("folders" . ,folders))))))
+      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
+                            (pp args)
+                            (message "Got error: %S" error-thrown))))))
 
 ;;;###autoload
 (defun kibela-note-update ()
@@ -305,11 +325,14 @@
          (content (string-join (cddr (split-string buffer-content "\n")) "\n"))
          (coediting (assoc-default "coediting" kibela-note-base))
          (group-ids (assoc-default "groupIds" kibela-note-base))
+         (folders (assoc-default "folders" kibela-note-base))
+
          (data `(("query" . ,query)
                  ("variables" . ((input . (("id" . ,id)
                                            ("newNote" . (("title" . ,title)
                                                          ("content" . ,content)
                                                          ("groupIds" . ,group-ids)
+                                                         ("folders" . ,folders)
                                                          ("coediting" . ,coediting)))
                                            ("baseNote" . ,kibela-note-base)
                                            ("draft" . ,json-false)))))))
