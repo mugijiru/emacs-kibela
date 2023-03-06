@@ -29,6 +29,7 @@
 (require 'graphql)
 (require 'request)
 (require 'json)
+(require 'kibela-markdown-mode)
 
 (defcustom kibela-team nil
   "Kibela team name for login."
@@ -208,7 +209,7 @@
     (kibela-store-default-group)
     (switch-to-buffer buffer)
     (insert (concat "# " title "\n\n"))
-    (gfm-mode)))
+    (kibela-markdown-mode)))
 
 (defun kibela--new-note-from-template (template)
   "記事を作成するバッファを用意する"
@@ -219,7 +220,7 @@
          (buffer (get-buffer-create "*Kibela* newnote")))
     (switch-to-buffer buffer)
     (insert (concat "# " title "\n\n" content))
-    (gfm-mode)
+    (kibela-markdown-mode)
     (setq kibela-note-template template)))
 
 (defun kibela-note-create ()
@@ -303,7 +304,7 @@
                          (buffer (get-buffer-create (concat "*Kibela* " id))))
                     (switch-to-buffer buffer)
                     (insert (concat "# " title "\n\n" content))
-                    (gfm-mode)
+                    (kibela-markdown-mode)
                     (setq kibela-note-base
                           `(("title" . ,title)
                             ("content" . ,content)
