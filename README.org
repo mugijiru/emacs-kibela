@@ -16,7 +16,7 @@
     M-x kibela-note-new
     #+end_example
 
-    で新しい記事を書くための gfm-mode のバッファが用意されます。
+    で新しい記事を書くための kibela-markdown-mode のバッファが用意されます。
     バッファを開く前に記事の title を聞かれます。
 
     また
@@ -30,7 +30,7 @@
     記事を書いた後は
 
     #+begin_example
-    M-x kibela-note-create
+    C-c p
     #+end_example
 
     で Kibela に投稿できます。
@@ -41,12 +41,12 @@
     (kibela-note-show ID)
     #+end_example
 
-    で記事を取得し gfm-mode で表示します。
+    で記事を取得し kibela-markdown-mode で表示します。
 
     表示されたバッファは編集可能なので、編集後に
 
     #+begin_example
-    M-x kibela-note-update
+    C-c p
     #+end_example
 
     を実行することで記事を更新できます。
