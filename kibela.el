@@ -131,6 +131,20 @@
     ("Accept" . "application/json")
     ("Authorization" . ,(concat "Bearer " kibela-access-token))))
 
+(defun kibela--request (query variables success)
+  (let ((request-data (json-encode `((query . ,query) (variables . ,variables)))))
+    (request
+      (kibela-endpoint)
+      :type "POST"
+      :data request-data
+      :parser 'json-read
+      :encoding 'utf-8
+      :headers (kibela-headers)
+      :success success
+      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
+                            (pp args)
+                            (message "Got error: %S" error-thrown))))))
+
 (defun kibela-store-default-group ()
   "デフォルトの投稿先グループを取得する"
   (cond (kibela-default-group
@@ -181,25 +195,16 @@
 (defun kibela-note-new-from-template ()
   "記事テンプレートから選択したら新規作成用のバッファを表示するコマンド"
   (interactive)
-  (let* ((query kibela-graphql-query-note-templates)
-         (request-data (json-encode `((query . ,query)))))
-    (request
-      (kibela-endpoint)
-      :type "POST"
-      :data request-data
-      :parser 'json-read
-      :encoding 'utf-8
-      :headers (kibela-headers)
-      :success (cl-function
-                (lambda (&key data &allow-other-keys)
-                  (let* ((response-data (assq 'data (graphql-simplify-response-edges data)))
-                         (note-templates (assoc-default 'noteTemplates response-data))
-                         (collection (kibela-build-collection-from-note-templates note-templates))
-                         (selected (completing-read "Note templates: " collection)))
-                    (kibela-select-note-template-action selected))))
-      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
-                            (pp args)
-                            (message "Got error: %S" error-thrown))))))
+  (let ((query kibela-graphql-query-note-templates))
+    (kibela--request query
+                     nil
+                     (cl-function
+                      (lambda (&key data &allow-other-keys)
+                        (let* ((response-data (assq 'data (graphql-simplify-response-edges data)))
+                               (note-templates (assoc-default 'noteTemplates response-data))
+                               (collection (kibela-build-collection-from-note-templates note-templates))
+                               (selected (completing-read "Note templates: " collection)))
+                          (kibela-select-note-template-action selected)))))))
 
 ;;;###autoload
 (defun kibela-note-new (title)
