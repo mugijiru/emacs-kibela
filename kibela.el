@@ -131,28 +131,33 @@
     ("Accept" . "application/json")
     ("Authorization" . ,(concat "Bearer " kibela-access-token))))
 
+(defun kibela--request (query variables success)
+  (let ((data (json-encode `((query . ,query) (variables . ,variables)))))
+    (request
+      (kibela-endpoint)
+      :type "POST"
+      :data data
+      :parser 'json-read
+      :encoding 'utf-8
+      :headers (kibela-headers)
+      :success success
+      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
+                            (pp args)
+                            (message "Got error: %S" error-thrown))))))
+
 (defun kibela-store-default-group ()
   "デフォルトの投稿先グループを取得する"
   (cond (kibela-default-group
          nil)
         (t
-         (let* ((query kibela-graphql-query-default-group)
-                (data (json-encode `((query . ,query)))))
-           (request
-             (kibela-endpoint)
-             :type "POST"
-             :data data
-             :parser 'json-read
-             :encoding 'utf-8
-             :headers (kibela-headers)
-             :success (cl-function
-                       (lambda (&key data &allow-other-keys)
-                         (let* ((response-data (assoc-default 'data data))
-                                (group (assoc-default 'defaultGroup response-data)))
-                           (setq kibela-default-group group))))
-             :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
-                                   (pp args)
-                                   (message "Got error: %S" error-thrown))))))))
+         (let* ((query kibela-graphql-query-default-group))
+           (kibela--request query
+                            nil
+                            (cl-function
+                             (lambda (&key data &allow-other-keys)
+                               (let* ((response-data (assoc-default 'data data))
+                                      (group (assoc-default 'defaultGroup response-data)))
+                                 (setq kibela-default-group group)))))))))
 
 (defun kibela-build-collection-from-note-templates (note-templates)
   (mapcar (lambda (note-template)
@@ -181,25 +186,16 @@
 (defun kibela-note-new-from-template ()
   "記事テンプレートから選択したら新規作成用のバッファを表示するコマンド"
   (interactive)
-  (let* ((query kibela-graphql-query-note-templates)
-         (request-data (json-encode `((query . ,query)))))
-    (request
-      (kibela-endpoint)
-      :type "POST"
-      :data request-data
-      :parser 'json-read
-      :encoding 'utf-8
-      :headers (kibela-headers)
-      :success (cl-function
-                (lambda (&key data &allow-other-keys)
-                  (let* ((response-data (assq 'data (graphql-simplify-response-edges data)))
-                         (note-templates (assoc-default 'noteTemplates response-data))
-                         (collection (kibela-build-collection-from-note-templates note-templates))
-                         (selected (completing-read "Note templates: " collection)))
-                    (kibela-select-note-template-action selected))))
-      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
-                            (pp args)
-                            (message "Got error: %S" error-thrown))))))
+  (let ((query kibela-graphql-query-note-templates))
+    (kibela--request query
+                     nil
+                     (cl-function
+                      (lambda (&key data &allow-other-keys)
+                        (let* ((response-data (assq 'data (graphql-simplify-response-edges data)))
+                               (note-templates (assoc-default 'noteTemplates response-data))
+                               (collection (kibela-build-collection-from-note-templates note-templates))
+                               (selected (completing-read "Note templates: " collection)))
+                          (kibela-select-note-template-action selected)))))))
 
 ;;;###autoload
 (defun kibela-note-new (title)
@@ -237,22 +233,15 @@
                       `(,(assoc-default 'id kibela-default-group))))
          (folders (if kibela-note-template
                       (plist-get kibela-note-template :folders)))
-         (data `(("query" . ,query)
-                 ("variables" . ((input . (("title" . ,title)
-                                           ("content" . ,content)
-                                           ("groupIds" . ,group-ids)
-                                           ("folders" . ,folders)
-                                           ("coediting" . ,coediting)
-                                           ("draft" . ,draft)))))))
-         (encoded-data (json-encode data)))
-    (request
-      (kibela-endpoint)
-      :type "POST"
-      :data encoded-data
-      :parser 'json-read
-      :encoding 'utf-8
-      :headers (kibela-headers)
-      :success (cl-function
+         (variables `((input . ((title . ,title)
+                                (content . ,content)
+                                (groupIds . ,group-ids)
+                                (folders . ,folders)
+                                (coediting . ,coediting)
+                                (draft . ,draft))))))
+    (kibela--request query
+                     variables
+                     (cl-function
                 (lambda (&key data &allow-other-keys)
                   (let* ((errors (assoc-default 'errors data)))
                     (cond (errors
@@ -269,51 +258,41 @@
                                   (buffer (get-buffer-create "*Kibela* newnote")))
                              (kill-buffer buffer)
                              (setq kibela-note-template nil)
-                             (message (concat "create note '" title "' has succeed."))))))))
-      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
-                            (pp args)
-                            (message "Got error: %S" error-thrown))))))
+                             (message (concat "create note '" title "' has succeed.")))))))))))
 
 ;;;###autoload
 (defun kibela-note-show (id)
   "記事表示"
-  (let ((query kibela-graphql-query-note))
-    (request
-      (kibela-endpoint)
-      :type "POST"
-      :data (json-encode `(("query" . ,query) ("variables" . ,(list (cons "id" id)))))
-      :parser 'json-read
-      :encoding 'utf-8
-      :headers (kibela-headers)
-      :success (cl-function
-                (lambda (&key data &allow-other-keys)
-                  (let* ((json-data (assoc-default 'data (graphql-simplify-response-edges data)))
-                         (note (assoc-default 'note json-data))
-                         (title (assoc-default 'title note))
-                         (content (assoc-default 'content note))
-                         (coediting (assoc-default 'coediting note))
-                         (groups (assoc-default 'groups note))
-                         (group-ids (mapcar (lambda (group) (assoc-default 'id group)) groups))
-                         (row-folders (assoc-default 'folders note))
-                         (folders (mapcar (lambda (folder)
-                                            (let* ((folder-name (assoc-default 'fullName folder))
-                                                   (group (assoc-default 'group folder))
-                                                   (group-id (assoc-default 'id group)))
-                                              `((groupId . ,group-id) (folderName . ,folder-name))))
-                                          row-folders))
-                         (buffer (get-buffer-create (concat "*Kibela* " id))))
-                    (switch-to-buffer buffer)
-                    (insert (concat "# " title "\n\n" content))
-                    (kibela-markdown-mode)
-                    (setq kibela-note-base
-                          `(("title" . ,title)
-                            ("content" . ,content)
-                            ("coediting" . ,coediting)
-                            ("groupIds" . ,group-ids)
-                            ("folders" . ,folders))))))
-      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
-                            (pp args)
-                            (message "Got error: %S" error-thrown))))))
+  (let ((query kibela-graphql-query-note)
+        (variables `((id . ,id))))
+    (kibela--request query
+                     variables
+                     (cl-function
+                      (lambda (&key data &allow-other-keys)
+                        (let* ((json-data (assoc-default 'data (graphql-simplify-response-edges data)))
+                               (note (assoc-default 'note json-data))
+                               (title (assoc-default 'title note))
+                               (content (assoc-default 'content note))
+                               (coediting (assoc-default 'coediting note))
+                               (groups (assoc-default 'groups note))
+                               (group-ids (mapcar (lambda (group) (assoc-default 'id group)) groups))
+                               (row-folders (assoc-default 'folders note))
+                               (folders (mapcar (lambda (folder)
+                                                  (let* ((folder-name (assoc-default 'fullName folder))
+                                                         (group (assoc-default 'group folder))
+                                                         (group-id (assoc-default 'id group)))
+                                                    `((groupId . ,group-id) (folderName . ,folder-name))))
+                                                row-folders))
+                               (buffer (get-buffer-create (concat "*Kibela* " id))))
+                          (switch-to-buffer buffer)
+                          (insert (concat "# " title "\n\n" content))
+                          (kibela-markdown-mode)
+                          (setq kibela-note-base
+                                `(("title" . ,title)
+                                  ("content" . ,content)
+                                  ("coediting" . ,coediting)
+                                  ("groupIds" . ,group-ids)
+                                  ("folders" . ,folders)))))))))
 
 ;;;###autoload
 (defun kibela-note-update ()
@@ -327,45 +306,34 @@
          (coediting (assoc-default "coediting" kibela-note-base))
          (group-ids (assoc-default "groupIds" kibela-note-base))
          (folders (assoc-default "folders" kibela-note-base))
-
-         (data `(("query" . ,query)
-                 ("variables" . ((input . (("id" . ,id)
-                                           ("newNote" . (("title" . ,title)
-                                                         ("content" . ,content)
-                                                         ("groupIds" . ,group-ids)
-                                                         ("folders" . ,folders)
-                                                         ("coediting" . ,coediting)))
-                                           ("baseNote" . ,kibela-note-base)
-                                           ("draft" . ,json-false)))))))
-         (encoded-data (json-encode data)))
-    (request
-      (kibela-endpoint)
-      :type "POST"
-      :data encoded-data
-      :parser 'json-read
-      :encoding 'utf-8
-      :headers (kibela-headers)
-      :success (cl-function
-                (lambda (&key data &allow-other-keys)
-                  (let* ((errors (assoc-default 'errors data)))
-                    (cond (errors
-                           (let* ((message (mapconcat (lambda (error)
-                                                        (assoc-default 'message error))
-                                                      errors
-                                                      "\n")))
-                             (message (concat "Error: " message))))
-                          (t
-                           (let* ((json-data (assoc-default 'data data))
-                                  (update-note (assoc-default 'updateNote json-data))
-                                  (note (assoc-default 'note update-note))
-                                  (title (assoc-default 'title note))
-                                  (buffer (get-buffer-create (concat "*Kibela* " id))))
-                             (setq kibela-note-base nil)
-                             (kill-buffer buffer)
-                             (message (concat "update note '" title "' has succeed."))))))))
-      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
-                            (pp args)
-                            (message "Got error: %S" error-thrown))))))
+         (variables `((input . (("id" . ,id)
+                                ("newNote" . (("title" . ,title)
+                                              ("content" . ,content)
+                                              ("groupIds" . ,group-ids)
+                                              ("folders" . ,folders)
+                                              ("coediting" . ,coediting)))
+                                ("baseNote" . ,kibela-note-base)
+                                ("draft" . ,json-false))))))
+    (kibela--request query
+                     variables
+                     (cl-function
+                      (lambda (&key data &allow-other-keys)
+                        (let* ((errors (assoc-default 'errors data)))
+                          (cond (errors
+                                 (let* ((message (mapconcat (lambda (error)
+                                                              (assoc-default 'message error))
+                                                            errors
+                                                            "\n")))
+                                   (message (concat "Error: " message))))
+                                (t
+                                 (let* ((json-data (assoc-default 'data data))
+                                        (update-note (assoc-default 'updateNote json-data))
+                                        (note (assoc-default 'note update-note))
+                                        (title (assoc-default 'title note))
+                                        (buffer (get-buffer-create (concat "*Kibela* " id))))
+                                   (setq kibela-note-base nil)
+                                   (kill-buffer buffer)
+                                   (message (concat "update note '" title "' has succeed.")))))))))))
 
 (provide 'kibela)
 ;;; kibela.el ends here
