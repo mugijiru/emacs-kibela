@@ -306,45 +306,34 @@
          (coediting (assoc-default "coediting" kibela-note-base))
          (group-ids (assoc-default "groupIds" kibela-note-base))
          (folders (assoc-default "folders" kibela-note-base))
-
-         (data `(("query" . ,query)
-                 ("variables" . ((input . (("id" . ,id)
-                                           ("newNote" . (("title" . ,title)
-                                                         ("content" . ,content)
-                                                         ("groupIds" . ,group-ids)
-                                                         ("folders" . ,folders)
-                                                         ("coediting" . ,coediting)))
-                                           ("baseNote" . ,kibela-note-base)
-                                           ("draft" . ,json-false)))))))
-         (encoded-data (json-encode data)))
-    (request
-      (kibela-endpoint)
-      :type "POST"
-      :data encoded-data
-      :parser 'json-read
-      :encoding 'utf-8
-      :headers (kibela-headers)
-      :success (cl-function
-                (lambda (&key data &allow-other-keys)
-                  (let* ((errors (assoc-default 'errors data)))
-                    (cond (errors
-                           (let* ((message (mapconcat (lambda (error)
-                                                        (assoc-default 'message error))
-                                                      errors
-                                                      "\n")))
-                             (message (concat "Error: " message))))
-                          (t
-                           (let* ((json-data (assoc-default 'data data))
-                                  (update-note (assoc-default 'updateNote json-data))
-                                  (note (assoc-default 'note update-note))
-                                  (title (assoc-default 'title note))
-                                  (buffer (get-buffer-create (concat "*Kibela* " id))))
-                             (setq kibela-note-base nil)
-                             (kill-buffer buffer)
-                             (message (concat "update note '" title "' has succeed."))))))))
-      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
-                            (pp args)
-                            (message "Got error: %S" error-thrown))))))
+         (variables `((input . (("id" . ,id)
+                                ("newNote" . (("title" . ,title)
+                                              ("content" . ,content)
+                                              ("groupIds" . ,group-ids)
+                                              ("folders" . ,folders)
+                                              ("coediting" . ,coediting)))
+                                ("baseNote" . ,kibela-note-base)
+                                ("draft" . ,json-false))))))
+    (kibela--request query
+                     variables
+                     (cl-function
+                      (lambda (&key data &allow-other-keys)
+                        (let* ((errors (assoc-default 'errors data)))
+                          (cond (errors
+                                 (let* ((message (mapconcat (lambda (error)
+                                                              (assoc-default 'message error))
+                                                            errors
+                                                            "\n")))
+                                   (message (concat "Error: " message))))
+                                (t
+                                 (let* ((json-data (assoc-default 'data data))
+                                        (update-note (assoc-default 'updateNote json-data))
+                                        (note (assoc-default 'note update-note))
+                                        (title (assoc-default 'title note))
+                                        (buffer (get-buffer-create (concat "*Kibela* " id))))
+                                   (setq kibela-note-base nil)
+                                   (kill-buffer buffer)
+                                   (message (concat "update note '" title "' has succeed.")))))))))))
 
 (provide 'kibela)
 ;;; kibela.el ends here
