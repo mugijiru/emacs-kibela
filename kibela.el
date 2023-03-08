@@ -132,11 +132,11 @@
     ("Authorization" . ,(concat "Bearer " kibela-access-token))))
 
 (defun kibela--request (query variables success)
-  (let ((request-data (json-encode `((query . ,query) (variables . ,variables)))))
+  (let ((data (json-encode `((query . ,query) (variables . ,variables)))))
     (request
       (kibela-endpoint)
       :type "POST"
-      :data request-data
+      :data data
       :parser 'json-read
       :encoding 'utf-8
       :headers (kibela-headers)
