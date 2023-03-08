@@ -150,23 +150,14 @@
   (cond (kibela-default-group
          nil)
         (t
-         (let* ((query kibela-graphql-query-default-group)
-                (data (json-encode `((query . ,query)))))
-           (request
-             (kibela-endpoint)
-             :type "POST"
-             :data data
-             :parser 'json-read
-             :encoding 'utf-8
-             :headers (kibela-headers)
-             :success (cl-function
-                       (lambda (&key data &allow-other-keys)
-                         (let* ((response-data (assoc-default 'data data))
-                                (group (assoc-default 'defaultGroup response-data)))
-                           (setq kibela-default-group group))))
-             :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
-                                   (pp args)
-                                   (message "Got error: %S" error-thrown))))))))
+         (let* ((query kibela-graphql-query-default-group))
+           (kibela--request query
+                            nil
+                            (cl-function
+                             (lambda (&key data &allow-other-keys)
+                               (let* ((response-data (assoc-default 'data data))
+                                      (group (assoc-default 'defaultGroup response-data)))
+                                 (setq kibela-default-group group)))))))))
 
 (defun kibela-build-collection-from-note-templates (note-templates)
   (mapcar (lambda (note-template)
