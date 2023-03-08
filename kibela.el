@@ -283,7 +283,7 @@
 (defun kibela-note-show (id)
   "記事表示"
   (let ((query kibela-graphql-query-note)
-        (variables (list (cons "id" id))))
+        (variables `((id . ,id))))
     (kibela--request query
                      variables
                      (cl-function
