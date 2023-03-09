@@ -207,7 +207,10 @@
     (kibela-store-default-group)
     (switch-to-buffer buffer)
     (insert (concat "# " title "\n\n"))
-    (kibela-markdown-mode)))
+    (kibela-markdown-mode)
+    (setq header-line-format
+          (kibela--build-header-line `(,kibela-default-group)))))
+
 (cl-defun kibela--build-header-line (groups &optional (folders '()))
   "グループ/フォルダ情報から header-line 用の文字列を構築する。
 edit と new from template で利用している"
