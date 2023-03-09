@@ -145,19 +145,21 @@
                             (pp args)
                             (message "Got error: %S" error-thrown))))))
 
+(cl-defun kibela--store-default-group-success (&key data &allow-other-keys)
+  (let* ((response-data (assoc-default 'data data))
+         (group (assoc-default 'defaultGroup response-data)))
+    (setq kibela-default-group group)))
+
 (defun kibela-store-default-group ()
   "デフォルトの投稿先グループを取得する"
-  (cond (kibela-default-group
-         nil)
-        (t
-         (let* ((query kibela-graphql-query-default-group))
-           (kibela--request query
-                            nil
-                            (cl-function
-                             (lambda (&key data &allow-other-keys)
-                               (let* ((response-data (assoc-default 'data data))
-                                      (group (assoc-default 'defaultGroup response-data)))
-                                 (setq kibela-default-group group)))))))))
+  (cond
+   (kibela-default-group
+    nil)
+   (t
+    (let* ((query kibela-graphql-query-default-group))
+      (kibela--request query
+                       nil
+                       #'kibela--store-default-group-success)))))
 
 (defun kibela-build-collection-from-note-templates (note-templates)
   (mapcar (lambda (note-template)
