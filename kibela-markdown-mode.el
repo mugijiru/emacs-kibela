@@ -30,6 +30,7 @@
 (require 'markdown-mode)
 
 (defun kibela-markdown-post ()
+  "Kibela に投稿する処理."
   (interactive)
   (if kibela-note-base
       (kibela-note-update)
@@ -48,4 +49,4 @@ See also `markdown-mode-map'.")
   (use-local-map kibela-markdown-mode-map))
 
 (provide 'kibela-markdown-mode)
-;;; kibela-markdown.el ends here
+;;; kibela-markdown-mode.el ends here

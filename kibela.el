@@ -42,13 +42,15 @@
   :type 'string)
 
 (defvar-local kibela-note-base nil
-  "記事取得時の状態を保持する。記事更新時に利用する")
+  "記事取得時の状態を保持する.
+記事更新時に利用する.")
 
 (defvar-local kibela-note-template nil
-  "使用する記事テンプレートを保持する。テンプレートから記事を作成する時に利用する")
+  "使用する記事テンプレートを保持する.
+テンプレートから記事を作成する時に利用する.")
 
 (defvar kibela-default-group nil
-  "デフォルトの投稿先グループを保存する変数")
+  "デフォルトの投稿先グループを保存する変数.")
 
 (defconst kibela-graphql-query-note
   (graphql-query
@@ -69,14 +71,14 @@
                     id
                     name))))
                 canBeUpdated)))
-  "Note を取得するためのクエリ")
+  "Note を取得するためのクエリ.")
 
 (defconst kibela-graphql-query-default-group
   (graphql-query
    ((defaultGroup
      id
      name)))
-  "デフォルトの投稿先グループを取得するためのクエリ")
+  "デフォルトの投稿先グループを取得するためのクエリ.")
 
 (defconst kibela-graphql-query-note-templates
   (graphql-query
@@ -99,7 +101,7 @@
         (group
          id
          name)))))))
-  "記事テンプレート一覧を取得するクエリ")
+  "記事テンプレート一覧を取得するクエリ.")
 
 (defconst kibela-graphql-mutation-create-note
   (graphql-mutation
@@ -109,7 +111,7 @@
      (note
       title
       content))))
-  "Note を作成するためのクエリ")
+  "Note を作成するためのクエリ.")
 
 (defconst kibela-graphql-mutation-update-note
   (graphql-mutation
@@ -119,10 +121,10 @@
      (note
       title
       content))))
-  "Note を更新するためのクエリ")
+  "Note を更新するためのクエリ.")
 
 (defun kibela-endpoint ()
-  "API endpoint"
+  "API endpoint."
   (concat "https://" kibela-team ".kibe.la/api/v1"))
 
 (defun kibela-headers ()
@@ -132,6 +134,11 @@
     ("Authorization" . ,(concat "Bearer " kibela-access-token))))
 
 (defun kibela--request (query variables success)
+  "Kibela へのリクエストを飛ばすための関数.
+
+QUERY は GraphQL のクエリで
+VARIABLES は GraphQL の Variables.
+SUCCESS はリクエストが成功した時の処理."
   (let ((data (json-encode `((query . ,query) (variables . ,variables)))))
     (request
       (kibela-endpoint)
@@ -146,12 +153,15 @@
                             (message "Got error: %S" error-thrown))))))
 
 (cl-defun kibela--store-default-group-success (&key data &allow-other-keys)
+  "デフォルトグループ取得リクエスト成功後のデータ格納処理.
+
+DATA はリクエスト成功時の JSON."
   (let* ((response-data (assoc-default 'data data))
          (group (assoc-default 'defaultGroup response-data)))
     (setq kibela-default-group group)))
 
 (defun kibela-store-default-group ()
-  "デフォルトの投稿先グループを取得する"
+  "デフォルトの投稿先グループを取得する."
   (cond
    (kibela-default-group
     nil)
@@ -162,6 +172,9 @@
                        #'kibela--store-default-group-success)))))
 
 (defun kibela-build-collection-from-note-templates (note-templates)
+  "記事テンプレート一覧から collection を生成する関数.
+
+NOTE-TEMPLATES は Kibela に登録されている記事テンプレートの配列."
   (mapcar (lambda (note-template)
             (let* ((name (assoc-default 'name note-template))
                    (title (assoc-default 'evaluatedTitle note-template))
@@ -180,13 +193,16 @@
           note-templates))
 
 (defun kibela-select-note-template-action (selected)
+  "記事テンプレート選択時の処理.
+
+SELECTED は選択した記事テンプレート."
   (let ((template (get-text-property 0 'template selected)))
     (if template
         (kibela--new-note-from-template template))))
 
 ;;;###autoload
 (defun kibela-note-new-from-template ()
-  "記事テンプレートから選択したら新規作成用のバッファを表示するコマンド"
+  "記事テンプレートから選択したら新規作成用のバッファを表示するコマンド."
   (interactive)
   (let ((query kibela-graphql-query-note-templates))
     (kibela--request query
@@ -201,7 +217,9 @@
 
 ;;;###autoload
 (defun kibela-note-new (title)
-  "記事を作成するバッファを用意する"
+  "記事を作成するバッファを用意する.
+
+TITLE は新しく作成する記事のタイトル."
   (interactive "stitle: ")
   (let ((buffer (get-buffer-create "*Kibela* newnote")))
     (kibela-store-default-group)
@@ -212,8 +230,12 @@
           (kibela--build-header-line `(,kibela-default-group)))))
 
 (cl-defun kibela--build-header-line (groups &optional (folders '()))
-  "グループ/フォルダ情報から header-line 用の文字列を構築する。
-edit と new from template で利用している"
+  "グループ/フォルダ情報から header-line 用の文字列を構築する.
+edit と new from template で利用している.
+
+GROUPS はその記事が所属しているグループの一覧.
+FOLDERS はその記事が収められているフォルダの一覧.
+これら二つの値から header line を構築する."
   (let* ((groups-without-folder (seq-remove (lambda (group)
                                               (seq-find (lambda (folder)
                                                           (let* ((folder-group (assoc-default 'group folder))
@@ -237,7 +259,9 @@ edit と new from template で利用している"
     (string-join names " | ")))
 
 (defun kibela--new-note-from-template (template)
-  "記事を作成するバッファを用意する"
+  "記事を作成するバッファを用意する.
+
+TEMPLATE は記事作成時に利用するテンプレート."
   (let* ((title (plist-get template :title))
          (content (plist-get template :content))
          (groups (plist-get template :groups))
@@ -252,7 +276,7 @@ edit と new from template で利用している"
     (setq kibela-note-template template)))
 
 (defun kibela-note-create ()
-  "記事作成"
+  "記事作成."
   (interactive)
   (let* ((query kibela-graphql-mutation-create-note)
          (buffer-content (substring-no-properties (buffer-string)))
@@ -296,7 +320,11 @@ edit と new from template で利用している"
 
 ;;;###autoload
 (defun kibela-note-show (id)
-  "記事表示"
+  "記事表示.
+
+ID は記事の id.
+GraphQL で扱う ID は数字ではなく何らかの変換をされた文字列のようなので
+URL などからではなく GraphQL で取得すること."
   (let ((query kibela-graphql-query-note)
         (variables `((id . ,id))))
     (kibela--request query
@@ -337,7 +365,7 @@ edit と new from template で利用している"
 
 ;;;###autoload
 (defun kibela-note-update ()
-  "記事更新"
+  "記事更新."
   (interactive)
   (let* ((query kibela-graphql-mutation-update-note)
          (id (second (split-string (buffer-name))))
