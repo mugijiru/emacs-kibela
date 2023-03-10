@@ -76,8 +76,8 @@
 (defconst kibela-graphql-query-default-group
   (graphql-query
    ((defaultGroup
-     id
-     name)))
+      id
+      name)))
   "デフォルトの投稿先グループを取得するためのクエリ.")
 
 (defconst kibela-graphql-query-note-templates
@@ -106,21 +106,21 @@
 (defconst kibela-graphql-mutation-create-note
   (graphql-mutation
    (:arguments (($input . CreateNoteInput!))
-    (createNote
-     :arguments ((input . ($ input)))
-     (note
-      title
-      content))))
+               (createNote
+                :arguments ((input . ($ input)))
+                (note
+                 title
+                 content))))
   "Note を作成するためのクエリ.")
 
 (defconst kibela-graphql-mutation-update-note
   (graphql-mutation
    (:arguments (($input . UpdateNoteInput!))
-    (updateNote
-     :arguments ((input . ($ input)))
-     (note
-      title
-      content))))
+               (updateNote
+                :arguments ((input . ($ input)))
+                (note
+                 title
+                 content))))
   "Note を更新するためのクエリ.")
 
 (defun kibela-endpoint ()
@@ -300,23 +300,23 @@ TEMPLATE は記事作成時に利用するテンプレート."
     (kibela--request query
                      variables
                      (cl-function
-                (lambda (&key data &allow-other-keys)
-                  (let* ((errors (assoc-default 'errors data)))
-                    (cond (errors
-                           (let* ((message (mapconcat (lambda (error)
-                                                        (assoc-default 'message error))
-                                                      errors
-                                                      "\n")))
-                             (message (concat "Error: " message))))
-                          (t
-                           (let* ((json-data (assoc-default 'data data))
-                                  (create-note (assoc-default 'createNote json-data))
-                                  (note (assoc-default 'note create-note))
-                                  (title (assoc-default 'title note))
-                                  (buffer (get-buffer-create "*Kibela* newnote")))
-                             (kill-buffer buffer)
-                             (setq kibela-note-template nil)
-                             (message (concat "create note '" title "' has succeed.")))))))))))
+                      (lambda (&key data &allow-other-keys)
+                        (let* ((errors (assoc-default 'errors data)))
+                          (cond (errors
+                                 (let* ((message (mapconcat (lambda (error)
+                                                              (assoc-default 'message error))
+                                                            errors
+                                                            "\n")))
+                                   (message (concat "Error: " message))))
+                                (t
+                                 (let* ((json-data (assoc-default 'data data))
+                                        (create-note (assoc-default 'createNote json-data))
+                                        (note (assoc-default 'note create-note))
+                                        (title (assoc-default 'title note))
+                                        (buffer (get-buffer-create "*Kibela* newnote")))
+                                   (kill-buffer buffer)
+                                   (setq kibela-note-template nil)
+                                   (message (concat "create note '" title "' has succeed.")))))))))))
 
 ;;;###autoload
 (defun kibela-note-show (id)
