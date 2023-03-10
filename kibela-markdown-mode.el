@@ -6,8 +6,7 @@
 ;; Maintainer: mugijiru <106833+mugijiru@users.noreply.github.com>
 ;; URL: https://github.com/mugijiru/emacs-kibela
 ;; Version: 0.1.0
-;; Package-Requires: ((kibela "0.1.0") (markdown-mode "2.5"))
-;; Keywords: tools
+;; Keywords: kibela, markdown, tools
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,6 +30,7 @@
 (require 'markdown-mode)
 
 (defun kibela-markdown-post ()
+  "Kibela に投稿する処理."
   (interactive)
   (if kibela-note-base
       (kibela-note-update)
@@ -49,4 +49,4 @@ See also `markdown-mode-map'.")
   (use-local-map kibela-markdown-mode-map))
 
 (provide 'kibela-markdown-mode)
-;;; kibela-markdown.el ends here
+;;; kibela-markdown-mode.el ends here
