@@ -173,9 +173,9 @@
                                       (let* ((folder-name (assoc-default 'evaluatedFullName folder))
                                              (group (assoc-default 'group folder))
                                              (group-id (assoc-default 'id group)))
-                                        `((groupId . ,group-id) (folderName . ,folder-name))))
+                                        `((groupId . ,group-id) (group . ,group) (folderName . ,folder-name))))
                                     row-folders))
-                   (template `(:title ,title :content ,content :group-ids ,group-ids :folders ,folders)))
+                   (template `(:title ,title :content ,content :group-ids ,group-ids :groups ,groups :folders ,folders)))
               (propertize name 'template template)))
           note-templates))
 
@@ -240,12 +240,15 @@ edit と new from template で利用している"
   "記事を作成するバッファを用意する"
   (let* ((title (plist-get template :title))
          (content (plist-get template :content))
+         (groups (plist-get template :groups))
          (group-ids (plist-get template :group-ids))
          (folders (plist-get template :folders))
          (buffer (get-buffer-create "*Kibela* newnote")))
     (switch-to-buffer buffer)
     (insert (concat "# " title "\n\n" content))
     (kibela-markdown-mode)
+    (setq header-line-format
+          (kibela--build-header-line groups folders))
     (setq kibela-note-template template)))
 
 (defun kibela-note-create ()
@@ -265,7 +268,9 @@ edit と new from template で利用している"
          (variables `((input . ((title . ,title)
                                 (content . ,content)
                                 (groupIds . ,group-ids)
-                                (folders . ,folders)
+                                (folders . ,(mapcar (lambda (folder)
+                                                      (assq-delete-all 'group folder))
+                                                    folders))
                                 (coediting . ,coediting)
                                 (draft . ,draft))))))
     (kibela--request query
