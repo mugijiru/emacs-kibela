@@ -315,18 +315,25 @@ edit と new from template で利用している"
                                                   (let* ((folder-name (assoc-default 'fullName folder))
                                                          (group (assoc-default 'group folder))
                                                          (group-id (assoc-default 'id group)))
-                                                    `((groupId . ,group-id) (folderName . ,folder-name))))
+                                                    `((groupId . ,group-id)
+                                                      (group . ,group)
+                                                      (folderName . ,folder-name))))
                                                 row-folders))
+                               (folders-for-base (mapcar (lambda (folder)
+                                                           (assq-delete-all 'group folder))
+                                                         (copy-alist folders)))
                                (buffer (get-buffer-create (concat "*Kibela* " id))))
                           (switch-to-buffer buffer)
                           (insert (concat "# " title "\n\n" content))
                           (kibela-markdown-mode)
+                          (setq header-line-format
+                                (kibela--build-header-line groups folders))
                           (setq kibela-note-base
                                 `(("title" . ,title)
                                   ("content" . ,content)
                                   ("coediting" . ,coediting)
                                   ("groupIds" . ,group-ids)
-                                  ("folders" . ,folders)))))))))
+                                  ("folders" . ,folders-for-base)))))))))
 
 ;;;###autoload
 (defun kibela-note-update ()
