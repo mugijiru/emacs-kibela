@@ -1,9 +1,9 @@
 (package "kibela"
          "0.1.0"
-         "kibela client for emacs")
+         "Kibela client")
 
 (website-url "https://github.com/mugijiru/emacs-kibela")
-(keywords "kibela")
+(keywords "kibela" "tools")
 
 (package-file "kibela.el")
 

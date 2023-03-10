@@ -1,4 +1,4 @@
-;;; kibela.el --- kibela client for emacs                   -*- lexical-binding: t; -*-
+;;; kibela.el --- Kibela client -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2023  Mugijiru
 
@@ -7,7 +7,7 @@
 ;; URL: https://github.com/mugijiru/emacs-kibela
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "26.1") (graphql "0.1.1") (request "0.3.3") (markdown-mode "2.5"))
-;; Keywords: kibela
+;; Keywords: kibela, tools
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
