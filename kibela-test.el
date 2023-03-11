@@ -43,3 +43,15 @@
          (expect "g3 | g1 > f1 > f1-1 | g2 > f2 > f2-1")
          (actual (kibela--build-header-line groups folders)))
     (should (string-equal expect actual))))
+
+(ert-deftest test-kibela-note-new/when-saved-default-group ()
+  (let ((kibela-default-group '((id . "TestId") (name . "Saved Test group")))
+        (note-title "Test note"))
+    (noflet ((kibela--request (query variables success)
+                              (error "Unexpected request call")))
+      (with-temp-buffer
+        (kibela-note-new note-title)
+        (should (string-equal (buffer-name) "*Kibela* newnote"))
+        (should (string-equal header-line-format "Saved Test group"))
+        (should (string-equal (buffer-substring-no-properties (point-min) (point-max)) "# Test note\n\n"))
+        (kill-buffer)))))
