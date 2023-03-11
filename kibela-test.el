@@ -19,8 +19,7 @@
 (ert-deftest test-kibela-store-default-group/success ()
   (let ((kibela-default-group nil)
         (response '((data (defaultGroup (id . "TestId") (name . "Test group"))))))
-    (kibela-test--use-response-stub
-      response
+    (kibela-test--use-response-stub response
       (kibela-store-default-group)
       (should (equal (symbol-value 'kibela-default-group)
                      '((id . "TestId") (name . "Test group")))))))
@@ -55,8 +54,7 @@
 (ert-deftest test-kibela-note-new/when-saved-default-group ()
   (let ((kibela-default-group '((id . "TestId") (name . "Saved Test group")))
         (note-title "Test note"))
-    (noflet ((kibela--request (query variables success)
-                              (error "Unexpected request call")))
+    (kibela-test--use-response-stub nil
       (with-temp-buffer
         (kibela-note-new note-title)
         (should (string-equal (buffer-name) "*Kibela* newnote"))
@@ -67,9 +65,10 @@
 (ert-deftest test-kibela-note-new/fetch-default-group ()
   (let* ((kibela-default-group nil)
          (group '((id . "TestId") (name . "Fetched Test group")))
+         (default-group (append '(defaultGroup) group))
+         (response `((data ,default-group)))
          (note-title "Test note"))
-    (noflet ((kibela--request (query variables success)
-                              (setq kibela-default-group group)))
+    (kibela-test--use-response-stub response
       (with-temp-buffer
         (kibela-note-new note-title)
         (should (string-equal (buffer-name) "*Kibela* newnote"))
