@@ -8,6 +8,15 @@
     (kibela--store-default-group-success :data response)
     (should (equal expect kibela-default-group))))
 
+(ert-deftest test-kibela-store-default-group/success ()
+  (let ((kibela-default-group nil)
+        (response '((data (defaultGroup (id . "TestId") (name . "Test group"))))))
+    (noflet ((kibela--request (query variables success)
+                              (apply success :data `(,response))))
+      (kibela-store-default-group)
+      (should (equal (symbol-value 'kibela-default-group)
+                     '((id . "TestId") (name . "Test group")))))))
+
 (ert-deftest test-kibela-build-header-line/from-a-group ()
   (let* ((group '((id . "g1ID") (name . "g1")))
          (groups `(,group))

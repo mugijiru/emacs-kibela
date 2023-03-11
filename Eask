@@ -16,3 +16,5 @@
 (depends-on "graphql" "0.1.1")
 (depends-on "request" "0.3.3")
 (depends-on "markdown-mode" "2.5")
+(development
+ (depends-on "noflet"))
