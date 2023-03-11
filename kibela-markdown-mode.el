@@ -39,7 +39,7 @@
 (defvar kibela-markdown-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map markdown-mode-map)
-    (define-key map (kbd "C-c p") 'kibela-markdown-post)
+    (define-key map (kbd "C-c C-c C-c") 'kibela-markdown-post)
     map)
   "Keymap for `kibela-markdown-mode'.
 See also `markdown-mode-map'.")
