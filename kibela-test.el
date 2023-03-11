@@ -1,5 +1,6 @@
 (require 'kibela)
 (require 'ert)
+(require 'noflet)
 
 (ert-deftest test-kibela--store-default-group-success ()
   (setq-local kibela-default-group nil)
