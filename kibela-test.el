@@ -55,3 +55,16 @@
         (should (string-equal header-line-format "Saved Test group"))
         (should (string-equal (buffer-substring-no-properties (point-min) (point-max)) "# Test note\n\n"))
         (kill-buffer)))))
+
+(ert-deftest test-kibela-note-new/fetch-default-group ()
+  (let* ((kibela-default-group nil)
+         (group '((id . "TestId") (name . "Fetched Test group")))
+         (note-title "Test note"))
+    (noflet ((kibela--request (query variables success)
+                              (setq kibela-default-group group)))
+      (with-temp-buffer
+        (kibela-note-new note-title)
+        (should (string-equal (buffer-name) "*Kibela* newnote"))
+        (should (string-equal header-line-format "Fetched Test group"))
+        (should (string-equal (buffer-substring-no-properties (point-min) (point-max)) "# Test note\n\n"))
+        (kill-buffer)))))
