@@ -42,3 +42,22 @@ jobs:
         eask install
         eask compile
         eask test ert kibela-test.el
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: jcs090218/setup-emacs@master
+      with:
+        version: 28.2
+
+    - uses: emacs-eask/setup-eask@master
+      with:
+        version: 'snapshot'
+
+    - name: Run tests
+      run: |
+        eask clean all
+        eask lint package
