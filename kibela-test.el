@@ -2,6 +2,13 @@
 (require 'ert)
 (require 'noflet)
 
+(defmacro kibela-test--use-response-stub (response &rest body)
+  (declare (indent defun))
+  `(noflet ((request () (error "Unexpected request call")) ;; Don't send request
+            (kibela--request (query variables success)
+                             (apply success :data `(,response))))
+     ,@body))
+
 (ert-deftest test-kibela--store-default-group-success ()
   (setq-local kibela-default-group nil)
   (let ((expect '((id . "TestId") (name . "Test group")))
@@ -12,8 +19,8 @@
 (ert-deftest test-kibela-store-default-group/success ()
   (let ((kibela-default-group nil)
         (response '((data (defaultGroup (id . "TestId") (name . "Test group"))))))
-    (noflet ((kibela--request (query variables success)
-                              (apply success :data `(,response))))
+    (kibela-test--use-response-stub
+      response
       (kibela-store-default-group)
       (should (equal (symbol-value 'kibela-default-group)
                      '((id . "TestId") (name . "Test group")))))))
