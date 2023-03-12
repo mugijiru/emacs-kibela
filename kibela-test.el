@@ -1,7 +1,7 @@
 (require 'kibela)
 (require 'ert)
 (require 'noflet)
-(require 'ert-x)
+(require 'with-simulated-input)
 
 (defmacro kibela-test--use-response-stub (response &rest body)
   (declare (indent defun))
@@ -185,7 +185,7 @@ kibela--new-note-from-template に渡すことを確認する."
          (completing-read-function #'completing-read-default))
     (kibela-test--use-response-stub response
       (with-temp-buffer
-        (ert-simulate-keys (kbd "ba TAB RET")
+        (with-simulated-input "ba TAB RET"
           (kibela-note-new-from-template)
           (should (string-equal (buffer-name) "*Kibela* newnote"))
           (should (string-equal header-line-format "Home"))
