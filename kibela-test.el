@@ -10,6 +10,8 @@
                              (apply success :data `(,response))))
      ,@body))
 
+;; store default group
+
 (ert-deftest test-kibela--store-default-group-success ()
   (setq-local kibela-default-group nil)
   (let ((expect '((id . "TestId") (name . "Test group")))
@@ -24,6 +26,8 @@
       (kibela-store-default-group)
       (should (equal (symbol-value 'kibela-default-group)
                      '((id . "TestId") (name . "Test group")))))))
+
+;; header line
 
 (ert-deftest test-kibela-build-header-line/from-a-group ()
   (let* ((group '((id . "g1ID") (name . "g1")))
@@ -51,6 +55,8 @@
          (expect "g3 | g1 > f1 > f1-1 | g2 > f2 > f2-1")
          (actual (kibela--build-header-line groups folders)))
     (should (string-equal expect actual))))
+
+;; note-new
 
 (ert-deftest test-kibela-note-new/when-saved-default-group ()
   (let ((kibela-default-group '((id . "TestId") (name . "Saved Test group")))
@@ -193,3 +199,29 @@ kibela--new-note-from-template に渡すことを確認する."
                                 "# Bar title\n\n")))
         (kill-buffer) ;; FIXME: expect always executed but its only execute on success
         ))))
+
+;; edit
+
+(ert-deftest test-kibela-note-show ()
+  (let* ((response '((data
+                      (note (id . "NoteID")
+                            (title . "posted note")
+                            (content . "posted content")
+                            (coediting . t)
+                            (groups . (((id . "GroupID1")
+                                        (name . "Home"))))
+                            (folders . (((id . "FolderID1")
+                                         (fullName . "foo/bar")
+                                         (group . ((id . "GroupID1")
+                                                   (name . "Home")))))))))))
+    (kibela-test--use-response-stub response
+      (with-temp-buffer
+        (kibela-note-show "NoteID")
+        (should (string-equal major-mode "kibela-markdown-mode"))
+        (should (string-equal (buffer-name) "*Kibela* NoteID"))
+        (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
+                              "# posted note\n\nposted content"))
+        (should (string-equal header-line-format "Home > foo > bar"))
+
+        (kill-buffer)) ;; FIXME: expect always executed but its only execute on success
+      )))
