@@ -75,3 +75,21 @@
         (should (string-equal header-line-format "Fetched Test group"))
         (should (string-equal (buffer-substring-no-properties (point-min) (point-max)) "# Test note\n\n"))
         (kill-buffer)))))
+
+;;; template tests
+
+(ert-deftest test-kibela-select-note-template-action ()
+  "選択した文字列から template property を取得して
+kibela--new-note-from-template に渡すことを確認する."
+  (let* ((selected-template '(:title "日報 2000/01/01"
+                                     :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
+                                     :group-ids '("TestID1" "TestID2")
+                                     :groups '(((id "TestID1") (name "Home"))
+                                               ((id "TestID2") (name "Private")))
+                                     :folders '(((id "FolderID1") (folderName "Folder 1") (groups ((id "TestID1") (name "Home"))) (groupId "Home"))
+                                                ((id "FolderID2") (folderName "Folder 2") (groups ((id "TestID2") (name "Home"))) (groupId "Private")))))
+         (selected (propertize "日報" 'template selected-template)))
+    (noflet ((kibela--new-note-from-template (template)
+                                             (should (string-equal "日報 2000/01/01"
+                                                                   (plist-get template :title)))))
+      (kibela-select-note-template-action selected))))
