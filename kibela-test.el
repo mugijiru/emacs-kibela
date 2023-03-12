@@ -161,3 +161,32 @@ kibela--new-note-from-template に渡すことを確認する."
                               "# 日報 2000/01/01\n\n# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"))
         (kill-buffer) ;; FIXME: expect always executed but its only execute on success
         )))
+
+(ert-deftest test-kibela-note-new-from-template ()
+  (let* ((response '((data (noteTemplates (edges . [((node
+                                                      (id . "TestId1")
+                                                      (name . "foo")
+                                                      (title . "Foo title")
+                                                      (evaluatedTitle . "Foo title")
+                                                      (content . "")
+                                                      (groups . [((id . "GroupId")
+                                                                  (name . "Home"))])
+                                                      (folders . [])))
+                                                    ((node
+                                                      (id . "TestId2")
+                                                      (name . "bar")
+                                                      (title . "Bar title")
+                                                      (evaluatedTitle . "Bar title")
+                                                      (content . "")
+                                                      (groups . [((id . "GroupId")
+                                                                  (name . "Home"))])
+                                                      (folders . [])))]))))))
+    (kibela-test--use-response-stub response
+      (with-temp-buffer
+        (with-simulated-input "foo RET" (kibela-note-new-from-template))
+        (should (string-equal (buffer-name) "*Kibela* newnote"))
+        (should (string-equal header-line-format "Home"))
+        (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
+                              "# Foo title\n\n"))
+        (kill-buffer) ;; FIXME: expect always executed but its only execute on success
+        ))))
