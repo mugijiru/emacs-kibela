@@ -10,6 +10,8 @@
                              (apply success :data `(,response))))
      ,@body))
 
+;; store default group
+
 (ert-deftest test-kibela--store-default-group-success ()
   (setq-local kibela-default-group nil)
   (let ((expect '((id . "TestId") (name . "Test group")))
@@ -24,6 +26,8 @@
       (kibela-store-default-group)
       (should (equal (symbol-value 'kibela-default-group)
                      '((id . "TestId") (name . "Test group")))))))
+
+;; header line
 
 (ert-deftest test-kibela-build-header-line/from-a-group ()
   (let* ((group '((id . "g1ID") (name . "g1")))
@@ -51,6 +55,8 @@
          (expect "g3 | g1 > f1 > f1-1 | g2 > f2 > f2-1")
          (actual (kibela--build-header-line groups folders)))
     (should (string-equal expect actual))))
+
+;; note-new
 
 (ert-deftest test-kibela-note-new/when-saved-default-group ()
   (let ((kibela-default-group '((id . "TestId") (name . "Saved Test group")))
@@ -193,3 +199,6 @@ kibela--new-note-from-template に渡すことを確認する."
                                 "# Bar title\n\n")))
         (kill-buffer) ;; FIXME: expect always executed but its only execute on success
         ))))
+
+;; edit
+
