@@ -52,7 +52,9 @@
       (let ((base kibela-note-base))
         (erase-buffer)
         (insert (concat "# " (assoc-default "title" base) "\n\n" (assoc-default "content" base)))
-        (kibela-markdown-view-mode))
+        (kibela-markdown-view-mode)
+        (setq kibela-note-base base)
+        (setq kibela-note-can-be-updated t))
     (kill-current-buffer)))
 
 (defvar kibela-markdown-mode-map
