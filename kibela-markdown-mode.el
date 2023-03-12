@@ -57,7 +57,7 @@
 
 (defvar kibela-markdown-mode-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map markdown-mode-map)
+    (set-keymap-parent map gfm-mode-map)
     (define-key map (kbd "C-c C-c C-c") 'kibela-markdown-post)
     (define-key map (kbd "C-c C-z") 'kibela-markdown--kill-edit-buffer)
     map)
@@ -70,7 +70,7 @@ See also `gfm-mode-map'.")
 
 (defvar kibela-markdown-view-mode-map
   (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map markdown-mode-map)
+    (set-keymap-parent map gfm-view-mode-map)
     (define-key map (kbd "C-c C-e") 'kibela-markdown--show-to-edit)
     (define-key map (kbd "C-c C-z") 'kill-current-buffer)
     map)
