@@ -218,7 +218,8 @@ SELECTED は選択した記事テンプレート."
                                (selected (seq-find (lambda (elt)
                                                      (string-equal elt selected-key))
                                                    collection)))
-                          (kibela-select-note-template-action selected)))))))
+                          (kibela-select-note-template-action selected)))))
+    t))
 
 ;;;###autoload
 (defun kibela-note-new (title)
@@ -232,7 +233,8 @@ TITLE は新しく作成する記事のタイトル."
     (insert (concat "# " title "\n\n"))
     (kibela-markdown-mode)
     (setq header-line-format
-          (kibela--build-header-line `(,kibela-default-group)))))
+          (kibela--build-header-line `(,kibela-default-group)))
+    t))
 
 (cl-defun kibela--build-header-line (groups &optional (folders '()))
   "グループ/フォルダ情報から header-line 用の文字列を構築する.
@@ -321,7 +323,8 @@ TEMPLATE は記事作成時に利用するテンプレート."
                                         (buffer (get-buffer-create "*Kibela* newnote")))
                                    (kill-buffer buffer)
                                    (setq kibela-note-template nil)
-                                   (message (concat "create note '" title "' has succeed.")))))))))))
+                                   (message (concat "create note '" title "' has succeed.")))))))))
+    t))
 
 ;;;###autoload
 (defun kibela-note-show (id)
@@ -366,7 +369,8 @@ URL などからではなく GraphQL で取得すること."
                                   ("content" . ,content)
                                   ("coediting" . ,coediting)
                                   ("groupIds" . ,group-ids)
-                                  ("folders" . ,folders-for-base)))))))))
+                                  ("folders" . ,folders-for-base)))))))
+    t))
 
 ;;;###autoload
 (defun kibela-note-update ()
@@ -407,7 +411,8 @@ URL などからではなく GraphQL で取得すること."
                                         (buffer (get-buffer-create (concat "*Kibela* " id))))
                                    (setq kibela-note-base nil)
                                    (kill-buffer buffer)
-                                   (message (concat "update note '" title "' has succeed.")))))))))))
+                                   (message (concat "update note '" title "' has succeed.")))))))))
+    t))
 
 (provide 'kibela)
 ;;; kibela.el ends here
