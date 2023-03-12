@@ -214,7 +214,10 @@ SELECTED は選択した記事テンプレート."
                         (let* ((response-data (assq 'data (graphql-simplify-response-edges data)))
                                (note-templates (assoc-default 'noteTemplates response-data))
                                (collection (kibela-build-collection-from-note-templates note-templates))
-                               (selected (completing-read "Note templates: " collection)))
+                               (selected-key (completing-read "Note templates: " collection))
+                               (selected (seq-find (lambda (elt)
+                                                     (string-equal elt selected-key))
+                                                   collection)))
                           (kibela-select-note-template-action selected)))))))
 
 ;;;###autoload

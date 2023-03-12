@@ -17,4 +17,5 @@
 (depends-on "request" "0.3.3")
 (depends-on "markdown-mode" "2.5")
 (development
- (depends-on "noflet"))
+ (depends-on "noflet")
+ (depends-on "with-simulated-input"))
