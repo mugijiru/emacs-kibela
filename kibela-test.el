@@ -136,3 +136,28 @@ kibela--new-note-from-template に渡すことを確認する."
                                              (should (string-equal "日報 2000/01/01"
                                                                    (plist-get template :title)))))
       (kibela-select-note-template-action selected))))
+
+(ert-deftest test-kibela--new-note-from-template ()
+  (let* ((template '(:title "日報 2000/01/01"
+                            :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
+                            :group-ids '("TestID1" "TestID2")
+                            :groups (((id . "TestID1") (name . "Home"))
+                                     ((id . "TestID2") (name . "Private")))
+                            :folders (((id . "FolderID1")
+                                       (folderName . "Folder 1")
+                                       (group . ((id . "TestID1")
+                                                  (name . "Home")))
+                                       (groupId . "Home"))
+                                      ((id . "FolderID2")
+                                       (folderName . "Folder 2")
+                                       (group . ((id . "TestID2")
+                                                  (name . "Private")))
+                                       (groupId . "Private"))))))
+      (with-temp-buffer
+        (kibela--new-note-from-template template)
+        (should (string-equal (buffer-name) "*Kibela* newnote"))
+        (should (string-equal header-line-format "Home > Folder 1 | Private > Folder 2"))
+        (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
+                              "# 日報 2000/01/01\n\n# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"))
+        (kill-buffer) ;; FIXME: expect always executed but its only execute on success
+        )))
