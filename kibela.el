@@ -57,6 +57,9 @@
 (defvar-local kibela-note-can-be-updated nil
   "記事が編集可能かどうかを保存する変数.")
 
+(defvar-local kibela-note-url nil
+  "記事 URL を保存する変数.")
+
 (defconst kibela-graphql-query-note
   (graphql-query
    (:arguments (($id . ID!))
@@ -66,6 +69,7 @@
                 content
                 coediting
                 canBeUpdated
+                url
                 (groups id name)
                 (folders
                  :arguments((first . 100))
@@ -349,6 +353,7 @@ URL などからではなく GraphQL で取得すること."
                                (content (assoc-default 'content note))
                                (coediting (assoc-default 'coediting note))
                                (can-be-updated (eq t (assoc-default 'canBeUpdated note)))
+                               (url (assoc-default 'url note))
                                (groups (assoc-default 'groups note))
                                (group-ids (mapcar (lambda (group) (assoc-default 'id group)) groups))
                                (row-folders (assoc-default 'folders note))
@@ -370,6 +375,7 @@ URL などからではなく GraphQL で取得すること."
                           (setq header-line-format
                                 (kibela--build-header-line groups folders))
                           (setq kibela-note-can-be-updated can-be-updated)
+                          (setq kibela-note-url url)
                           (setq kibela-note-base
                                 `(("title" . ,title)
                                   ("content" . ,content)
