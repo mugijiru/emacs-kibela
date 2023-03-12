@@ -1,6 +1,7 @@
 (require 'kibela)
 (require 'ert)
 (require 'noflet)
+(require 'ert-x)
 
 (defmacro kibela-test--use-response-stub (response &rest body)
   (declare (indent defun))
@@ -180,13 +181,15 @@ kibela--new-note-from-template に渡すことを確認する."
                                                       (content . "")
                                                       (groups . [((id . "GroupId")
                                                                   (name . "Home"))])
-                                                      (folders . [])))]))))))
+                                                      (folders . [])))])))))
+         (completing-read-function #'completing-read-default))
     (kibela-test--use-response-stub response
       (with-temp-buffer
-        (with-simulated-input "foo RET" (kibela-note-new-from-template))
-        (should (string-equal (buffer-name) "*Kibela* newnote"))
-        (should (string-equal header-line-format "Home"))
-        (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
-                              "# Foo title\n\n"))
+        (ert-simulate-keys (kbd "ba TAB RET")
+          (kibela-note-new-from-template)
+          (should (string-equal (buffer-name) "*Kibela* newnote"))
+          (should (string-equal header-line-format "Home"))
+          (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
+                                "# Bar title\n\n")))
         (kill-buffer) ;; FIXME: expect always executed but its only execute on success
         ))))
