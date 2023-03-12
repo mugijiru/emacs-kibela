@@ -41,7 +41,7 @@ jobs:
         eask package
         eask install --dev
         eask compile
-        eask test ert kibela-test.el
+        eask test ert *-test.el
 
   lint:
     runs-on: ubuntu-latest

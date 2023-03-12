@@ -38,9 +38,13 @@
 
 (defun kibela-markdown--show-to-edit ()
   (interactive)
-  (let ((base kibela-note-base))
-    (kibela-markdown-mode)
-    (setq kibela-note-base base)))
+  (let* ((base kibela-note-base))
+    (cond
+     (kibela-note-can-be-updated
+      (kibela-markdown-mode)
+      (setq kibela-note-base base))
+     (t
+      (message "cannot edit this note.")))))
 
 (defun kibela-markdown--kill-edit-buffer ()
   (interactive)
