@@ -38,18 +38,27 @@
 
 (defun kibela-markdown--show-to-edit ()
   (interactive)
-  (let* ((base kibela-note-base))
+  (let* ((base kibela-note-base)
+         (url kibela-note-url))
     (cond
      (kibela-note-can-be-updated
       (kibela-markdown-mode)
-      (setq kibela-note-base base))
+      (setq kibela-note-base base)
+      (setq kibela-note-url url))
      (t
       (message "cannot edit this note.")))))
+
+(defun kibela-markdown-open-in-browser ()
+  (interactive)
+  (if kibela-note-url
+      (browse-url kibela-note-url)
+    (message "URL is not exists")))
 
 (defun kibela-markdown--kill-edit-buffer ()
   (interactive)
   (if kibela-note-base
-      (let ((base kibela-note-base))
+      (let ((base kibela-note-base)
+            (url kibela-note-url))
         (erase-buffer)
         (insert (concat "# " (assoc-default "title" base) "\n\n" (assoc-default "content" base)))
         (kibela-markdown-view-mode)
@@ -61,6 +70,7 @@
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map gfm-mode-map)
     (define-key map (kbd "C-c C-c C-c") 'kibela-markdown-post)
+    (define-key map (kbd "C-c C-c C-o") 'kibela-markdown-open-in-browser)
     (define-key map (kbd "C-c C-z") 'kibela-markdown--kill-edit-buffer)
     map)
   "Keymap for `kibela-markdown-mode'.
@@ -73,6 +83,7 @@ See also `gfm-mode-map'.")
 (defvar kibela-markdown-view-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map gfm-view-mode-map)
+    (define-key map (kbd "C-c C-c C-o") 'kibela-markdown-open-in-browser)
     (define-key map (kbd "C-c C-e") 'kibela-markdown--show-to-edit)
     (define-key map (kbd "C-c C-z") 'kill-current-buffer)
     map)
