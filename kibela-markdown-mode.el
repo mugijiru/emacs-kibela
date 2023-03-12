@@ -36,17 +36,46 @@
       (kibela-note-update)
     (kibela-note-create)))
 
+(defun kibela-markdown--show-to-edit ()
+  (interactive)
+  (let ((base kibela-note-base))
+    (kibela-markdown-mode)
+    (setq kibela-note-base base)))
+
+(defun kibela-markdown--kill-edit-buffer ()
+  (interactive)
+  (if kibela-note-base
+      (let ((base kibela-note-base))
+        (erase-buffer)
+        (insert (concat "# " (assoc-default "title" base) "\n\n" (assoc-default "content" base)))
+        (kibela-markdown-view-mode))
+    (kill-current-buffer)))
+
 (defvar kibela-markdown-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map markdown-mode-map)
     (define-key map (kbd "C-c C-c C-c") 'kibela-markdown-post)
+    (define-key map (kbd "C-c C-z") 'kibela-markdown--kill-edit-buffer)
     map)
   "Keymap for `kibela-markdown-mode'.
-See also `markdown-mode-map'.")
+See also `gfm-mode-map'.")
 
 (define-derived-mode kibela-markdown-mode gfm-mode "Kibela Markdown"
   "Major mode for editing Kibela Markdown files."
   (use-local-map kibela-markdown-mode-map))
+
+(defvar kibela-markdown-view-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map markdown-mode-map)
+    (define-key map (kbd "C-c C-e") 'kibela-markdown--show-to-edit)
+    (define-key map (kbd "C-c C-z") 'kill-current-buffer)
+    map)
+  "Keymap for `kibela-markdown-view-mode'.
+See also `gfm-view-mode-map'.")
+
+(define-derived-mode kibela-markdown-view-mode gfm-view-mode "Kibela Markdown View"
+  "Major mode for viewing Kibela Markdown files."
+  (use-local-map kibela-markdown-view-mode-map))
 
 (provide 'kibela-markdown-mode)
 ;;; kibela-markdown-mode.el ends here

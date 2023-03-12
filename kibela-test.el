@@ -200,7 +200,7 @@ kibela--new-note-from-template に渡すことを確認する."
         (kill-buffer) ;; FIXME: expect always executed but its only execute on success
         ))))
 
-;; edit
+;; show
 
 (ert-deftest test-kibela-note-show ()
   (let* ((response '((data
@@ -217,7 +217,7 @@ kibela--new-note-from-template に渡すことを確認する."
     (kibela-test--use-response-stub response
       (with-temp-buffer
         (kibela-note-show "NoteID")
-        (should (string-equal major-mode "kibela-markdown-mode"))
+        (should (string-equal major-mode "kibela-markdown-view-mode"))
         (should (string-equal (buffer-name) "*Kibela* NoteID"))
         (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
                               "# posted note\n\nposted content"))

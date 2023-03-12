@@ -361,7 +361,7 @@ URL などからではなく GraphQL で取得すること."
                                (buffer (get-buffer-create (concat "*Kibela* " id))))
                           (switch-to-buffer buffer)
                           (insert (concat "# " title "\n\n" content))
-                          (kibela-markdown-mode)
+                          (kibela-markdown-view-mode)
                           (setq header-line-format
                                 (kibela--build-header-line groups folders))
                           (setq kibela-note-base
