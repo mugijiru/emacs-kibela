@@ -202,3 +202,26 @@ kibela--new-note-from-template に渡すことを確認する."
 
 ;; edit
 
+(ert-deftest test-kibela-note-show ()
+  (let* ((response '((data
+                      (note (id . "NoteID")
+                            (title . "posted note")
+                            (content . "posted content")
+                            (coediting . t)
+                            (groups . (((id . "GroupID1")
+                                        (name . "Home"))))
+                            (folders . (((id . "FolderID1")
+                                         (fullName . "foo/bar")
+                                         (group . ((id . "GroupID1")
+                                                   (name . "Home")))))))))))
+    (kibela-test--use-response-stub response
+      (with-temp-buffer
+        (kibela-note-show "NoteID")
+        (should (string-equal major-mode "kibela-markdown-mode"))
+        (should (string-equal (buffer-name) "*Kibela* NoteID"))
+        (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
+                              "# posted note\n\nposted content"))
+        (should (string-equal header-line-format "Home > foo > bar"))
+
+        (kill-buffer)) ;; FIXME: expect always executed but its only execute on success
+      )))
