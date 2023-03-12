@@ -78,6 +78,49 @@
 
 ;;; template tests
 
+(ert-deftest test-kibela-build-collection-from-note-templates ()
+  (let* ((expected `(,(propertize
+                       "日報"
+                       'template
+                       '(:title "日報 2000/01/01"
+                               :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
+                               :group-ids ("TestID1")
+                               :groups (((id "TestID1") (name "Home")))
+                               :folders ()))
+                     ,(propertize
+                       "定例 MTG"
+                       'template
+                       '(:title "定例 MTG 2000/01/01"
+                               :content "# 参加者\n\n - (参加者名) # アジェンダ\n\n- \n\n# \n\n- [ ] \n\n# 前回の宿題\n\n- [ ] \n\n# 議題\n\n# 宿題\n\n"
+                               :group-ids ("TestID1")
+                               :groups (((id "TestID1") (name "Home")))
+                               :folders (((id "FolderID1") (folderName "議事録/定例 MTG") (groups ((id "TestID1") (name "Home"))) (groupId "Home")))))))
+         (template1 '((name . "日報")
+                      (evaluatedTitle . "日報 2000/01/01")
+                      (content . "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n")
+                      (group-ids . ("TestID1"))
+                      (groups . (((id "TestID1") (name "Home"))))
+                      (folders . ())))
+         (template2 '((name . "定例 MTG")
+                      (evaluatedTitle . "定例 MTG 2000/01/01")
+                      (content . "# 参加者\n\n - (参加者名) # アジェンダ\n\n- \n\n# \n\n- [ ] \n\n# 前回の宿題\n\n- [ ] \n\n# 議題\n\n# 宿題\n\n")
+                      (group-ids . ("TestID1"))
+                      (groups . (((id "TestID1") (name "Home"))))
+                      (folders . (((id "FolderID1")
+                                  (evaluatedFullName "議事録/定例 MTG")
+                                  (groups ((id "TestID1")
+                                           (name "Home"))))))))
+         (templates `(,template1 ,template2))
+         (actual (kibela-build-collection-from-note-templates templates)))
+    (should (seq-set-equal-p expected actual
+                             (lambda (elt1 elt2)
+                               (let* ((template1 (get-text-property 0 'template elt1))
+                                      (title1 (plist-get template1 :title))
+                                      (template2 (get-text-property 0 'template elt2))
+                                      (title2 (plist-get template2 :title)))
+                                 (and (string-equal elt1 elt2)
+                                      (string-equal title1 title2))))))))
+
 (ert-deftest test-kibela-select-note-template-action ()
   "選択した文字列から template property を取得して
 kibela--new-note-from-template に渡すことを確認する."
