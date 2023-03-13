@@ -79,8 +79,7 @@
                    fullName
                    (group
                     id
-                    name))))
-                canBeUpdated)))
+                    name)))))))
   "Note を取得するためのクエリ.")
 
 (defconst kibela-graphql-query-default-group
