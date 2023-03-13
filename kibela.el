@@ -246,6 +246,76 @@ SELECTED は選択した記事テンプレート."
                           (kibela-select-note-template-action selected)))))
     t))
 
+(cl-defun kibela--group-notes-success (&key data &allow-other-keys)
+  "グループとその配下の Notes を取得する処理.
+
+DATA はリクエスト成功時の JSON."
+  (let* ((response-data (assoc-default 'data (graphql-simplify-response-edges data)))
+         (group (assoc-default 'group response-data))
+         (notes (assoc-default 'notes group)))
+    (setq tabulated-list-entries nil)
+    (mapc (lambda (note)
+            (let* ((id (assoc-default 'id note))
+                   (title (assoc-default 'title note))
+                   (updated-at (assoc-default 'contentUpdatedAt note))
+                   (entry `(id
+                            [(,title . (face default
+                                             action kibela-note-show-from-list
+                                             id ,id))
+                             (,updated-at . (face default
+                                                  action kibela-note-show-from-list
+                                                  id ,id))])))
+              (push entry
+                    tabulated-list-entries)))
+          notes)
+    (tabulated-list-init-header)
+    (tabulated-list-print)))
+
+(defun kibela-note-show-from-list (marker)
+  "記事一覧から記事を開くためのアクション."
+  (let* ((pos (marker-position marker))
+         (id (get-text-property pos 'id)))
+    (kibela-note-show id)))
+
+(define-derived-mode kibela-list-mode tabulated-list-mode "Kibela list"
+  "Kibela list view."
+  (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
+  (setq tabulated-list-sort-key '("UpdatedAt" . t))
+  (add-hook 'tabulated-list-revert-hook 'kibela-group-notes-refresh nil t)
+  (use-local-map kibela-list-mode-map))
+
+(defun kibela-group-notes-refresh ()
+  "記事一覧を読み込み直す処理."
+  (message "Fetch default group notes...")
+  (let* ((group-id (assoc-default 'id kibela-default-group))
+         (query kibela-graphql-query-group-notes)
+         (variables `((id . ,group-id))))
+    (message "refresh!")
+    (kibela--request query variables #'kibela--group-notes-success)))
+
+(defvar kibela-list-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map tabulated-list-mode-map)
+    map)
+  "Keymap for 'kibela-list-mode'.")
+
+(defun kibela-group-notes ()
+  "記事一覧を開くコマンド.
+現在はデフォルトグループの記事一覧のみ開けるようになっている."
+  (interactive)
+  (kibela-store-default-group)
+  (let* ((group-id (assoc-default 'id kibela-default-group))
+         (group-name (assoc-default 'name kibela-default-group))
+         (buffer-name (concat "*Kibela* notes in " group-name))
+         (buffer (get-buffer-create buffer-name)))
+    (cond
+     ((null group-id)
+      (message "デフォルトグループの取得ができていません"))
+     (t
+      (switch-to-buffer buffer)
+      (kibela-list-mode)
+      (kibela-group-notes-refresh)))))
+
 ;;;###autoload
 (defun kibela-note-new (title)
   "記事を作成するバッファを用意する.
