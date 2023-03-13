@@ -60,6 +60,24 @@
 (defvar-local kibela-note-url nil
   "記事 URL を保存する変数.")
 
+(defconst kibela-graphql-query-group-notes
+  (graphql-query
+   (:arguments (($id . ID!))
+               (group
+                :arguments ((id . ($ id)))
+                (notes
+                 :arguments((last . 100))
+                 (edges
+                  (node
+                   id
+                   title
+                   content
+                   contentUpdatedAt
+                   coediting
+                   canBeUpdated
+                   url))))))
+  "グループ配下の Note を取得するためのクエリ.")
+
 (defconst kibela-graphql-query-note
   (graphql-query
    (:arguments (($id . ID!))
