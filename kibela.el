@@ -60,13 +60,15 @@
 (defvar-local kibela-note-url nil
   "記事 URL を保存する変数.")
 
+(defvar kibela-per-page 100)
+
 (defconst kibela-graphql-query-group-notes
   (graphql-query
-   (:arguments (($id . ID!))
+   (:arguments (($id . ID!) ($perPage . Int!))
                (group
                 :arguments ((id . ($ id)))
                 (notes
-                 :arguments((last . 100))
+                 :arguments((last . ($ perPage)))
                  (edges
                   (node
                    id
@@ -289,7 +291,7 @@ DATA はリクエスト成功時の JSON."
   (message "Fetch default group notes...")
   (let* ((group-id (assoc-default 'id kibela-default-group))
          (query kibela-graphql-query-group-notes)
-         (variables `((id . ,group-id))))
+         (variables `((id . ,group-id) (perPage . ,kibela-per-page))))
     (message "refresh!")
     (kibela--request query variables #'kibela--group-notes-success)))
 

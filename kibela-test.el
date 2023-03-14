@@ -10,6 +10,13 @@
                              (apply success :data `(((data (,@ (,@ res))))))))
      ,@body))
 
+(defmacro kibela-test--inspect-request-arguments (&rest body)
+  (declare (indent defun))
+  `(noflet ((request () (error "Unexpected request call")) ;; Don't send request
+            (kibela--request (query variables success)
+                             `(,query ,variables))) ;; FIXME: response argument is unused
+     ,@body))
+
 ;; store default group
 
 (ert-deftest test-kibela--store-default-group-success ()
@@ -58,22 +65,22 @@
 
 ;; list
 
-;; (ert-deftest test-kibela-group-notes-refresh/per-page ()
-;;   (let ((kibela-per-page 100))
-;;     (kibela-test--inspect-request-arguments
-;;       (let* ((result (kibela-group-notes-refresh))
-;;              (query (first result))
-;;              (variables (second result))
-;;              (per-page (assoc-default 'per-page variables)))
-;;         (should (equal per-page 100)))))
+(ert-deftest test-kibela-group-notes-refresh/per-page ()
+  (let ((kibela-per-page 100))
+    (kibela-test--inspect-request-arguments
+      (let* ((result (kibela-group-notes-refresh))
+             (query (first result))
+             (variables (second result))
+             (per-page (assoc-default 'perPage variables)))
+        (should (equal per-page 100)))))
 
-;;   (let ((kibela-per-page 20))
-;;     (kibela-test--inspect-request-arguments
-;;       (let* ((result (kibela-group-notes-refresh))
-;;              (query (first result))
-;;              (variables (second result))
-;;              (per-page (assoc-default 'per-page variables)))
-;;         (should (equal per-page 20))))))
+  (let ((kibela-per-page 20))
+    (kibela-test--inspect-request-arguments
+      (let* ((result (kibela-group-notes-refresh))
+             (query (first result))
+             (variables (second result))
+             (per-page (assoc-default 'perPage variables)))
+        (should (equal per-page 20))))))
 
 (ert-deftest test-kibela-group-notes ()
   (let* ((default-group '((id . "GroupId") (name . "Test group")))
