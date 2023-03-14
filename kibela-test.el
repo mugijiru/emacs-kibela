@@ -65,6 +65,48 @@
 
 ;; list
 
+(ert-deftest test-kibela-graphql-query-group-notes-prev ()
+  (let ((expected (graphql-query
+                   (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
+                               (group
+                                :arguments ((id . ($ id)))
+                                (notes
+                                 :arguments((last . ($ perPage))
+                                            (before . ($ cursor))
+                                            (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+                                 (edges
+                                  cursor
+                                  (node
+                                   id
+                                   title
+                                   content
+                                   contentUpdatedAt
+                                   coediting
+                                   canBeUpdated
+                                   url))))))))
+    (should (equal expected kibela-graphql-query-group-notes-prev))))
+
+(ert-deftest test-kibela-graphql-query-group-notes-next ()
+  (let ((expected (graphql-query
+                   (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
+                               (group
+                                :arguments ((id . ($ id)))
+                                (notes
+                                 :arguments((first . ($ perPage))
+                                            (after . ($ cursor))
+                                            (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+                                 (edges
+                                  cursor
+                                  (node
+                                   id
+                                   title
+                                   content
+                                   contentUpdatedAt
+                                   coediting
+                                   canBeUpdated
+                                   url))))))))
+    (should (equal expected kibela-graphql-query-group-notes-next))))
+
 (ert-deftest test-kibela-group-notes-refresh/per-page ()
   (let ((kibela-per-page 100))
     (kibela-test--inspect-request-arguments

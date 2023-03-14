@@ -64,7 +64,7 @@
 (defvar-local kibela-first-cursor nil)
 (defvar-local kibela-last-cursor nil)
 
-(defconst kibela-graphql-query-group-notes-before
+(defconst kibela-graphql-query-group-notes-prev
   (graphql-query
    (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
                (group
@@ -85,7 +85,7 @@
                    url))))))
   "グループ配下の Note を取得するためのクエリ.")
 
-(defconst kibela-graphql-query-group-notes
+(defconst kibela-graphql-query-group-notes-next
   (graphql-query
    (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
                (group
@@ -327,21 +327,21 @@ DATA はリクエスト成功時の JSON."
   "記事一覧を読み込み直す処理."
   (message "Fetch default group notes...")
   (let* ((group-id (assoc-default 'id kibela-default-group))
-         (query kibela-graphql-query-group-notes)
+         (query kibela-graphql-query-group-notes-next)
          (variables `((id . ,group-id) (perPage . ,kibela-per-page))))
     (kibela--request query variables #'kibela--group-notes-success)))
 
 (defun kibela-group-notes-next-page ()
   (interactive)
   (let* ((group-id (assoc-default 'id kibela-default-group))
-         (query kibela-graphql-query-group-notes)
+         (query kibela-graphql-query-group-notes-next)
          (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
     (kibela--request query variables #'kibela--group-notes-success)))
 
 (defun kibela-group-notes-prev-page ()
   (interactive)
   (let* ((group-id (assoc-default 'id kibela-default-group))
-         (query kibela-graphql-query-group-notes-before)
+         (query kibela-graphql-query-group-notes-prev)
          (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
     (kibela--request query variables #'kibela--group-notes-success)))
 
