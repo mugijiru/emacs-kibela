@@ -7,7 +7,7 @@
   (declare (indent defun))
   `(noflet ((request () (error "Unexpected request call")) ;; Don't send request
             (kibela--request (query variables success)
-                             (apply success :data `(,response))))
+                             (apply success :data `(,response)))) ;; FIXME: response argument is unused
      ,@body))
 
 ;; store default group
@@ -55,6 +55,57 @@
          (expect "g3 | g1 > f1 > f1-1 | g2 > f2 > f2-1")
          (actual (kibela--build-header-line groups folders)))
     (should (string-equal expect actual))))
+
+;; list
+
+(ert-deftest test-kibela-group-notes ()
+  (let* ((default-group '((id . "GroupId") (name . "Test group")))
+         (kibela-default-group default-group)
+         (response `((data
+                      (group
+                       (id . "GroupId")
+                       (name . "Test group")
+                       (notes
+                        (edges . [((node
+                                    (id . "NoteId1")
+                                    (title . "Test note1")
+                                    (contentUpdatedAt . "2000-01-01T00:00:00.000+09:00")))
+                                  ((node
+                                    (id . "NoteId2")
+                                    (title . "Test note2")
+                                    (contentUpdatedAt . "2000-01-02T00:00:00.000+09:00")))]
+                               ))))))
+         (expected-buffer-name "*Kibela* notes in Test group"))
+    (kibela-test--use-response-stub response
+      (kibela-group-notes)
+      (should (string-equal expected-buffer-name (buffer-name)))
+      (should (string-equal major-mode "kibela-list-mode"))
+      (let ((content (buffer-substring-no-properties (point-min) (point-max))))
+        (should (string-match "Test note1" content))
+        (should (string-match "2000-01-01" content))
+        (should (string-match "Test note2" content))
+        (should (string-match "2000-01-02" content))))
+
+    ;; Show note
+    (let ((response '((data
+                       (note (id . "NoteID2")
+                             (title . "Test note2")
+                             (content . "posted content2")
+                             (coediting . t)
+                             (groups . (((id . "GroupId")
+                                         (name . "Test group"))))
+                             (folders . ()))))))
+      (kibela-test--use-response-stub response
+        (goto-char (point-min))
+        (execute-kbd-macro (read-kbd-macro "RET")) ;; type RET
+        (should (string-equal "*Kibela* NoteId2" (buffer-name)))
+        (should (string-equal "kibela-markdown-view-mode" major-mode))
+        (should (string-equal "# Test note2\n\nposted content2"
+                              (buffer-substring-no-properties (point-min) (point-max))))))
+
+    ;; Tear down
+    (kill-buffer "*Kibela* NoteId2")
+    (kill-buffer expected-buffer-name)))
 
 ;; note-new
 
