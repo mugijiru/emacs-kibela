@@ -61,16 +61,41 @@
   "記事 URL を保存する変数.")
 
 (defvar kibela-per-page 100)
+(defvar-local kibela-first-cursor nil)
+(defvar-local kibela-last-cursor nil)
+
+(defconst kibela-graphql-query-group-notes-before
+  (graphql-query
+   (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
+               (group
+                :arguments ((id . ($ id)))
+                (notes
+                 :arguments((last . ($ perPage))
+                            (before . ($ cursor))
+                            (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+                 (edges
+                  cursor
+                  (node
+                   id
+                   title
+                   content
+                   contentUpdatedAt
+                   coediting
+                   canBeUpdated
+                   url))))))
+  "グループ配下の Note を取得するためのクエリ.")
 
 (defconst kibela-graphql-query-group-notes
   (graphql-query
-   (:arguments (($id . ID!) ($perPage . Int!))
+   (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
                (group
                 :arguments ((id . ($ id)))
                 (notes
                  :arguments((first . ($ perPage))
+                            (after . ($ cursor))
                             (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
                  (edges
+                  cursor
                   (node
                    id
                    title
@@ -255,7 +280,16 @@ SELECTED は選択した記事テンプレート."
 DATA はリクエスト成功時の JSON."
   (let* ((response-data (assoc-default 'data (graphql-simplify-response-edges data)))
          (group (assoc-default 'group response-data))
-         (notes (assoc-default 'notes group)))
+         (notes (assoc-default 'notes group))
+
+         (row-data (assoc-default 'data data))
+         (row-group (assoc-default 'group row-data))
+         (row-notes (assoc-default 'notes row-group))
+         (edges (assoc-default 'edges row-notes))
+         (first-note (seq-first edges))
+         (first-cursor (assoc-default 'cursor first-note))
+         (last-note (seq-first (reverse edges)))
+         (last-cursor (assoc-default 'cursor last-note)))
     (setq tabulated-list-entries nil)
     (mapc (lambda (note)
             (let* ((id (assoc-default 'id note))
@@ -271,6 +305,8 @@ DATA はリクエスト成功時の JSON."
               (push entry
                     tabulated-list-entries)))
           notes)
+    (setq kibela-first-cursor first-cursor)
+    (setq kibela-last-cursor last-cursor)
     (tabulated-list-init-header)
     (tabulated-list-print)))
 
@@ -293,12 +329,27 @@ DATA はリクエスト成功時の JSON."
   (let* ((group-id (assoc-default 'id kibela-default-group))
          (query kibela-graphql-query-group-notes)
          (variables `((id . ,group-id) (perPage . ,kibela-per-page))))
-    (message "refresh!")
+    (kibela--request query variables #'kibela--group-notes-success)))
+
+(defun kibela-group-notes-next-page ()
+  (interactive)
+  (let* ((group-id (assoc-default 'id kibela-default-group))
+         (query kibela-graphql-query-group-notes)
+         (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
+    (kibela--request query variables #'kibela--group-notes-success)))
+
+(defun kibela-group-notes-prev-page ()
+  (interactive)
+  (let* ((group-id (assoc-default 'id kibela-default-group))
+         (query kibela-graphql-query-group-notes-before)
+         (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
     (kibela--request query variables #'kibela--group-notes-success)))
 
 (defvar kibela-list-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
+    (define-key map (kbd ">") 'kibela-group-notes-next-page)
+    (define-key map (kbd "<") 'kibela-group-notes-prev-page)
     map)
   "Keymap for 'kibela-list-mode'.")
 
