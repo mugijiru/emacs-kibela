@@ -68,7 +68,8 @@
                (group
                 :arguments ((id . ($ id)))
                 (notes
-                 :arguments((last . ($ perPage)))
+                 :arguments((first . ($ perPage))
+                            (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
                  (edges
                   (node
                    id
