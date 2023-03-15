@@ -5,49 +5,87 @@
 
 ** これは何?
 
-   Emacs から [[https://kibe.la][Kibela]] を操作するためのパッケージです
+   Emacs から [[https://kibe.la][Kibela]] を操作するためのパッケージです。
 
 ** できること
 
-   現時点では記事の作成、閲覧、更新ができます。
+   現時点では
+
+   - デフォルトグループの記事一覧の表示
+   - デフォルトグループへの記事の作成
+   - テンプレートを用いた記事の作成
+   - 既存の記事の閲覧
+   - 既存の記事の更新
+
+   ができます。
+
+*** デフォルトグループの記事一覧の表示
+    #+begin_example
+    M-x kibela-group-notes
+    #+end_example
+
+    を実行するとデフォルトグループの記事を取得できます。
+
+    ただし現時点の実装では、
+    デフォルトグループの情報が取得できてない時には
+    "デフォルトグループの取得ができていません" というメッセージが表示されて処理が止まります。
+
+    最初の一発目の取得の際は必ずそういう挙動になりますが
+    その場合はもう一度同じコマンドを実行してください。
 
 *** 記事の作成
     #+begin_example
     M-x kibela-note-new
     #+end_example
 
-    で新しい記事を書くための kibela-markdown-mode のバッファが用意されます。
+    を実行すると新しい記事を書くための kibela-markdown-mode のバッファが用意されます。
     バッファを開く前に記事の title を聞かれます。
-
-    また
-
-    #+begin_example
-    M-x kibela-note-new-from-template
-    #+end_example
-
-    を使うと、記事テンプレートを選択して記事を書くことができます。
 
     記事を書いた後は
 
     #+begin_example
-    C-c p
+    C-c C-c C-c
     #+end_example
 
     で Kibela に投稿できます。
     ただし投稿先はデフォルトグループのみとなっています。
+
+**** テンプレートを用いた記事の作成
+     また
+
+     #+begin_example
+     M-x kibela-note-new-from-template
+     #+end_example
+
+     を使うと、記事テンプレートを選択して記事を書くことができます。
+
+     テンプレートに従って投稿先やタイトル、コンテンツが埋められている以外は
+     新規記事作成と同様です。
 
 *** 記事の閲覧と更新
     #+begin_example
     (kibela-note-show ID)
     #+end_example
 
-    で記事を取得し kibela-markdown-mode で表示します。
+    で記事を取得し kibela-markdown-view-mode で表示します。
 
-    表示されたバッファは編集可能なので、編集後に
+    kibela-markdown-view-mode のバッファで
 
     #+begin_example
-    C-c p
+    C-c C-e
+    #+end_example
+
+    を実行することで編集可能な kibela-markdown-mode に遷移します。
+
+    kibela-markdown-mode は gfm-mode をベースにしているので
+    それらのコマンドが利用できます。
+
+    編集後は
+
+    #+begin_example
+    C-c C-c C-c
     #+end_example
 
     を実行することで記事を更新できます。
+
     ただし現時点ではグループやフォルダを変更することはできません
