@@ -322,13 +322,6 @@ DATA はリクエスト成功時の JSON."
          (id (get-text-property pos 'id)))
     (kibela-note-show id)))
 
-(define-derived-mode kibela-list-mode tabulated-list-mode "Kibela list"
-  "Kibela list view."
-  (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
-  (setq tabulated-list-sort-key '("UpdatedAt" . t))
-  (add-hook 'tabulated-list-revert-hook 'kibela-group-notes-refresh nil t)
-  (use-local-map kibela-list-mode-map))
-
 (defun kibela-group-notes-refresh ()
   "記事一覧を読み込み直す処理."
   (message "Fetch default group notes...")
@@ -360,6 +353,13 @@ DATA はリクエスト成功時の JSON."
     (define-key map (kbd "<") 'kibela-group-notes-prev-page)
     map)
   "Keymap for 'kibela-list-mode'.")
+
+(define-derived-mode kibela-list-mode tabulated-list-mode "Kibela list"
+  "Kibela list view."
+  (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
+  (setq tabulated-list-sort-key '("UpdatedAt" . t))
+  (add-hook 'tabulated-list-revert-hook 'kibela-group-notes-refresh nil t)
+  (use-local-map kibela-list-mode-map))
 
 (defun kibela-group-notes ()
   "記事一覧を開くコマンド.
