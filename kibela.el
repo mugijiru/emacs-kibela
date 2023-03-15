@@ -80,6 +80,9 @@
                  :arguments((last . ($ perPage))
                             (before . ($ cursor))
                             (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+                 (pageInfo
+                  hasNextPage
+                  hasPreviousPage)
                  (edges
                   cursor
                   (node
@@ -102,6 +105,9 @@
                  :arguments((first . ($ perPage))
                             (after . ($ cursor))
                             (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+                 (pageInfo
+                  hasNextPage
+                  hasPreviousPage)
                  (edges
                   cursor
                   (node
@@ -287,12 +293,13 @@ SELECTED は選択した記事テンプレート."
 
 DATA はリクエスト成功時の JSON."
   (let* ((response-data (assoc-default 'data (graphql-simplify-response-edges data)))
-         (group (assoc-default 'group response-data))
-         (notes (assoc-default 'notes group))
-
          (row-data (assoc-default 'data data))
          (row-group (assoc-default 'group row-data))
          (row-notes (assoc-default 'notes row-group))
+
+         (page-info (assoc-default 'pageInfo row-notes))
+         (has-prev-page (assoc-default 'hasPreviousPage page-info))
+         (has-next-page (assoc-default 'hasNextPage page-info))
          (edges (assoc-default 'edges row-notes))
          (first-note (elt edges 0))
          (first-cursor (assoc-default 'cursor first-note))
@@ -300,9 +307,10 @@ DATA はリクエスト成功時の JSON."
          (last-cursor (assoc-default 'cursor last-note)))
     (setq tabulated-list-entries nil)
     (mapc (lambda (note)
-            (let* ((id (assoc-default 'id note))
-                   (title (assoc-default 'title note))
-                   (updated-at (assoc-default 'contentUpdatedAt note))
+            (let* ((node (assoc-default 'node note))
+                   (id (assoc-default 'id node))
+                   (title (assoc-default 'title node))
+                   (updated-at (assoc-default 'contentUpdatedAt node))
                    (entry `(id
                             [(,title . (face default
                                              action kibela-note-show-from-list
@@ -312,9 +320,11 @@ DATA はリクエスト成功時の JSON."
                                                   id ,id))])))
               (push entry
                     tabulated-list-entries)))
-          notes)
+          edges)
     (setq kibela-first-cursor first-cursor)
     (setq kibela-last-cursor last-cursor)
+    (setq kibela-has-prev-page (equal has-prev-page t))
+    (setq kibela-has-next-page (equal has-next-page t))
     (tabulated-list-init-header)
     (tabulated-list-print)))
 
@@ -335,18 +345,26 @@ DATA はリクエスト成功時の JSON."
 (defun kibela-group-notes-next-page ()
   "記事一覧で次のページを取得する処理."
   (interactive)
-  (let* ((group-id (assoc-default 'id kibela-default-group))
+  (cond
+   (kibela-has-next-page
+    (let* ((group-id (assoc-default 'id kibela-default-group))
          (query kibela-graphql-query-group-notes-next)
          (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
-    (kibela--request query variables #'kibela--group-notes-success)))
+      (kibela--request query variables #'kibela--group-notes-success)))
+   (t
+    (message "Current page is last"))))
 
 (defun kibela-group-notes-prev-page ()
   "記事一覧で前のページを取得する処理."
   (interactive)
-  (let* ((group-id (assoc-default 'id kibela-default-group))
+  (cond
+   (kibela-has-prev-page
+    (let* ((group-id (assoc-default 'id kibela-default-group))
          (query kibela-graphql-query-group-notes-prev)
          (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
-    (kibela--request query variables #'kibela--group-notes-success)))
+      (kibela--request query variables #'kibela--group-notes-success)))
+   (t
+    (message "Current page is first"))))
 
 (defvar kibela-list-mode-map
   (let ((map (make-sparse-keymap)))

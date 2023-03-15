@@ -74,6 +74,9 @@
                                  :arguments((last . ($ perPage))
                                             (before . ($ cursor))
                                             (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+                                 (pageInfo
+                                  hasNextPage
+                                  hasPreviousPage)
                                  (edges
                                   cursor
                                   (node
@@ -95,6 +98,9 @@
                                  :arguments((first . ($ perPage))
                                             (after . ($ cursor))
                                             (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+                                 (pageInfo
+                                  hasNextPage
+                                  hasPreviousPage)
                                  (edges
                                   cursor
                                   (node
@@ -131,15 +137,19 @@
                      (id . "GroupId")
                      (name . "Test group")
                      (notes
-                      (edges . [((node
+                      (edges . [((cursor . "A")
+                                 (node
                                   (id . "NoteId1")
                                   (title . "Test note1")
                                   (contentUpdatedAt . "2000-01-01T00:00:00.000+09:00")))
-                                ((node
+                                ((cursor . "B")
+                                 (node
                                   (id . "NoteId2")
                                   (title . "Test note2")
-                                  (contentUpdatedAt . "2000-01-02T00:00:00.000+09:00")))]
-                             ))))
+                                  (contentUpdatedAt . "2000-01-02T00:00:00.000+09:00")))])
+                      (pageInfo
+                       (hasPreviousPage . :json-false)
+                       (hasNextPage . :json-false)))))
          (expected-buffer-name "*Kibela* notes in Test group"))
     (kibela-test--use-response-stub response
       (kibela-group-notes)
