@@ -367,8 +367,8 @@ DATA はリクエスト成功時の JSON."
   (interactive)
   (kibela-store-default-group)
   (let* ((group-id (assoc-default 'id kibela-default-group))
-         (group-name (assoc-default 'name kibela-default-group))
-         (buffer-name (concat "*Kibela* notes in " group-name))
+         (kibela-group-name (assoc-default 'name kibela-default-group))
+         (buffer-name (concat "*Kibela* notes in " kibela-group-name))
          (buffer (get-buffer-create buffer-name)))
     (cond
      ((null group-id)
