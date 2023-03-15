@@ -381,6 +381,7 @@ DATA はリクエスト成功時の JSON."
   (add-hook 'tabulated-list-revert-hook 'kibela-group-notes-refresh nil t)
   (use-local-map kibela-list-mode-map))
 
+;;;###autoload
 (defun kibela-group-notes ()
   "記事一覧を開くコマンド.
 現在はデフォルトグループの記事一覧のみ開けるようになっている."
@@ -554,7 +555,6 @@ URL などからではなく GraphQL で取得すること."
                                   ("folders" . ,folders-for-base)))))))
     t))
 
-;;;###autoload
 (defun kibela-note-update ()
   "記事更新."
   (interactive)
