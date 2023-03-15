@@ -60,9 +60,14 @@
 (defvar-local kibela-note-url nil
   "記事 URL を保存する変数.")
 
-(defvar kibela-per-page 100)
-(defvar-local kibela-first-cursor nil)
-(defvar-local kibela-last-cursor nil)
+(defvar kibela-per-page 100
+  "記事一覧など、複数件のデータを取得する時の最大値")
+(defvar-local kibela-first-cursor nil
+  "記事一覧で表示している中で先頭の記事の cursor を保存する.
+前ページに戻るために利用する.")
+(defvar-local kibela-last-cursor nil
+  "記事一覧で表示している中で先頭の記事の cursor を保存する.
+前ページに戻るために利用する.")
 
 (defconst kibela-graphql-query-group-notes-prev
   (graphql-query
@@ -83,7 +88,8 @@
                    coediting
                    canBeUpdated
                    url))))))
-  "グループ配下の Note を取得するためのクエリ.")
+  "グループ配下の指定した記事よりも前の記事を取得するためのクエリ.
+グループの記事一覧のページ送りで利用している")
 
 (defconst kibela-graphql-query-group-notes-next
   (graphql-query
@@ -332,6 +338,7 @@ DATA はリクエスト成功時の JSON."
     (kibela--request query variables #'kibela--group-notes-success)))
 
 (defun kibela-group-notes-next-page ()
+  "記事一覧で次のページを取得する処理."
   (interactive)
   (let* ((group-id (assoc-default 'id kibela-default-group))
          (query kibela-graphql-query-group-notes-next)
@@ -339,6 +346,7 @@ DATA はリクエスト成功時の JSON."
     (kibela--request query variables #'kibela--group-notes-success)))
 
 (defun kibela-group-notes-prev-page ()
+  "記事一覧で前のページを取得する処理."
   (interactive)
   (let* ((group-id (assoc-default 'id kibela-default-group))
          (query kibela-graphql-query-group-notes-prev)
