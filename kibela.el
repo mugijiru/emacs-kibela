@@ -60,6 +60,66 @@
 (defvar-local kibela-note-url nil
   "記事 URL を保存する変数.")
 
+(defvar kibela-per-page 40
+  "記事一覧など、複数件のデータを取得する時の最大値")
+
+(defvar-local kibela-first-cursor nil
+  "記事一覧で表示している中で先頭の記事の cursor を保存する.
+前ページに戻るために利用する.")
+
+(defvar-local kibela-last-cursor nil
+  "記事一覧で表示している中で先頭の記事の cursor を保存する.
+前ページに戻るために利用する.")
+
+(defconst kibela-graphql-query-group-notes-prev
+  (graphql-query
+   (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
+               (group
+                :arguments ((id . ($ id)))
+                (notes
+                 :arguments((last . ($ perPage))
+                            (before . ($ cursor))
+                            (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+                 (pageInfo
+                  hasNextPage
+                  hasPreviousPage)
+                 (edges
+                  cursor
+                  (node
+                   id
+                   title
+                   content
+                   contentUpdatedAt
+                   coediting
+                   canBeUpdated
+                   url))))))
+  "グループ配下の指定した記事よりも前の記事を取得するためのクエリ.
+グループの記事一覧のページ送りで利用している")
+
+(defconst kibela-graphql-query-group-notes-next
+  (graphql-query
+   (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
+               (group
+                :arguments ((id . ($ id)))
+                (notes
+                 :arguments((first . ($ perPage))
+                            (after . ($ cursor))
+                            (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+                 (pageInfo
+                  hasNextPage
+                  hasPreviousPage)
+                 (edges
+                  cursor
+                  (node
+                   id
+                   title
+                   content
+                   contentUpdatedAt
+                   coediting
+                   canBeUpdated
+                   url))))))
+  "グループ配下の Note を取得するためのクエリ.")
+
 (defconst kibela-graphql-query-note
   (graphql-query
    (:arguments (($id . ID!))
@@ -79,8 +139,7 @@
                    fullName
                    (group
                     id
-                    name))))
-                canBeUpdated)))
+                    name)))))))
   "Note を取得するためのクエリ.")
 
 (defconst kibela-graphql-query-default-group
@@ -228,6 +287,116 @@ SELECTED は選択した記事テンプレート."
                                                    collection)))
                           (kibela-select-note-template-action selected)))))
     t))
+
+(cl-defun kibela--group-notes-success (&key data &allow-other-keys)
+  "グループとその配下の Notes を取得する処理.
+
+DATA はリクエスト成功時の JSON."
+  (let* ((response-data (assoc-default 'data (graphql-simplify-response-edges data)))
+         (row-data (assoc-default 'data data))
+         (row-group (assoc-default 'group row-data))
+         (row-notes (assoc-default 'notes row-group))
+
+         (page-info (assoc-default 'pageInfo row-notes))
+         (has-prev-page (assoc-default 'hasPreviousPage page-info))
+         (has-next-page (assoc-default 'hasNextPage page-info))
+         (edges (assoc-default 'edges row-notes))
+         (first-note (elt edges 0))
+         (first-cursor (assoc-default 'cursor first-note))
+         (last-note (elt (reverse edges) 0))
+         (last-cursor (assoc-default 'cursor last-note)))
+    (setq tabulated-list-entries nil)
+    (mapc (lambda (note)
+            (let* ((node (assoc-default 'node note))
+                   (id (assoc-default 'id node))
+                   (title (assoc-default 'title node))
+                   (updated-at (assoc-default 'contentUpdatedAt node))
+                   (entry `(id
+                            [(,title . (face default
+                                             action kibela-note-show-from-list
+                                             id ,id))
+                             (,updated-at . (face default
+                                                  action kibela-note-show-from-list
+                                                  id ,id))])))
+              (push entry
+                    tabulated-list-entries)))
+          edges)
+    (setq kibela-first-cursor first-cursor)
+    (setq kibela-last-cursor last-cursor)
+    (setq kibela-has-prev-page (equal has-prev-page t))
+    (setq kibela-has-next-page (equal has-next-page t))
+    (tabulated-list-init-header)
+    (tabulated-list-print)))
+
+(defun kibela-note-show-from-list (marker)
+  "記事一覧から記事を開くためのアクション."
+  (let* ((pos (marker-position marker))
+         (id (get-text-property pos 'id)))
+    (kibela-note-show id)))
+
+(defun kibela-group-notes-refresh ()
+  "記事一覧を読み込み直す処理."
+  (message "Fetch default group notes...")
+  (let* ((group-id (assoc-default 'id kibela-default-group))
+         (query kibela-graphql-query-group-notes-next)
+         (variables `((id . ,group-id) (perPage . ,kibela-per-page))))
+    (kibela--request query variables #'kibela--group-notes-success)))
+
+(defun kibela-group-notes-next-page ()
+  "記事一覧で次のページを取得する処理."
+  (interactive)
+  (cond
+   (kibela-has-next-page
+    (let* ((group-id (assoc-default 'id kibela-default-group))
+         (query kibela-graphql-query-group-notes-next)
+         (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
+      (kibela--request query variables #'kibela--group-notes-success)))
+   (t
+    (message "Current page is last"))))
+
+(defun kibela-group-notes-prev-page ()
+  "記事一覧で前のページを取得する処理."
+  (interactive)
+  (cond
+   (kibela-has-prev-page
+    (let* ((group-id (assoc-default 'id kibela-default-group))
+         (query kibela-graphql-query-group-notes-prev)
+         (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
+      (kibela--request query variables #'kibela--group-notes-success)))
+   (t
+    (message "Current page is first"))))
+
+(defvar kibela-list-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map tabulated-list-mode-map)
+    (define-key map (kbd ">") 'kibela-group-notes-next-page)
+    (define-key map (kbd "<") 'kibela-group-notes-prev-page)
+    map)
+  "Keymap for 'kibela-list-mode'.")
+
+(define-derived-mode kibela-list-mode tabulated-list-mode "Kibela list"
+  "Kibela list view."
+  (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
+  (setq tabulated-list-sort-key '("UpdatedAt" . t))
+  (add-hook 'tabulated-list-revert-hook 'kibela-group-notes-refresh nil t)
+  (use-local-map kibela-list-mode-map))
+
+(defun kibela-group-notes ()
+  "記事一覧を開くコマンド.
+現在はデフォルトグループの記事一覧のみ開けるようになっている."
+  (interactive)
+  (kibela-store-default-group)
+  (let* ((group-id (assoc-default 'id kibela-default-group))
+         (kibela-group-name (assoc-default 'name kibela-default-group))
+         (buffer-name (concat "*Kibela* notes in " kibela-group-name))
+         (buffer (get-buffer-create buffer-name)))
+    (cond
+     ((null group-id)
+      (message "デフォルトグループの取得ができていません"))
+     (t
+      (switch-to-buffer buffer)
+      (kibela-list-mode)
+      (kibela-group-notes-refresh)))))
 
 ;;;###autoload
 (defun kibela-note-new (title)

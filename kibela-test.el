@@ -3,11 +3,18 @@
 (require 'noflet)
 (require 'with-simulated-input)
 
-(defmacro kibela-test--use-response-stub (response &rest body)
+(defmacro kibela-test--use-response-stub (res &rest body)
   (declare (indent defun))
   `(noflet ((request () (error "Unexpected request call")) ;; Don't send request
             (kibela--request (query variables success)
-                             (apply success :data `(,response))))
+                             (apply success :data `(((data (,@ (,@ res))))))))
+     ,@body))
+
+(defmacro kibela-test--inspect-request-arguments (&rest body)
+  (declare (indent defun))
+  `(noflet ((request () (error "Unexpected request call")) ;; Don't send request
+            (kibela--request (query variables success)
+                             `(,query ,variables))) ;; FIXME: response argument is unused
      ,@body))
 
 ;; store default group
@@ -21,7 +28,7 @@
 
 (ert-deftest test-kibela-store-default-group/success ()
   (let ((kibela-default-group nil)
-        (response '((data (defaultGroup (id . "TestId") (name . "Test group"))))))
+        (response '(defaultGroup (id . "TestId") (name . "Test group"))))
     (kibela-test--use-response-stub response
       (kibela-store-default-group)
       (should (equal (symbol-value 'kibela-default-group)
@@ -56,6 +63,124 @@
          (actual (kibela--build-header-line groups folders)))
     (should (string-equal expect actual))))
 
+;; list
+
+(ert-deftest test-kibela-graphql-query-group-notes-prev ()
+  (let ((expected (graphql-query
+                   (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
+                               (group
+                                :arguments ((id . ($ id)))
+                                (notes
+                                 :arguments((last . ($ perPage))
+                                            (before . ($ cursor))
+                                            (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+                                 (pageInfo
+                                  hasNextPage
+                                  hasPreviousPage)
+                                 (edges
+                                  cursor
+                                  (node
+                                   id
+                                   title
+                                   content
+                                   contentUpdatedAt
+                                   coediting
+                                   canBeUpdated
+                                   url))))))))
+    (should (equal expected kibela-graphql-query-group-notes-prev))))
+
+(ert-deftest test-kibela-graphql-query-group-notes-next ()
+  (let ((expected (graphql-query
+                   (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
+                               (group
+                                :arguments ((id . ($ id)))
+                                (notes
+                                 :arguments((first . ($ perPage))
+                                            (after . ($ cursor))
+                                            (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+                                 (pageInfo
+                                  hasNextPage
+                                  hasPreviousPage)
+                                 (edges
+                                  cursor
+                                  (node
+                                   id
+                                   title
+                                   content
+                                   contentUpdatedAt
+                                   coediting
+                                   canBeUpdated
+                                   url))))))))
+    (should (equal expected kibela-graphql-query-group-notes-next))))
+
+(ert-deftest test-kibela-group-notes-refresh/per-page ()
+  (let ((kibela-per-page 100))
+    (kibela-test--inspect-request-arguments
+      (let* ((result (kibela-group-notes-refresh))
+             (query (first result))
+             (variables (second result))
+             (per-page (assoc-default 'perPage variables)))
+        (should (equal per-page 100)))))
+
+  (let ((kibela-per-page 20))
+    (kibela-test--inspect-request-arguments
+      (let* ((result (kibela-group-notes-refresh))
+             (query (first result))
+             (variables (second result))
+             (per-page (assoc-default 'perPage variables)))
+        (should (equal per-page 20))))))
+
+(ert-deftest test-kibela-group-notes ()
+  (let* ((default-group '((id . "GroupId") (name . "Test group")))
+         (kibela-default-group default-group)
+         (response '(group
+                     (id . "GroupId")
+                     (name . "Test group")
+                     (notes
+                      (edges . [((cursor . "A")
+                                 (node
+                                  (id . "NoteId1")
+                                  (title . "Test note1")
+                                  (contentUpdatedAt . "2000-01-01T00:00:00.000+09:00")))
+                                ((cursor . "B")
+                                 (node
+                                  (id . "NoteId2")
+                                  (title . "Test note2")
+                                  (contentUpdatedAt . "2000-01-02T00:00:00.000+09:00")))])
+                      (pageInfo
+                       (hasPreviousPage . :json-false)
+                       (hasNextPage . :json-false)))))
+         (expected-buffer-name "*Kibela* notes in Test group"))
+    (kibela-test--use-response-stub response
+      (kibela-group-notes)
+      (should (string-equal expected-buffer-name (buffer-name)))
+      (should (string-equal major-mode "kibela-list-mode"))
+      (let ((content (buffer-substring-no-properties (point-min) (point-max))))
+        (should (string-match "Test note1" content))
+        (should (string-match "2000-01-01" content))
+        (should (string-match "Test note2" content))
+        (should (string-match "2000-01-02" content))))
+
+    ;; Show note
+    (let ((response '(note (id . "NoteID2")
+                           (title . "Test note2")
+                           (content . "posted content2")
+                           (coediting . t)
+                           (groups . (((id . "GroupId")
+                                       (name . "Test group"))))
+                           (folders . ()))))
+      (kibela-test--use-response-stub response
+        (goto-char (point-min))
+        (execute-kbd-macro (read-kbd-macro "RET")) ;; type RET
+        (should (string-equal "*Kibela* NoteId2" (buffer-name)))
+        (should (string-equal "kibela-markdown-view-mode" major-mode))
+        (should (string-equal "# Test note2\n\nposted content2"
+                              (buffer-substring-no-properties (point-min) (point-max))))))
+
+    ;; Tear down
+    (kill-buffer "*Kibela* NoteId2")
+    (kill-buffer expected-buffer-name)))
+
 ;; note-new
 
 (ert-deftest test-kibela-note-new/when-saved-default-group ()
@@ -73,9 +198,8 @@
   (let* ((kibela-default-group nil)
          (group '((id . "TestId") (name . "Fetched Test group")))
          (default-group (append '(defaultGroup) group))
-         (response `((data ,default-group)))
          (note-title "Test note"))
-    (kibela-test--use-response-stub response
+    (kibela-test--use-response-stub default-group
       (with-temp-buffer
         (kibela-note-new note-title)
         (should (string-equal (buffer-name) "*Kibela* newnote"))
@@ -170,24 +294,24 @@ kibela--new-note-from-template に渡すことを確認する."
         )))
 
 (ert-deftest test-kibela-note-new-from-template ()
-  (let* ((response '((data (noteTemplates (edges . [((node
-                                                      (id . "TestId1")
-                                                      (name . "foo")
-                                                      (title . "Foo title")
-                                                      (evaluatedTitle . "Foo title")
-                                                      (content . "")
-                                                      (groups . [((id . "GroupId")
-                                                                  (name . "Home"))])
-                                                      (folders . [])))
-                                                    ((node
-                                                      (id . "TestId2")
-                                                      (name . "bar")
-                                                      (title . "Bar title")
-                                                      (evaluatedTitle . "Bar title")
-                                                      (content . "")
-                                                      (groups . [((id . "GroupId")
-                                                                  (name . "Home"))])
-                                                      (folders . [])))])))))
+  (let* ((response '(noteTemplates (edges . [((node
+                                               (id . "TestId1")
+                                               (name . "foo")
+                                               (title . "Foo title")
+                                               (evaluatedTitle . "Foo title")
+                                               (content . "")
+                                               (groups . [((id . "GroupId")
+                                                           (name . "Home"))])
+                                               (folders . [])))
+                                             ((node
+                                               (id . "TestId2")
+                                               (name . "bar")
+                                               (title . "Bar title")
+                                               (evaluatedTitle . "Bar title")
+                                               (content . "")
+                                               (groups . [((id . "GroupId")
+                                                           (name . "Home"))])
+                                               (folders . [])))])))
          (completing-read-function #'completing-read-default))
     (kibela-test--use-response-stub response
       (with-temp-buffer
@@ -203,17 +327,16 @@ kibela--new-note-from-template に渡すことを確認する."
 ;; show
 
 (ert-deftest test-kibela-note-show ()
-  (let* ((response '((data
-                      (note (id . "NoteID")
-                            (title . "posted note")
-                            (content . "posted content")
-                            (coediting . t)
-                            (groups . (((id . "GroupID1")
-                                        (name . "Home"))))
-                            (folders . (((id . "FolderID1")
-                                         (fullName . "foo/bar")
-                                         (group . ((id . "GroupID1")
-                                                   (name . "Home")))))))))))
+  (let* ((response '(note (id . "NoteID")
+                          (title . "posted note")
+                          (content . "posted content")
+                          (coediting . t)
+                          (groups . (((id . "GroupID1")
+                                      (name . "Home"))))
+                          (folders . (((id . "FolderID1")
+                                       (fullName . "foo/bar")
+                                       (group . ((id . "GroupID1")
+                                                 (name . "Home")))))))))
     (kibela-test--use-response-stub response
       (with-temp-buffer
         (kibela-note-show "NoteID")
