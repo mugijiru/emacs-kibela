@@ -33,15 +33,17 @@
 (require 'json)
 (require 'kibela-markdown-mode)
 
-(defcustom kibela-team nil
-  "Kibela team name for login."
+(defcustom kibela-auth-list nil
+  "Kibela の認証情報.
+Each element has the form (NAME TEAM ACCESS-TOKEN)"
   :group 'kibela
-  :type 'string)
+  :type '(alist :value-type (string string string)))
 
-(defcustom kibela-access-token nil
-  "Kibela access token for login."
-  :group 'kibela
-  :type 'string)
+(defvar kibela-team nil
+  "Kibela team name for login.")
+
+(defvar kibela-access-token nil
+  "Kibela access token for login.")
 
 (defvar-local kibela-note-base nil
   "記事取得時の状態を保持する.
@@ -221,6 +223,23 @@ SUCCESS はリクエストが成功した時の処理."
                             (pp args)
                             (message "Got error: %S" error-thrown))))))
 
+;;;###autoload
+(defun kibela-switch-team ()
+  "Switch between teams to operate."
+  (interactive)
+  (let* ((selected (completing-read "Select team: " kibela-auth-list))
+         (auth (assoc-default selected kibela-auth-list))
+         (team (cl-first auth))
+         (access-token (cl-second auth)))
+    (cond
+     (auth
+      (kill-matching-buffers "\\\*Kibela\\\*" nil t)
+      (setq kibela-team team)
+      (setq kibela-access-token access-token)
+      (setq kibela-default-group nil))
+     (t
+      (message "No match team.")))))
+
 (cl-defun kibela--store-default-group-success (&key data &allow-other-keys)
   "デフォルトグループ取得リクエスト成功後のデータ格納処理.
 
@@ -273,6 +292,8 @@ SELECTED は選択した記事テンプレート."
 (defun kibela-note-new-from-template ()
   "記事テンプレートから選択したら新規作成用のバッファを表示するコマンド."
   (interactive)
+  (unless (and kibela-team kibela-access-token)
+    (kibela-switch-team))
   (let ((query kibela-graphql-query-note-templates))
     (kibela--request query
                      nil
@@ -348,8 +369,8 @@ DATA はリクエスト成功時の JSON."
   (cond
    (kibela-has-next-page
     (let* ((group-id (assoc-default 'id kibela-default-group))
-         (query kibela-graphql-query-group-notes-next)
-         (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
+           (query kibela-graphql-query-group-notes-next)
+           (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
       (kibela--request query variables #'kibela--group-notes-success)))
    (t
     (message "Current page is last"))))
@@ -360,8 +381,8 @@ DATA はリクエスト成功時の JSON."
   (cond
    (kibela-has-prev-page
     (let* ((group-id (assoc-default 'id kibela-default-group))
-         (query kibela-graphql-query-group-notes-prev)
-         (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
+           (query kibela-graphql-query-group-notes-prev)
+           (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
       (kibela--request query variables #'kibela--group-notes-success)))
    (t
     (message "Current page is first"))))
@@ -386,6 +407,8 @@ DATA はリクエスト成功時の JSON."
   "記事一覧を開くコマンド.
 現在はデフォルトグループの記事一覧のみ開けるようになっている."
   (interactive)
+  (unless (and kibela-team kibela-access-token)
+    (kibela-switch-team))
   (kibela-store-default-group)
   (let* ((group-id (assoc-default 'id kibela-default-group))
          (kibela-group-name (assoc-default 'name kibela-default-group))
@@ -405,6 +428,8 @@ DATA はリクエスト成功時の JSON."
 
 TITLE は新しく作成する記事のタイトル."
   (interactive "stitle: ")
+  (unless (and kibela-team kibela-access-token)
+    (kibela-switch-team))
   (let ((buffer (get-buffer-create "*Kibela* newnote")))
     (kibela-store-default-group)
     (switch-to-buffer buffer)
@@ -511,6 +536,8 @@ TEMPLATE は記事作成時に利用するテンプレート."
 ID は記事の id.
 GraphQL で扱う ID は数字ではなく何らかの変換をされた文字列のようなので
 URL などからではなく GraphQL で取得すること."
+  (unless (and kibela-team kibela-access-token)
+    (kibela-switch-team))
   (let ((query kibela-graphql-query-note)
         (variables `((id . ,id))))
     (kibela--request query

@@ -1,5 +1,6 @@
 (require 'kibela)
 (require 'ert)
+(require 'ert-x)
 (require 'noflet)
 (require 'with-simulated-input)
 
@@ -16,6 +17,36 @@
             (kibela--request (query variables success)
                              `(,query ,variables))) ;; FIXME: response argument is unused
      ,@body))
+
+;; switch team
+
+(ert-deftest test-kibela-switch-team/select-team ()
+  (let* ((kibela-default-group '((id . "TestId") (name . "Test group")))
+         (kibela-auth-list '(("Foo" "foo" "secret/TokenA")
+                              ("Personal" "my-team" "secret/TokenB")))
+         (kibela-team nil)
+         (kibela-access-token nil))
+    (with-simulated-input "Per TAB RET"
+      (kibela-switch-team)
+      (should (string-equal "my-team" kibela-team))
+      (should (string-equal "secret/TokenB" kibela-access-token))
+      (should (equal nil kibela-default-group)))))
+
+(ert-deftest test-kibela-switch-team/no-changes-when-no-match ()
+  (let* ((captured-message nil)
+         (kibela-default-group '((id . "TestId") (name . "Test group")))
+         (kibela-auth-list '(("Foo" "foo" "secret/TokenA")
+                              ("Personal" "my-team" "secret/TokenB")))
+         (kibela-team "Foo")
+         (kibela-access-token "secret/TokenA"))
+    (with-simulated-input "zzzzz RET"
+      (ert-with-message-capture captured-message
+        (kibela-switch-team)
+        (should (string-equal "No match team.\n" captured-message))))
+    (should (string-equal "Foo" kibela-team))
+    (should (string-equal "secret/TokenA" kibela-access-token))
+    (should (equal '((id . "TestId") (name . "Test group"))
+                   kibela-default-group))))
 
 ;; store default group
 
@@ -133,6 +164,8 @@
 (ert-deftest test-kibela-group-notes ()
   (let* ((default-group '((id . "GroupId") (name . "Test group")))
          (kibela-default-group default-group)
+         (kibela-team "dummy")
+         (kibela-access-token "dummy")
          (response '(group
                      (id . "GroupId")
                      (name . "Test group")
@@ -185,6 +218,8 @@
 
 (ert-deftest test-kibela-note-new/when-saved-default-group ()
   (let ((kibela-default-group '((id . "TestId") (name . "Saved Test group")))
+        (kibela-team "dummy")
+        (kibela-access-token "dummy")
         (note-title "Test note"))
     (kibela-test--use-response-stub nil
       (with-temp-buffer
@@ -195,7 +230,9 @@
         (kill-buffer)))))
 
 (ert-deftest test-kibela-note-new/fetch-default-group ()
-  (let* ((kibela-default-group nil)
+  (let* ((kibela-team "dummy")
+         (kibela-access-token "dummy")
+         (kibela-default-group nil)
          (group '((id . "TestId") (name . "Fetched Test group")))
          (default-group (append '(defaultGroup) group))
          (note-title "Test note"))
@@ -294,7 +331,9 @@ kibela--new-note-from-template に渡すことを確認する."
         )))
 
 (ert-deftest test-kibela-note-new-from-template ()
-  (let* ((response '(noteTemplates (edges . [((node
+  (let* ((kibela-team "dummy")
+         (kibela-access-token "dummy")
+         (response '(noteTemplates (edges . [((node
                                                (id . "TestId1")
                                                (name . "foo")
                                                (title . "Foo title")
@@ -327,7 +366,9 @@ kibela--new-note-from-template に渡すことを確認する."
 ;; show
 
 (ert-deftest test-kibela-note-show ()
-  (let* ((response '(note (id . "NoteID")
+  (let* ((kibela-team "dummy")
+         (kibela-access-token "dummy")
+         (response '(note (id . "NoteID")
                           (title . "posted note")
                           (content . "posted content")
                           (coediting . t)
