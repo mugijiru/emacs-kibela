@@ -33,15 +33,17 @@
 (require 'json)
 (require 'kibela-markdown-mode)
 
-(defcustom kibela-team nil
-  "Kibela team name for login."
+(defcustom kibela-auth-pairs nil
+  "Kibela の認証情報.
+Each element has the form (NAME TEAM ACCESS-TOKEN)"
   :group 'kibela
-  :type 'string)
+  :type '(alist :value-type (string string string)))
 
-(defcustom kibela-access-token nil
-  "Kibela access token for login."
-  :group 'kibela
-  :type 'string)
+(defvar kibela-team nil
+  "Kibela team name for login.")
+
+(defvar kibela-access-token nil
+  "Kibela access token for login.")
 
 (defvar-local kibela-note-base nil
   "記事取得時の状態を保持する.
@@ -220,6 +222,22 @@ SUCCESS はリクエストが成功した時の処理."
       :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
                             (pp args)
                             (message "Got error: %S" error-thrown))))))
+
+;;;###autoload
+(defun kibela-switch-team ()
+  "Switch between teams to operate."
+  (interactive)
+  (let* ((selected (completing-read "Select team: " kibela-auth-pairs))
+         (auth (assoc-default selected kibela-auth-pairs))
+         (team (first auth))
+         (access-token (second auth)))
+    (cond
+     (auth
+      (setq kibela-team team)
+      (setq kibela-access-token access-token)
+      (setq kibela-default-group nil))
+     (t
+      (message "No match team.")))))
 
 (cl-defun kibela--store-default-group-success (&key data &allow-other-keys)
   "デフォルトグループ取得リクエスト成功後のデータ格納処理.
