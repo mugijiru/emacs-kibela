@@ -62,8 +62,10 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
 (defvar-local kibela-note-url nil
   "記事 URL を保存する変数.")
 
-(defvar kibela-per-page 40
-  "記事一覧など、複数件のデータを取得する時の最大値")
+(defcustom kibela-per-page 40
+  "記事一覧など、複数件のデータを取得する時の最大値"
+  :group 'kibela
+  :type 'integer)
 
 (defvar-local kibela-first-cursor nil
   "記事一覧で表示している中で先頭の記事の cursor を保存する.
