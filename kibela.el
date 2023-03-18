@@ -500,7 +500,7 @@ TEMPLATE は記事作成時に利用するテンプレート."
   (interactive)
   (let* ((query kibela-graphql-mutation-create-note)
          (buffer-content (substring-no-properties (buffer-string)))
-         (title (substring-no-properties (first (split-string buffer-content "\n")) 2))
+         (title (substring-no-properties (cl-first (split-string buffer-content "\n")) 2))
          (content (string-join (cddr (split-string buffer-content "\n")) "\n"))
          (coediting t) ;; TODO handle coediting
          (draft json-false) ;; TODO handle draft
@@ -596,9 +596,9 @@ URL などからではなく GraphQL で取得すること."
   "記事更新."
   (interactive)
   (let* ((query kibela-graphql-mutation-update-note)
-         (id (second (split-string (buffer-name))))
+         (id (cl-second (split-string (buffer-name))))
          (buffer-content (substring-no-properties (buffer-string)))
-         (title (substring-no-properties (first (split-string buffer-content "\n")) 2))
+         (title (substring-no-properties (cl-first (split-string buffer-content "\n")) 2))
          (content (string-join (cddr (split-string buffer-content "\n")) "\n"))
          (coediting (assoc-default "coediting" kibela-note-base))
          (group-ids (assoc-default "groupIds" kibela-note-base))
