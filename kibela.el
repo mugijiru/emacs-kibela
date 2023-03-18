@@ -291,6 +291,8 @@ SELECTED は選択した記事テンプレート."
 (defun kibela-note-new-from-template ()
   "記事テンプレートから選択したら新規作成用のバッファを表示するコマンド."
   (interactive)
+  (unless (and kibela-team kibela-access-token)
+    (kibela-switch-team))
   (let ((query kibela-graphql-query-note-templates))
     (kibela--request query
                      nil
@@ -404,6 +406,8 @@ DATA はリクエスト成功時の JSON."
   "記事一覧を開くコマンド.
 現在はデフォルトグループの記事一覧のみ開けるようになっている."
   (interactive)
+  (unless (and kibela-team kibela-access-token)
+    (kibela-switch-team))
   (kibela-store-default-group)
   (let* ((group-id (assoc-default 'id kibela-default-group))
          (kibela-group-name (assoc-default 'name kibela-default-group))
@@ -423,6 +427,8 @@ DATA はリクエスト成功時の JSON."
 
 TITLE は新しく作成する記事のタイトル."
   (interactive "stitle: ")
+  (unless (and kibela-team kibela-access-token)
+    (kibela-switch-team))
   (let ((buffer (get-buffer-create "*Kibela* newnote")))
     (kibela-store-default-group)
     (switch-to-buffer buffer)
@@ -529,6 +535,8 @@ TEMPLATE は記事作成時に利用するテンプレート."
 ID は記事の id.
 GraphQL で扱う ID は数字ではなく何らかの変換をされた文字列のようなので
 URL などからではなく GraphQL で取得すること."
+  (unless (and kibela-team kibela-access-token)
+    (kibela-switch-team))
   (let ((query kibela-graphql-query-note)
         (variables `((id . ,id))))
     (kibela--request query

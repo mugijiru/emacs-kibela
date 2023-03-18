@@ -164,6 +164,8 @@
 (ert-deftest test-kibela-group-notes ()
   (let* ((default-group '((id . "GroupId") (name . "Test group")))
          (kibela-default-group default-group)
+         (kibela-team "dummy")
+         (kibela-access-token "dummy")
          (response '(group
                      (id . "GroupId")
                      (name . "Test group")
@@ -216,6 +218,8 @@
 
 (ert-deftest test-kibela-note-new/when-saved-default-group ()
   (let ((kibela-default-group '((id . "TestId") (name . "Saved Test group")))
+        (kibela-team "dummy")
+        (kibela-access-token "dummy")
         (note-title "Test note"))
     (kibela-test--use-response-stub nil
       (with-temp-buffer
@@ -226,7 +230,9 @@
         (kill-buffer)))))
 
 (ert-deftest test-kibela-note-new/fetch-default-group ()
-  (let* ((kibela-default-group nil)
+  (let* ((kibela-team "dummy")
+         (kibela-access-token "dummy")
+         (kibela-default-group nil)
          (group '((id . "TestId") (name . "Fetched Test group")))
          (default-group (append '(defaultGroup) group))
          (note-title "Test note"))
@@ -325,7 +331,9 @@ kibela--new-note-from-template に渡すことを確認する."
         )))
 
 (ert-deftest test-kibela-note-new-from-template ()
-  (let* ((response '(noteTemplates (edges . [((node
+  (let* ((kibela-team "dummy")
+         (kibela-access-token "dummy")
+         (response '(noteTemplates (edges . [((node
                                                (id . "TestId1")
                                                (name . "foo")
                                                (title . "Foo title")
@@ -358,7 +366,9 @@ kibela--new-note-from-template に渡すことを確認する."
 ;; show
 
 (ert-deftest test-kibela-note-show ()
-  (let* ((response '(note (id . "NoteID")
+  (let* ((kibela-team "dummy")
+         (kibela-access-token "dummy")
+         (response '(note (id . "NoteID")
                           (title . "posted note")
                           (content . "posted content")
                           (coediting . t)
