@@ -38,6 +38,7 @@ jobs:
     - name: Run tests
       run: |
         eask clean all
+        eask install-deps --dev
         eask package
         eask install --dev
         eask compile
