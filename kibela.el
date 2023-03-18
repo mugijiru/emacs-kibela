@@ -229,8 +229,8 @@ SUCCESS はリクエストが成功した時の処理."
   (interactive)
   (let* ((selected (completing-read "Select team: " kibela-auth-list))
          (auth (assoc-default selected kibela-auth-list))
-         (team (first auth))
-         (access-token (second auth)))
+         (team (cl-first auth))
+         (access-token (cl-second auth)))
     (cond
      (auth
       (kill-matching-buffers "\\\*Kibela\\\*" nil t)
