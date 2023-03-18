@@ -430,23 +430,6 @@ DATA はリクエスト成功時の JSON."
       (kibela-list-mode)
       (kibela-group-notes-refresh)))))
 
-;;;###autoload
-(defun kibela-note-new (title)
-  "記事を作成するバッファを用意する.
-
-TITLE は新しく作成する記事のタイトル."
-  (interactive "stitle: ")
-  (unless (and kibela-team kibela-access-token)
-    (kibela-switch-team))
-  (let ((buffer (get-buffer-create "*Kibela* newnote")))
-    (kibela-store-default-group)
-    (switch-to-buffer buffer)
-    (insert (concat "# " title "\n\n"))
-    (kibela-markdown-mode)
-    (setq header-line-format
-          (kibela--build-header-line `(,kibela-default-group)))
-    t))
-
 (cl-defun kibela--build-header-line (groups &optional (folders '()))
   "グループ/フォルダ情報から header-line 用の文字列を構築する.
 edit と new from template で利用している.
@@ -475,6 +458,25 @@ FOLDERS はその記事が収められているフォルダの一覧.
                               groups-without-folder))
          (names (append group-names folder-names)))
     (string-join names " | ")))
+
+(declare-function kibela--build-header-line "kibela")
+
+;;;###autoload
+(defun kibela-note-new (title)
+  "記事を作成するバッファを用意する.
+
+TITLE は新しく作成する記事のタイトル."
+  (interactive "stitle: ")
+  (unless (and kibela-team kibela-access-token)
+    (kibela-switch-team))
+  (let ((buffer (get-buffer-create "*Kibela* newnote")))
+    (kibela-store-default-group)
+    (switch-to-buffer buffer)
+    (insert (concat "# " title "\n\n"))
+    (kibela-markdown-mode)
+    (setq header-line-format
+          (kibela--build-header-line `(,kibela-default-group)))
+    t))
 
 (defun kibela--new-note-from-template (template)
   "記事を作成するバッファを用意する.
