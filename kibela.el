@@ -75,6 +75,12 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
   "記事一覧で表示している中で先頭の記事の cursor を保存する.
 前ページに戻るために利用する.")
 
+(defvar-local kibela-has-next-page nil
+  "記事一覧で次のページが存在するかどうか.")
+
+(defvar-local kibela-has-prev-page nil
+  "記事一覧で前のページが存在するかどうか.")
+
 (defconst kibela-graphql-query-group-notes-prev
   (graphql-query
    (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
