@@ -33,7 +33,7 @@
 (require 'json)
 (require 'kibela-markdown-mode)
 
-(defcustom kibela-auth-pairs nil
+(defcustom kibela-auth-list nil
   "Kibela の認証情報.
 Each element has the form (NAME TEAM ACCESS-TOKEN)"
   :group 'kibela
@@ -227,8 +227,8 @@ SUCCESS はリクエストが成功した時の処理."
 (defun kibela-switch-team ()
   "Switch between teams to operate."
   (interactive)
-  (let* ((selected (completing-read "Select team: " kibela-auth-pairs))
-         (auth (assoc-default selected kibela-auth-pairs))
+  (let* ((selected (completing-read "Select team: " kibela-auth-list))
+         (auth (assoc-default selected kibela-auth-list))
          (team (first auth))
          (access-token (second auth)))
     (cond

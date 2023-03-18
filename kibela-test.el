@@ -22,7 +22,7 @@
 
 (ert-deftest test-kibela-switch-team/select-team ()
   (let* ((kibela-default-group '((id . "TestId") (name . "Test group")))
-         (kibela-auth-pairs '(("Foo" "foo" "secret/TokenA")
+         (kibela-auth-list '(("Foo" "foo" "secret/TokenA")
                               ("Personal" "my-team" "secret/TokenB")))
          (kibela-team nil)
          (kibela-access-token nil))
@@ -35,7 +35,7 @@
 (ert-deftest test-kibela-switch-team/no-changes-when-no-match ()
   (let* ((captured-message nil)
          (kibela-default-group '((id . "TestId") (name . "Test group")))
-         (kibela-auth-pairs '(("Foo" "foo" "secret/TokenA")
+         (kibela-auth-list '(("Foo" "foo" "secret/TokenA")
                               ("Personal" "my-team" "secret/TokenB")))
          (kibela-team "Foo")
          (kibela-access-token "secret/TokenA"))
