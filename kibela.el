@@ -369,8 +369,8 @@ DATA はリクエスト成功時の JSON."
   (cond
    (kibela-has-next-page
     (let* ((group-id (assoc-default 'id kibela-default-group))
-         (query kibela-graphql-query-group-notes-next)
-         (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
+           (query kibela-graphql-query-group-notes-next)
+           (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
       (kibela--request query variables #'kibela--group-notes-success)))
    (t
     (message "Current page is last"))))
@@ -381,8 +381,8 @@ DATA はリクエスト成功時の JSON."
   (cond
    (kibela-has-prev-page
     (let* ((group-id (assoc-default 'id kibela-default-group))
-         (query kibela-graphql-query-group-notes-prev)
-         (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
+           (query kibela-graphql-query-group-notes-prev)
+           (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
       (kibela--request query variables #'kibela--group-notes-success)))
    (t
     (message "Current page is first"))))
