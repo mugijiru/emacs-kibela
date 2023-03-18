@@ -75,6 +75,12 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
   "記事一覧で表示している中で先頭の記事の cursor を保存する.
 前ページに戻るために利用する.")
 
+(defvar-local kibela-has-next-page nil
+  "記事一覧で次のページが存在するかどうか.")
+
+(defvar-local kibela-has-prev-page nil
+  "記事一覧で前のページが存在するかどうか.")
+
 (defconst kibela-graphql-query-group-notes-prev
   (graphql-query
    (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
@@ -424,23 +430,6 @@ DATA はリクエスト成功時の JSON."
       (kibela-list-mode)
       (kibela-group-notes-refresh)))))
 
-;;;###autoload
-(defun kibela-note-new (title)
-  "記事を作成するバッファを用意する.
-
-TITLE は新しく作成する記事のタイトル."
-  (interactive "stitle: ")
-  (unless (and kibela-team kibela-access-token)
-    (kibela-switch-team))
-  (let ((buffer (get-buffer-create "*Kibela* newnote")))
-    (kibela-store-default-group)
-    (switch-to-buffer buffer)
-    (insert (concat "# " title "\n\n"))
-    (kibela-markdown-mode)
-    (setq header-line-format
-          (kibela--build-header-line `(,kibela-default-group)))
-    t))
-
 (cl-defun kibela--build-header-line (groups &optional (folders '()))
   "グループ/フォルダ情報から header-line 用の文字列を構築する.
 edit と new from template で利用している.
@@ -470,6 +459,25 @@ FOLDERS はその記事が収められているフォルダの一覧.
          (names (append group-names folder-names)))
     (string-join names " | ")))
 
+(declare-function kibela--build-header-line "kibela")
+
+;;;###autoload
+(defun kibela-note-new (title)
+  "記事を作成するバッファを用意する.
+
+TITLE は新しく作成する記事のタイトル."
+  (interactive "stitle: ")
+  (unless (and kibela-team kibela-access-token)
+    (kibela-switch-team))
+  (let ((buffer (get-buffer-create "*Kibela* newnote")))
+    (kibela-store-default-group)
+    (switch-to-buffer buffer)
+    (insert (concat "# " title "\n\n"))
+    (kibela-markdown-mode)
+    (setq header-line-format
+          (kibela--build-header-line `(,kibela-default-group)))
+    t))
+
 (defun kibela--new-note-from-template (template)
   "記事を作成するバッファを用意する.
 
@@ -492,7 +500,7 @@ TEMPLATE は記事作成時に利用するテンプレート."
   (interactive)
   (let* ((query kibela-graphql-mutation-create-note)
          (buffer-content (substring-no-properties (buffer-string)))
-         (title (substring-no-properties (first (split-string buffer-content "\n")) 2))
+         (title (substring-no-properties (cl-first (split-string buffer-content "\n")) 2))
          (content (string-join (cddr (split-string buffer-content "\n")) "\n"))
          (coediting t) ;; TODO handle coediting
          (draft json-false) ;; TODO handle draft
@@ -588,9 +596,9 @@ URL などからではなく GraphQL で取得すること."
   "記事更新."
   (interactive)
   (let* ((query kibela-graphql-mutation-update-note)
-         (id (second (split-string (buffer-name))))
+         (id (cl-second (split-string (buffer-name))))
          (buffer-content (substring-no-properties (buffer-string)))
-         (title (substring-no-properties (first (split-string buffer-content "\n")) 2))
+         (title (substring-no-properties (cl-first (split-string buffer-content "\n")) 2))
          (content (string-join (cddr (split-string buffer-content "\n")) "\n"))
          (coediting (assoc-default "coediting" kibela-note-base))
          (group-ids (assoc-default "groupIds" kibela-note-base))

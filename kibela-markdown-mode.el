@@ -29,6 +29,9 @@
 
 (require 'markdown-mode)
 
+(declare-function kibela-note-create "kibela")
+(declare-function kibela-note-update "kibela")
+
 (defun kibela-markdown-post ()
   "Kibela に投稿する処理."
   (interactive)
