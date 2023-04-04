@@ -58,7 +58,7 @@ jobs:
       with:
         version: 'snapshot'
 
-    - name: Run tests
+    - name: Run lint
       run: |
         eask clean all
         eask lint package
