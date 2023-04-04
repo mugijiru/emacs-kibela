@@ -19,4 +19,5 @@
 (development
  (depends-on "ert-runner")
  (depends-on "noflet")
+ (depends-on "undercover")
  (depends-on "with-simulated-input"))
