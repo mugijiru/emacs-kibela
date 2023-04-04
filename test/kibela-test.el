@@ -148,16 +148,16 @@
   (let ((kibela-per-page 100))
     (kibela-test--inspect-request-arguments
       (let* ((result (kibela-group-notes-refresh))
-             (query (first result))
-             (variables (second result))
+             (query (cl-first result))
+             (variables (cl-second result))
              (per-page (assoc-default 'perPage variables)))
         (should (equal per-page 100)))))
 
   (let ((kibela-per-page 20))
     (kibela-test--inspect-request-arguments
       (let* ((result (kibela-group-notes-refresh))
-             (query (first result))
-             (variables (second result))
+             (query (cl-first result))
+             (variables (cl-second result))
              (per-page (assoc-default 'perPage variables)))
         (should (equal per-page 20))))))
 
