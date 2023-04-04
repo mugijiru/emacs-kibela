@@ -42,7 +42,7 @@ jobs:
         eask package
         eask install --dev
         eask compile
-        eask test ert *-test.el
+        eask test ert-runner
 
   lint:
     runs-on: ubuntu-latest
