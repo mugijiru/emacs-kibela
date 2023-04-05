@@ -35,6 +35,29 @@ jobs:
       with:
         version: 'snapshot'
 
+    - name: Run tests
+      run: |
+        eask clean all
+        eask install-deps --dev
+        eask package
+        eask install --dev
+        eask compile
+        eask test ert-runner
+
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: jcs090218/setup-emacs@master
+      with:
+        version: 28.2
+
+    - uses: emacs-eask/setup-eask@master
+      with:
+        version: 'snapshot'
+
     - name: Setup Code Climate test-reporter
       run: |
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -54,7 +77,6 @@ jobs:
         eask install-deps --dev
         eask package
         eask install --dev
-        eask compile
         eask test ert-runner
 
     - name: CodeClimate afterbuild
