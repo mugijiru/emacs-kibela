@@ -42,7 +42,7 @@ jobs:
         eask package
         eask install --dev
         eask compile
-        eask test ert *-test.el
+        eask test ert-runner
 
   lint:
     runs-on: ubuntu-latest
@@ -58,7 +58,7 @@ jobs:
       with:
         version: 'snapshot'
 
-    - name: Run tests
+    - name: Run lint
       run: |
         eask clean all
         eask lint package
