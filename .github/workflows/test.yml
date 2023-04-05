@@ -35,6 +35,19 @@ jobs:
       with:
         version: 'snapshot'
 
+    - name: Setup Code Climate test-reporter
+      run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+
+    - name: CodeClimate prebuild
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_REPORTER_ID }}
+      run: ./cc-test-reporter before-build
+
+    - name: Setup test report location
+      run: mkdir -p tmp
+
     - name: Run tests
       run: |
         eask clean all
@@ -43,6 +56,11 @@ jobs:
         eask install --dev
         eask compile
         eask test ert-runner
+
+    - name: CodeClimate afterbuild
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_REPORTER_ID }}
+      run: ./cc-test-reporter after-build
 
   lint:
     runs-on: ubuntu-latest
