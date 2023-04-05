@@ -72,17 +72,21 @@ jobs:
       run: mkdir -p tmp
 
     - name: Run tests
+      env:
+        UNDERCOVER_FORCE: true
       run: |
         eask clean all
         eask install-deps --dev
         eask package
         eask install --dev
+        eask compile
         eask test ert-runner
+        ls -a tmp
 
     - name: CodeClimate afterbuild
       env:
         CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_REPORTER_ID }}
-      run: ./cc-test-reporter after-build
+      run: ./cc-test-reporter after-build -t simplecov -d
 
   lint:
     runs-on: ubuntu-latest
