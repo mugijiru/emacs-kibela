@@ -84,7 +84,7 @@ jobs:
         CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_REPORTER_ID }}
       run: ./cc-test-reporter after-build -t simplecov -d
 
-  lint:
+  lint-package:
     runs-on: ubuntu-latest
 
     steps:
@@ -102,3 +102,42 @@ jobs:
       run: |
         eask clean all
         eask lint package
+
+  lint-indent:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: jcs090218/setup-emacs@master
+      with:
+        version: 28.2
+
+    - uses: emacs-eask/setup-eask@master
+      with:
+        version: 'snapshot'
+
+    - name: Run lint
+      run: |
+        eask clean all
+        eask lint indent
+
+  lint-elint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: jcs090218/setup-emacs@master
+      with:
+        version: 28.2
+
+    - uses: emacs-eask/setup-eask@master
+      with:
+        version: 'snapshot'
+
+    - name: Run lint
+      run: |
+        eask clean all
+        eask install-deps --dev
+        eask lint elint
