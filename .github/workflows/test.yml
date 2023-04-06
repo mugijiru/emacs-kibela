@@ -77,9 +77,6 @@ jobs:
       run: |
         eask clean all
         eask install-deps --dev
-        eask package
-        eask install --dev
-        eask compile
         eask test ert-runner
 
     - name: CodeClimate afterbuild
