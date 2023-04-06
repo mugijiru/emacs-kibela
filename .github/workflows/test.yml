@@ -69,7 +69,7 @@ jobs:
       run: ./cc-test-reporter before-build
 
     - name: Setup test report location
-      run: mkdir -p tmp
+      run: mkdir -p coverage
 
     - name: Run tests
       env:
@@ -81,7 +81,6 @@ jobs:
         eask install --dev
         eask compile
         eask test ert-runner
-        ls -a tmp
 
     - name: CodeClimate afterbuild
       env:

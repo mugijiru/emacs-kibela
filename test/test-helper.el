@@ -2,6 +2,6 @@
   (undercover "*.el"
               (:send-report nil)
               (:report-format 'simplecov)
-              (:report-file "tmp/rspec_results.json")))
+              (:report-file "coverage/coverage.json")))
 
 (require 'kibela)
