@@ -44,6 +44,46 @@ jobs:
         eask compile
         eask test ert-runner
 
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: jcs090218/setup-emacs@master
+      with:
+        version: 28.2
+
+    - uses: emacs-eask/setup-eask@master
+      with:
+        version: 'snapshot'
+
+    - name: Setup Code Climate test-reporter
+      run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+
+    - name: CodeClimate prebuild
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_REPORTER_ID }}
+      run: ./cc-test-reporter before-build
+
+    - name: Setup test report location
+      run: mkdir -p coverage
+
+    - name: Run tests
+      env:
+        UNDERCOVER_FORCE: true
+      run: |
+        eask clean all
+        eask install-deps --dev
+        eask test ert-runner
+
+    - name: CodeClimate afterbuild
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_REPORTER_ID }}
+      run: ./cc-test-reporter after-build -t simplecov -d
+
   lint:
     runs-on: ubuntu-latest
 

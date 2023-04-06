@@ -1,3 +1,7 @@
-;;; test-helper.el --- Helpers for emacs-kibela-test.el
+(when (require 'undercover nil t)
+  (undercover "*.el"
+              (:send-report nil)
+              (:report-format 'simplecov)
+              (:report-file "coverage/coverage.json")))
 
-;;; test-helper.el ends here
+(require 'kibela)
