@@ -1,6 +1,7 @@
 [[https://img.shields.io/github/v/tag/mugijiru/emacs-kibela.svg]]
 [[https://img.shields.io/badge/License-GNU%20GPL-blue.svg]]
 [[https://github.com/mugijiru/emacs-kibela/actions/workflows/test.yml/badge.svg]]
+[[https://api.codeclimate.com/v1/badges/4f7f74cdaad0cc258984/test_coverage.svg]]
 
 * kibela.el
 
