@@ -16,6 +16,7 @@
 (depends-on "graphql" "0.1.1")
 (depends-on "request" "0.3.3")
 (depends-on "markdown-mode" "2.5")
+(depends-on "edit-indirect" "0.1.10")
 (development
  (depends-on "ert-runner")
  (depends-on "noflet")
