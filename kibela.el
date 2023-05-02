@@ -130,6 +130,51 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
                    url))))))
   "グループ配下の Note を取得するためのクエリ.")
 
+(defconst kibela-graphql-query-recent-browsing-notes-prev
+  (graphql-query
+   (:arguments (($perPage . Int!) ($cursor . String))
+               (noteBrowsingHistories
+                :arguments((last . ($ perPage))
+                           (before . ($ cursor)))
+                (pageInfo
+                 hasNextPage
+                 hasPreviousPage)
+                (edges
+                 cursor
+                 (node
+                  (note
+                   id
+                   title
+                   content
+                   contentUpdatedAt
+                   coediting
+                   canBeUpdated
+                   url))))))
+  "最近見た Note を取得するためのクエリ.
+ページ送りで利用している")
+
+(defconst kibela-graphql-query-recent-browsing-notes-next
+  (graphql-query
+   (:arguments (($perPage . Int!) ($cursor . String))
+               (noteBrowsingHistories
+                :arguments((first . ($ perPage))
+                           (after . ($ cursor)))
+                (pageInfo
+                 hasNextPage
+                 hasPreviousPage)
+                (edges
+                 cursor
+                 (node
+                  (note
+                   id
+                   title
+                   content
+                   contentUpdatedAt
+                   coediting
+                   canBeUpdated
+                   url))))))
+  "最近見た Note を取得するためのクエリ.")
+
 (defconst kibela-graphql-query-note
   (graphql-query
    (:arguments (($id . ID!))
@@ -429,6 +474,111 @@ DATA はリクエスト成功時の JSON."
       (switch-to-buffer buffer)
       (kibela-list-mode)
       (kibela-group-notes-refresh)))))
+
+(cl-defun kibela--recent-browsing-notes-success (&key data &allow-other-keys)
+  "最近見た Notes を取得する処理.
+
+DATA はリクエスト成功時の JSON."
+  (let* ((response-data (assoc-default 'data (graphql-simplify-response-edges data)))
+         (row-data (assoc-default 'data data))
+         (row-note-browsing-histories (assoc-default 'noteBrowsingHistories row-data))
+
+         (page-info (assoc-default 'pageInfo row-note-browsing-histories))
+         (has-prev-page (assoc-default 'hasPreviousPage page-info))
+         (has-next-page (assoc-default 'hasNextPage page-info))
+         (edges (assoc-default 'edges row-note-browsing-histories))
+         (first-note-browsing-history (elt edges 0))
+         (first-cursor (assoc-default 'cursor first-note-browsing-history))
+         (last-note-browsing-history (elt (reverse edges) 0))
+         (last-cursor (assoc-default 'cursor last-note-browsing-history))
+         (entries nil))
+    (setq tabulated-list-entries nil)
+
+    (mapc (lambda (note-browsing-history)
+            (let* ((node (assoc-default 'node note-browsing-history))
+                   (note (assoc-default 'note node))
+                   (id (assoc-default 'id note))
+                   (title (assoc-default 'title note))
+                   (updated-at (assoc-default 'contentUpdatedAt note))
+                   (entry `(id
+                            [(,title . (face default
+                                             action kibela-note-show-from-list
+                                             id ,id))
+                             (,updated-at . (face default
+                                                  action kibela-note-show-from-list
+                                                  id ,id))])))
+              (push entry
+                    entries)))
+          edges)
+    (setq tabulated-list-entries (nreverse entries))
+    (setq kibela-first-cursor first-cursor)
+    (setq kibela-last-cursor last-cursor)
+    (setq kibela-has-prev-page (equal has-prev-page t))
+    (setq kibela-has-next-page (equal has-next-page t))
+    (tabulated-list-init-header)
+    (tabulated-list-print)))
+
+(defun kibela-recent-browsing-notes-refresh ()
+  "記事一覧を読み込み直す処理."
+  (message "Fetch default recent browsing notes...")
+  (let* ((query kibela-graphql-query-recent-browsing-notes-next)
+         (variables `((perPage . ,kibela-per-page))))
+    (kibela--request query variables #'kibela--recent-browsing-notes-success)))
+
+(defun kibela-recent-browsing-notes-next-page ()
+  "記事一覧で次のページを取得する処理."
+  (interactive)
+  (cond
+   (kibela-has-next-page
+    (let* ((query kibela-graphql-query-recent-browsing-notes-next)
+           (variables `((perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
+      (kibela--request query variables #'kibela--recent-browsing-notes-success)))
+   (t
+    (message "Current page is last"))))
+
+(defun kibela-recent-browsing-notes-prev-page ()
+  "記事一覧で前のページを取得する処理."
+  (interactive)
+  (cond
+   (kibela-has-prev-page
+    (let* ((query kibela-graphql-query-recent-browsing-notes-prev)
+           (variables `((perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
+      (kibela--request query variables #'kibela--recent-browsing-notes-success)))
+   (t
+    (message "Current page is first"))))
+
+(defvar kibela-recent-browsing-notes-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map tabulated-list-mode-map)
+    (define-key map (kbd ">") 'kibela-recent-browsing-notes-next-page)
+    (define-key map (kbd "<") 'kibela-recent-browsing-notes-prev-page)
+    map)
+  "Keymap for 'kibela-recent-browsing-notes-mode'.")
+
+(define-derived-mode kibela-recent-browsing-notes-mode tabulated-list-mode "Kibela recent browsing notes"
+  "Kibela list view for recent browsing notes."
+  (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
+  (setq tabulated-list-sort-key nil)
+  (add-hook 'tabulated-list-revert-hook 'kibela-recent-browsing-notes-refresh nil t)
+  (use-local-map kibela-recent-browsing-notes-mode-map))
+
+(defun kibela-recent-browsing-notes-refresh ()
+  "最近見た記事一覧を読み込み直す処理."
+  (let* ((query kibela-graphql-query-recent-browsing-notes-next)
+         (variables `((perPage . ,kibela-per-page))))
+    (kibela--request query variables #'kibela--recent-browsing-notes-success)))
+
+;;;###autoload
+(defun kibela-recent-browsing-notes ()
+  "最近見た記事一覧を開くコマンド."
+  (interactive)
+  (unless (and kibela-team kibela-access-token)
+    (kibela-switch-team))
+  (let* ((buffer-name "*Kibela* recent browsing notes")
+         (buffer (get-buffer-create buffer-name)))
+    (switch-to-buffer buffer)
+    (kibela-recent-browsing-notes-mode)
+    (kibela-recent-browsing-notes-refresh)))
 
 (cl-defun kibela--build-header-line (groups &optional (folders '()))
   "グループ/フォルダ情報から header-line 用の文字列を構築する.

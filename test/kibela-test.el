@@ -214,6 +214,36 @@
     (kill-buffer "*Kibela* NoteId2")
     (kill-buffer expected-buffer-name)))
 
+(ert-deftest test-kibela-recent-browsing-notes ()
+  (let* ((kibela-team "dummy")
+         (kibela-access-token "dummy")
+         (response '(noteBrowsingHistories
+                     (edges . [((cursor . "A")
+                                (node
+                                 (note
+                                  (id . "NoteId1")
+                                  (title . "Test note1")
+                                  (contentUpdatedAt . "2000-01-01T00:00:00.000+09:00"))))
+                               ((cursor . "B")
+                                (node
+                                 (note
+                                  (id . "NoteId2")
+                                  (title . "Test note2")
+                                  (contentUpdatedAt . "2000-01-02T00:00:00.000+09:00"))))])
+                      (pageInfo
+                       (hasPreviousPage . :json-false)
+                       (hasNextPage . :json-false))))
+         (expected-buffer-name "*Kibela* recent browsing notes"))
+    (kibela-test--use-response-stub response
+      (kibela-recent-browsing-notes)
+      (should (string-equal expected-buffer-name (buffer-name)))
+      (should (string-equal major-mode "kibela-recent-browsing-notes-mode"))
+      (let ((content (buffer-substring-no-properties (point-min) (point-max))))
+        (should (string-match "Test note1" content))
+        (should (string-match "2000-01-01" content))
+        (should (string-match "Test note2" content))
+        (should (string-match "2000-01-02" content))))))
+
 ;; note-new
 
 (ert-deftest test-kibela-note-new/when-saved-default-group ()
