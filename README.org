@@ -51,6 +51,9 @@
 
 ** 操作
 *** デフォルトグループの記事一覧の表示
+    :PROPERTIES:
+    :ID:       5dbcc708-6803-4606-aa54-83bf580908bb
+    :END:
     #+begin_example
     M-x kibela-group-notes
     #+end_example
@@ -73,6 +76,15 @@
 
     記事一覧バッファは ~tabulated-view-mode~ をベースにしているので、
     その他のキーバインドについてはそちらの ~keymap~ をご参照ください。
+
+*** 最近見た記事一覧の表示
+    #+begin_example
+    M-x kibela-recent-browsing-notes
+    #+end_example
+
+    を実行すると最近見た記事一覧を取得できます。
+
+    [[id:5dbcc708-6803-4606-aa54-83bf580908bb][デフォルトグループの記事一覧の表示]]と同じキーバインドが使えます。
 
 *** 記事の閲覧
     記事一覧ページでは記事名の上で Enter をタイプすると記事を表示することができます。
