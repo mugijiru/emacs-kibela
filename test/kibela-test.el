@@ -418,6 +418,7 @@ kibela からのレスポンスを completing-read で絞り込んで
       (with-temp-buffer
         (with-simulated-input "ba TAB RET"
           (kibela-note-new-from-template)
+          (should (string-equal header-line-format "Home"))
           (should (string-equal (buffer-name) "*Kibela* newnote"))
           (should (string-equal header-line-format "Home"))
           (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
@@ -434,6 +435,7 @@ kibela からのレスポンスを completing-read で絞り込んで
                           (title . "posted note")
                           (content . "posted content")
                           (coediting . t)
+                          (isLikedByCurrentUser . t)
                           (groups . (((id . "GroupID1")
                                       (name . "Home"))))
                           (folders . (((id . "FolderID1")
@@ -447,7 +449,33 @@ kibela からのレスポンスを completing-read で絞り込んで
         (should (string-equal (buffer-name) "*Kibela* NoteID"))
         (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
                               "# posted note\n\nposted content"))
-        (should (string-equal header-line-format "Home > foo > bar"))
+        (should (string-equal header-line-format "♥ | Home > foo > bar"))
+
+        (kill-buffer)) ;; FIXME: expect always executed but its only execute on success
+      )))
+
+(ert-deftest test-kibea-note-show--unliked-note ()
+  (let* ((kibela-team "dummy")
+         (kibela-access-token "dummy")
+         (response '(note (id . "NoteID")
+                          (title . "posted note")
+                          (content . "posted content")
+                          (coediting . t)
+                          (isLikedByCurrentUser . nil)
+                          (groups . (((id . "GroupID1")
+                                      (name . "Home"))))
+                          (folders . (((id . "FolderID1")
+                                       (fullName . "foo/bar")
+                                       (group . ((id . "GroupID1")
+                                                 (name . "Home")))))))))
+    (kibela-test--use-response-stub response
+      (with-temp-buffer
+        (kibela-note-show "NoteID")
+        (should (string-equal major-mode "kibela-markdown-view-mode"))
+        (should (string-equal (buffer-name) "*Kibela* NoteID"))
+        (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
+                              "# posted note\n\nposted content"))
+        (should (string-equal header-line-format "♡ | Home > foo > bar"))
 
         (kill-matching-buffers "^\\*Kibela\\*" nil t)) ;; FIXME: expect always executed but its only execute on success
       )))
