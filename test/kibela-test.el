@@ -277,6 +277,9 @@
 ;;; template tests
 
 (ert-deftest test-kibela-build-collection-from-note-templates ()
+  "kibela-build-collection-from-note-templates が
+取得したテンプレート一覧からテンプレート名を抽出し
+その他の属性を property としてそこに詰めていることをテストしている"
   (let* ((expected `(,(propertize
                        "日報"
                        'template
@@ -336,6 +339,9 @@ kibela--new-note-from-template に渡すことを確認する."
       (kibela-select-note-template-action selected))))
 
 (ert-deftest test-kibela--new-note-from-template ()
+  "kibela-note-new-from-template の内部で実行される
+kibela--new-note-from-template の挙動を確認する.
+これは渡された template の内容を元に新規ノート用のバッファを作成する."
   (let* ((template '(:title "日報 2000/01/01"
                             :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
                             :group-ids '("TestID1" "TestID2")
@@ -361,6 +367,9 @@ kibela--new-note-from-template に渡すことを確認する."
         )))
 
 (ert-deftest test-kibela-note-new-from-template ()
+  "kibela-note-new-from-template を実行した際に
+kibela からのレスポンスを completing-read で絞り込んで
+そのテンプレートの情報を buffer にセットすることをテストしている"
   (let* ((kibela-team "dummy")
          (kibela-access-token "dummy")
          (response '(noteTemplates (edges . [((node
