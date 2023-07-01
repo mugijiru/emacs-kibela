@@ -277,31 +277,38 @@
 ;;; template tests
 
 (ert-deftest test-kibela-build-collection-from-note-templates ()
+  "kibela-build-collection-from-note-templates が
+取得したテンプレート一覧からテンプレート名を抽出し
+その他の属性を property としてそこに詰めていることをテストしている"
   (let* ((expected `(,(propertize
                        "日報"
                        'template
                        '(:title "日報 2000/01/01"
-                               :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
-                               :group-ids ("TestID1")
-                               :groups (((id "TestID1") (name "Home")))
-                               :folders ()))
+                                :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
+                                :coeding nil
+                                :group-ids ("TestID1")
+                                :groups (((id "TestID1") (name "Home")))
+                                :folders ()))
                      ,(propertize
                        "定例 MTG"
                        'template
                        '(:title "定例 MTG 2000/01/01"
-                               :content "# 参加者\n\n - (参加者名) # アジェンダ\n\n- \n\n# \n\n- [ ] \n\n# 前回の宿題\n\n- [ ] \n\n# 議題\n\n# 宿題\n\n"
-                               :group-ids ("TestID1")
-                               :groups (((id "TestID1") (name "Home")))
-                               :folders (((id "FolderID1") (folderName "議事録/定例 MTG") (groups ((id "TestID1") (name "Home"))) (groupId "Home")))))))
+                                :content "# 参加者\n\n - (参加者名) # アジェンダ\n\n- \n\n# \n\n- [ ] \n\n# 前回の宿題\n\n- [ ] \n\n# 議題\n\n# 宿題\n\n"
+                                :coeding t
+                                :group-ids ("TestID1")
+                                :groups (((id "TestID1") (name "Home")))
+                                :folders (((id "FolderID1") (folderName "議事録/定例 MTG") (groups ((id "TestID1") (name "Home"))) (groupId "Home")))))))
          (template1 '((name . "日報")
                       (evaluatedTitle . "日報 2000/01/01")
                       (content . "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n")
+                      (coeding . nil)
                       (group-ids . ("TestID1"))
                       (groups . (((id "TestID1") (name "Home"))))
                       (folders . ())))
          (template2 '((name . "定例 MTG")
                       (evaluatedTitle . "定例 MTG 2000/01/01")
                       (content . "# 参加者\n\n - (参加者名) # アジェンダ\n\n- \n\n# \n\n- [ ] \n\n# 前回の宿題\n\n- [ ] \n\n# 議題\n\n# 宿題\n\n")
+                      (coeding . t)
                       (group-ids . ("TestID1"))
                       (groups . (((id "TestID1") (name "Home"))))
                       (folders . (((id "FolderID1")
@@ -317,13 +324,25 @@
                                       (template2 (get-text-property 0 'template elt2))
                                       (title2 (plist-get template2 :title)))
                                  (and (string-equal elt1 elt2)
-                                      (string-equal title1 title2))))))))
+                                      (string-equal title1 title2)
+                                      (string-equal (plist-get template1 :content)
+                                                    (plist-get template2 :content))
+                                      ;; (equal (plist-get template1 :group-ids)
+                                      ;;        (plist-get template2 :group-ids))
+                                      ;; (equal (plist-get template1 :groups)
+                                      ;;        (plist-get template2 :groups))
+                                      ;; (equal (plist-get template1 :folders)
+                                      ;;        (plist-get template2 :folders))
+                                      (equal (plist-get template1 :coediting)
+                                             (plist-get template2 :coediting))
+                                      )))))))
 
 (ert-deftest test-kibela-select-note-template-action ()
   "選択した文字列から template property を取得して
 kibela--new-note-from-template に渡すことを確認する."
   (let* ((selected-template '(:title "日報 2000/01/01"
                                      :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
+                                     :coediting t
                                      :group-ids '("TestID1" "TestID2")
                                      :groups '(((id "TestID1") (name "Home"))
                                                ((id "TestID2") (name "Private")))
@@ -332,13 +351,18 @@ kibela--new-note-from-template に渡すことを確認する."
          (selected (propertize "日報" 'template selected-template)))
     (noflet ((kibela--new-note-from-template (template)
                                              (should (string-equal "日報 2000/01/01"
-                                                                   (plist-get template :title)))))
+                                                                   (plist-get template :title)))
+                                             (should (equal t (plist-get template :coediting)))))
       (kibela-select-note-template-action selected))))
 
 (ert-deftest test-kibela--new-note-from-template ()
+  "kibela-note-new-from-template の内部で実行される kibela--new-note-from-template のテスト.
+この関数は渡された template の内容を元に新規ノート用のバッファを作成し
+kibela-note-template に渡された template の情報を格納する."
   (let* ((template '(:title "日報 2000/01/01"
                             :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
                             :group-ids '("TestID1" "TestID2")
+                            :coediting nil
                             :groups (((id . "TestID1") (name . "Home"))
                                      ((id . "TestID2") (name . "Private")))
                             :folders (((id . "FolderID1")
@@ -357,10 +381,16 @@ kibela--new-note-from-template に渡すことを確認する."
         (should (string-equal header-line-format "Home > Folder 1 | Private > Folder 2"))
         (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
                               "# 日報 2000/01/01\n\n# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"))
-        (kill-buffer) ;; FIXME: expect always executed but its only execute on success
+
+        (should (not (null (plist-member kibela-note-template :coediting))))
+        (should (equal (plist-get kibela-note-template :coediting) nil))
+        (kill-matching-buffers "^\\*Kibela\\*" nil t) ;; FIXME: expect always executed but its only execute on success
         )))
 
 (ert-deftest test-kibela-note-new-from-template ()
+  "kibela-note-new-from-template を実行した際に
+kibela からのレスポンスを completing-read で絞り込んで
+そのテンプレートの情報を buffer にセットすることをテストしている"
   (let* ((kibela-team "dummy")
          (kibela-access-token "dummy")
          (response '(noteTemplates (edges . [((node
@@ -369,6 +399,7 @@ kibela--new-note-from-template に渡すことを確認する."
                                                (title . "Foo title")
                                                (evaluatedTitle . "Foo title")
                                                (content . "")
+                                               (coediting . json-false)
                                                (groups . [((id . "GroupId")
                                                            (name . "Home"))])
                                                (folders . [])))
@@ -378,6 +409,7 @@ kibela--new-note-from-template に渡すことを確認する."
                                                (title . "Bar title")
                                                (evaluatedTitle . "Bar title")
                                                (content . "")
+                                               (coediting . t)
                                                (groups . [((id . "GroupId")
                                                            (name . "Home"))])
                                                (folders . [])))])))
@@ -390,7 +422,7 @@ kibela--new-note-from-template に渡すことを確認する."
           (should (string-equal header-line-format "Home"))
           (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
                                 "# Bar title\n\n")))
-        (kill-buffer) ;; FIXME: expect always executed but its only execute on success
+        (kill-matching-buffers "^\\*Kibela\\*" nil t) ;; FIXME: expect always executed but its only execute on success
         ))))
 
 ;; show
@@ -417,5 +449,60 @@ kibela--new-note-from-template に渡すことを確認する."
                               "# posted note\n\nposted content"))
         (should (string-equal header-line-format "Home > foo > bar"))
 
-        (kill-buffer)) ;; FIXME: expect always executed but its only execute on success
+        (kill-matching-buffers "^\\*Kibela\\*" nil t)) ;; FIXME: expect always executed but its only execute on success
       )))
+
+;; create
+
+(ert-deftest test-kibela-note-create-with-not-coediting-template ()
+  "テンプレート経由で共同編集無効の記事を書く場合のテスト."
+
+  (let* ((kibela-team "dummy")
+         (kibela-access-token "dummy")
+         (template '(:title "posted title"
+                            :content "posted content"
+                            :coediting nil
+                            :group-ids ("GroupID1")
+                            :groups (((id . "GroupID1") (name . "Home")))
+                            :folders ())))
+
+    (with-temp-buffer
+      (kibela--new-note-from-template template)
+      (kibela-test--inspect-request-arguments
+       (let* ((result (kibela-note-create))
+              (query (cl-first result))
+              (variables (cl-second result))
+              (input (assoc-default 'input variables)))
+         (should (string-equal (assoc-default 'title input) "posted title"))
+         (should (string-equal (assoc-default 'content input) "posted content"))
+         (should (equal (assoc-default 'coediting input) json-false))
+         (should (equal (assoc-default 'groupIds input) '("GroupID1")))
+         (should (equal (assoc-default 'folders input) '()))
+         ))))
+  (kill-matching-buffers "^\\*Kibela\\*" nil t))
+
+(ert-deftest test-kibela-note-create-with-coediting-template ()
+  "テンプレート経由で記事を書く場合の挙動をテストする"
+
+  (let* ((kibela-team "dummy")
+         (kibela-access-token "dummy")
+         (template '(:title "posted title"
+                            :content "posted content"
+                            :coediting t
+                            :group-ids ("GroupID1")
+                            :groups (((id . "GroupID1") (name . "Home")))
+                            :folders ())))
+
+    (with-temp-buffer
+      (kibela--new-note-from-template template)
+      (kibela-test--inspect-request-arguments
+       (let* ((result (kibela-note-create))
+              (query (cl-first result))
+              (variables (cl-second result))
+              (input (assoc-default 'input variables)))
+         (should (string-equal (assoc-default 'title input) "posted title"))
+         (should (string-equal (assoc-default 'content input) "posted content"))
+         (should (equal (assoc-default 'coediting input) t))
+         (should (equal (assoc-default 'groupIds input) '("GroupID1")))
+         (should (equal (assoc-default 'folders input) '()))))))
+  (kill-matching-buffers "^\\*Kibela\\*" nil t))

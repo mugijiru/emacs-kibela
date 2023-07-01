@@ -320,6 +320,10 @@ NOTE-TEMPLATES は Kibela に登録されている記事テンプレートの配
             (let* ((name (assoc-default 'name note-template))
                    (title (assoc-default 'evaluatedTitle note-template))
                    (content (assoc-default 'content note-template))
+                   (original-coediting (assoc-default 'coediting note-template))
+                   (coediting (if (or (null original-coediting) (eq original-coediting json-false))
+                                  nil
+                                t))
                    (groups (assoc-default 'groups note-template))
                    (group-ids (mapcar (lambda (group) (assoc-default 'id group)) groups))
                    (row-folders (assoc-default 'folders note-template))
@@ -329,7 +333,12 @@ NOTE-TEMPLATES は Kibela に登録されている記事テンプレートの配
                                              (group-id (assoc-default 'id group)))
                                         `((groupId . ,group-id) (group . ,group) (folderName . ,folder-name))))
                                     row-folders))
-                   (template `(:title ,title :content ,content :group-ids ,group-ids :groups ,groups :folders ,folders)))
+                   (template `(:title ,title
+                                      :content ,content
+                                      :coediting ,coediting
+                                      :group-ids ,group-ids
+                                      :groups ,groups
+                                      :folders ,folders)))
               (propertize name 'template template)))
           note-templates))
 
@@ -652,8 +661,13 @@ TEMPLATE は記事作成時に利用するテンプレート."
          (buffer-content (substring-no-properties (buffer-string)))
          (title (substring-no-properties (cl-first (split-string buffer-content "\n")) 2))
          (content (string-join (cddr (split-string buffer-content "\n")) "\n"))
-         (coediting t) ;; TODO handle coediting
-         (draft json-false) ;; TODO handle draft
+         (coediting (if kibela-note-template
+                        (if (plist-get kibela-note-template :coediting) t
+                          json-false)
+                      t))
+         (draft (if kibela-note-template
+                    (plist-get kibela-note-template :draft)
+                  json-false))
          (group-ids (if kibela-note-template
                         (plist-get kibela-note-template :group-ids)
                       `(,(assoc-default 'id kibela-default-group))))
@@ -686,8 +700,7 @@ TEMPLATE は記事作成時に利用するテンプレート."
                                         (buffer (get-buffer-create "*Kibela* newnote")))
                                    (kill-buffer buffer)
                                    (setq kibela-note-template nil)
-                                   (message (concat "create note '" title "' has succeed.")))))))))
-    t))
+                                   (message (concat "create note '" title "' has succeed.")))))))))))
 
 ;;;###autoload
 (defun kibela-note-show (id)
