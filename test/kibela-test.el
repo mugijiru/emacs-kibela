@@ -449,7 +449,7 @@ kibela からのレスポンスを completing-read で絞り込んで
                               "# posted note\n\nposted content"))
         (should (string-equal header-line-format "Home > foo > bar"))
 
-        (kill-buffer)) ;; FIXME: expect always executed but its only execute on success
+        (kill-matching-buffers "^\\*Kibela\\*" nil t)) ;; FIXME: expect always executed but its only execute on success
       )))
 
 ;; create
