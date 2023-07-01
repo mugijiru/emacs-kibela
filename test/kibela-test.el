@@ -444,3 +444,58 @@ kibela からのレスポンスを completing-read で絞り込んで
 
         (kill-buffer)) ;; FIXME: expect always executed but its only execute on success
       )))
+
+;; create
+
+(ert-deftest test-kibela-note-create-with-not-coediting-template ()
+  "テンプレート経由で共同編集無効の記事を書く場合のテスト."
+
+  (let* ((kibela-team "dummy")
+         (kibela-access-token "dummy")
+         (template '(:title "posted title"
+                            :content "posted content"
+                            :coediting nil
+                            :group-ids ("GroupID1")
+                            :groups (((id . "GroupID1") (name . "Home")))
+                            :folders ())))
+
+    (with-temp-buffer
+      (kibela--new-note-from-template template)
+      (kibela-test--inspect-request-arguments
+       (let* ((result (kibela-note-create))
+              (query (cl-first result))
+              (variables (cl-second result))
+              (input (assoc-default 'input variables)))
+         (should (string-equal (assoc-default 'title input) "posted title"))
+         (should (string-equal (assoc-default 'content input) "posted content"))
+         (should (equal (assoc-default 'coediting input) json-false))
+         (should (equal (assoc-default 'groupIds input) '("GroupID1")))
+         (should (equal (assoc-default 'folders input) '()))
+         ))))
+  (kill-matching-buffers "^\\*Kibela\\*" nil t))
+
+(ert-deftest test-kibela-note-create-with-coediting-template ()
+  "テンプレート経由で記事を書く場合の挙動をテストする"
+
+  (let* ((kibela-team "dummy")
+         (kibela-access-token "dummy")
+         (template '(:title "posted title"
+                            :content "posted content"
+                            :coediting t
+                            :group-ids ("GroupID1")
+                            :groups (((id . "GroupID1") (name . "Home")))
+                            :folders ())))
+
+    (with-temp-buffer
+      (kibela--new-note-from-template template)
+      (kibela-test--inspect-request-arguments
+       (let* ((result (kibela-note-create))
+              (query (cl-first result))
+              (variables (cl-second result))
+              (input (assoc-default 'input variables)))
+         (should (string-equal (assoc-default 'title input) "posted title"))
+         (should (string-equal (assoc-default 'content input) "posted content"))
+         (should (equal (assoc-default 'coediting input) t))
+         (should (equal (assoc-default 'groupIds input) '("GroupID1")))
+         (should (equal (assoc-default 'folders input) '()))))))
+  (kill-matching-buffers "^\\*Kibela\\*" nil t))
