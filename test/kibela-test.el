@@ -356,12 +356,13 @@ kibela--new-note-from-template に渡すことを確認する."
       (kibela-select-note-template-action selected))))
 
 (ert-deftest test-kibela--new-note-from-template ()
-  "kibela-note-new-from-template の内部で実行される
-kibela--new-note-from-template の挙動を確認する.
-これは渡された template の内容を元に新規ノート用のバッファを作成する."
+  "kibela-note-new-from-template の内部で実行される kibela--new-note-from-template のテスト.
+この関数は渡された template の内容を元に新規ノート用のバッファを作成し
+kibela-note-template に渡された template の情報を格納する."
   (let* ((template '(:title "日報 2000/01/01"
                             :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
                             :group-ids '("TestID1" "TestID2")
+                            :coediting nil
                             :groups (((id . "TestID1") (name . "Home"))
                                      ((id . "TestID2") (name . "Private")))
                             :folders (((id . "FolderID1")
@@ -380,7 +381,10 @@ kibela--new-note-from-template の挙動を確認する.
         (should (string-equal header-line-format "Home > Folder 1 | Private > Folder 2"))
         (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
                               "# 日報 2000/01/01\n\n# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"))
-        (kill-buffer) ;; FIXME: expect always executed but its only execute on success
+
+        (should (not (null (plist-member kibela-note-template :coediting))))
+        (should (equal (plist-get kibela-note-template :coediting) nil))
+        (kill-matching-buffers "^\\*Kibela\\*" nil t) ;; FIXME: expect always executed but its only execute on success
         )))
 
 (ert-deftest test-kibela-note-new-from-template ()
