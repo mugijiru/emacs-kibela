@@ -284,27 +284,31 @@
                        "日報"
                        'template
                        '(:title "日報 2000/01/01"
-                               :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
-                               :group-ids ("TestID1")
-                               :groups (((id "TestID1") (name "Home")))
-                               :folders ()))
+                                :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
+                                :coeding nil
+                                :group-ids ("TestID1")
+                                :groups (((id "TestID1") (name "Home")))
+                                :folders ()))
                      ,(propertize
                        "定例 MTG"
                        'template
                        '(:title "定例 MTG 2000/01/01"
-                               :content "# 参加者\n\n - (参加者名) # アジェンダ\n\n- \n\n# \n\n- [ ] \n\n# 前回の宿題\n\n- [ ] \n\n# 議題\n\n# 宿題\n\n"
-                               :group-ids ("TestID1")
-                               :groups (((id "TestID1") (name "Home")))
-                               :folders (((id "FolderID1") (folderName "議事録/定例 MTG") (groups ((id "TestID1") (name "Home"))) (groupId "Home")))))))
+                                :content "# 参加者\n\n - (参加者名) # アジェンダ\n\n- \n\n# \n\n- [ ] \n\n# 前回の宿題\n\n- [ ] \n\n# 議題\n\n# 宿題\n\n"
+                                :coeding t
+                                :group-ids ("TestID1")
+                                :groups (((id "TestID1") (name "Home")))
+                                :folders (((id "FolderID1") (folderName "議事録/定例 MTG") (groups ((id "TestID1") (name "Home"))) (groupId "Home")))))))
          (template1 '((name . "日報")
                       (evaluatedTitle . "日報 2000/01/01")
                       (content . "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n")
+                      (coeding . nil)
                       (group-ids . ("TestID1"))
                       (groups . (((id "TestID1") (name "Home"))))
                       (folders . ())))
          (template2 '((name . "定例 MTG")
                       (evaluatedTitle . "定例 MTG 2000/01/01")
                       (content . "# 参加者\n\n - (参加者名) # アジェンダ\n\n- \n\n# \n\n- [ ] \n\n# 前回の宿題\n\n- [ ] \n\n# 議題\n\n# 宿題\n\n")
+                      (coeding . t)
                       (group-ids . ("TestID1"))
                       (groups . (((id "TestID1") (name "Home"))))
                       (folders . (((id "FolderID1")
@@ -320,13 +324,25 @@
                                       (template2 (get-text-property 0 'template elt2))
                                       (title2 (plist-get template2 :title)))
                                  (and (string-equal elt1 elt2)
-                                      (string-equal title1 title2))))))))
+                                      (string-equal title1 title2)
+                                      (string-equal (plist-get template1 :content)
+                                                    (plist-get template2 :content))
+                                      ;; (equal (plist-get template1 :group-ids)
+                                      ;;        (plist-get template2 :group-ids))
+                                      ;; (equal (plist-get template1 :groups)
+                                      ;;        (plist-get template2 :groups))
+                                      ;; (equal (plist-get template1 :folders)
+                                      ;;        (plist-get template2 :folders))
+                                      (equal (plist-get template1 :coediting)
+                                             (plist-get template2 :coediting))
+                                      )))))))
 
 (ert-deftest test-kibela-select-note-template-action ()
   "選択した文字列から template property を取得して
 kibela--new-note-from-template に渡すことを確認する."
   (let* ((selected-template '(:title "日報 2000/01/01"
                                      :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
+                                     :coediting nil
                                      :group-ids '("TestID1" "TestID2")
                                      :groups '(((id "TestID1") (name "Home"))
                                                ((id "TestID2") (name "Private")))

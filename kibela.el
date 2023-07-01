@@ -320,6 +320,10 @@ NOTE-TEMPLATES は Kibela に登録されている記事テンプレートの配
             (let* ((name (assoc-default 'name note-template))
                    (title (assoc-default 'evaluatedTitle note-template))
                    (content (assoc-default 'content note-template))
+                   (original-coediting (assoc-default 'coediting note-template))
+                   (coediting (if (or (null original-coediting) (eq original-coediting json-false))
+                                  nil
+                                t))
                    (groups (assoc-default 'groups note-template))
                    (group-ids (mapcar (lambda (group) (assoc-default 'id group)) groups))
                    (row-folders (assoc-default 'folders note-template))
@@ -329,7 +333,12 @@ NOTE-TEMPLATES は Kibela に登録されている記事テンプレートの配
                                              (group-id (assoc-default 'id group)))
                                         `((groupId . ,group-id) (group . ,group) (folderName . ,folder-name))))
                                     row-folders))
-                   (template `(:title ,title :content ,content :group-ids ,group-ids :groups ,groups :folders ,folders)))
+                   (template `(:title ,title
+                                      :content ,content
+                                      :coediting ,coediting
+                                      :group-ids ,group-ids
+                                      :groups ,groups
+                                      :folders ,folders)))
               (propertize name 'template template)))
           note-templates))
 
