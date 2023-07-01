@@ -342,7 +342,7 @@
 kibela--new-note-from-template に渡すことを確認する."
   (let* ((selected-template '(:title "日報 2000/01/01"
                                      :content "# DONE\n\n- [x] \n\n# DOING\n\n- [ ] \n\n# TODO\n\n- [ ] \n\n"
-                                     :coediting nil
+                                     :coediting t
                                      :group-ids '("TestID1" "TestID2")
                                      :groups '(((id "TestID1") (name "Home"))
                                                ((id "TestID2") (name "Private")))
@@ -351,7 +351,8 @@ kibela--new-note-from-template に渡すことを確認する."
          (selected (propertize "日報" 'template selected-template)))
     (noflet ((kibela--new-note-from-template (template)
                                              (should (string-equal "日報 2000/01/01"
-                                                                   (plist-get template :title)))))
+                                                                   (plist-get template :title)))
+                                             (should (equal t (plist-get template :coediting)))))
       (kibela-select-note-template-action selected))))
 
 (ert-deftest test-kibela--new-note-from-template ()
