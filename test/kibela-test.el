@@ -399,6 +399,7 @@ kibela からのレスポンスを completing-read で絞り込んで
                                                (title . "Foo title")
                                                (evaluatedTitle . "Foo title")
                                                (content . "")
+                                               (coediting . json-false)
                                                (groups . [((id . "GroupId")
                                                            (name . "Home"))])
                                                (folders . [])))
@@ -408,6 +409,7 @@ kibela からのレスポンスを completing-read で絞り込んで
                                                (title . "Bar title")
                                                (evaluatedTitle . "Bar title")
                                                (content . "")
+                                               (coediting . t)
                                                (groups . [((id . "GroupId")
                                                            (name . "Home"))])
                                                (folders . [])))])))
@@ -420,7 +422,7 @@ kibela からのレスポンスを completing-read で絞り込んで
           (should (string-equal header-line-format "Home"))
           (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
                                 "# Bar title\n\n")))
-        (kill-buffer) ;; FIXME: expect always executed but its only execute on success
+        (kill-matching-buffers "^\\*Kibela\\*" nil t) ;; FIXME: expect always executed but its only execute on success
         ))))
 
 ;; show
