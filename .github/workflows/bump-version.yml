@@ -119,7 +119,7 @@ jobs:
 
       - name: detect other changes
         run: |
-          other_changes=$(echo '${{ env.tags }}' | jq .[] | grep -v "breaking-change" | grep -v "enhancement" | grep -v "bug")
+          other_changes=$(echo '${{ env.labels }}' | jq .[] | grep -v "breaking change" | grep -v "enhancement" | grep -v "bug")
           if [ -n "$other_changes" ]; then
             echo "other_changes=1" >> $GITHUB_ENV
           fi
@@ -159,7 +159,7 @@ jobs:
         shell: bash
         run: |
           echo "start breaking changes"
-          breaking_changes=$(echo '${{ env.tags }}' | jq .[] | sed -n -E -e '/breaking-changes/p')
+          breaking_changes=$(echo '${{ env.tags }}' | jq .[] | sed -n -E -e '/breaking change/p')
           echo "breaking changes processing"
           echo "; $breaking_changes"
           if [ -n "$breaking_changes" ]; then
