@@ -1,0 +1,103 @@
+name: Release
+
+on:
+  # pull_request:
+  #   branches:
+  #     - master
+  #   types: [closed]
+  pull_request:
+
+jobs:
+  # テスト中はコメントアウト
+  # test:
+    # if: contains( github.event.pull_request.labels.*.name, 'bump version')
+    # uses: ./.github/workflows/test.yml
+    # secrets: inherit
+
+  # copy from bump-version.yml
+  detect-current-version:
+    # テスト中はコメントアウト
+    # if: contains( github.event.pull_request.labels.*.name, 'bump version')
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.detect-current-version.outputs.version }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: detect current version
+      id: detect-current-version
+      env:
+        VERSION_LINE_PREFIX: ";; Version: "
+      run: |
+        version=$(grep "^${VERSION_LINE_PREFIX}" kibela.el | sed -e "s/^${VERSION_LINE_PREFIX}//")
+        echo $version
+        echo "version=${version}">> $GITHUB_OUTPUT
+
+  tag:
+    runs-on: ubuntu-latest
+    needs:
+      # テスト中はコメントアウト
+      # - test
+      - detect-current-version
+
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # 要らないかも?
+      - name: get latest tag
+        id: latest-tag
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const result = await github.rest.repos.getLatestRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            })
+            return result.data.tag_name
+
+      - name: debug
+        run: |
+          echo "latest_tag=${{ steps.latest-tag.outputs.result }}"
+          echo "version=${{ needs.detect-current-version.outputs.version }}"
+
+      # テスト中はコメントアウト
+      # - name: set tag
+      #   run: |
+      #     git tag v${{ needs.detect-current-version.outputs.version }}
+      #     git push origin --tags
+      #     echo "release_tag=v${{ needs.detect-current-version.outputs.version }}" >> $GITHUB_ENV
+
+      # タグのテストが完了したらコメントアウトを外す
+      - name: Generate release note contents
+        id: release_note
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const result = await github.rest.repos.generateReleaseNotes({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: 'v${{ needs.detect-current-version.outputs.version }}',
+              previous_tag_name: 'v0.2.0'
+            })
+            console.log(result.data.body)
+            return result.data.body
+
+      # - name: Create release
+      #   uses: actions/github-script@v6
+      #   with:
+      #     script: |
+      #       const release = await github.rest.repos.createRelease({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         tag_name: 'v${{ needs.detect-current-version.outputs.version }}',
+      #         name: 'v${{ needs.detect-current-version.outputs.version }}',
+      #         body: ${{ steps.release_note.outputs.result }},
+      #         draft: false,
+      #         prerelease: true,
+      #       })
+      #       return release.data
