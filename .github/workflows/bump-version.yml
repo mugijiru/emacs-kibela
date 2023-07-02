@@ -114,12 +114,12 @@ jobs:
           path: matrix-tags
       - name: merge
         run: |
-          echo "tags=$(cat matrix-tags/*/*.txt | sort | uniq | jq -R -s -c 'split("\n")[:-1]')"
-          echo "tags=$(cat matrix-tags/*/*.txt | sort | uniq | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
+          echo "labels=$(cat matrix-tags/*/*.txt | sort | uniq | jq -R -s -c 'split("\n")[:-1]')"
+          echo "labels=$(cat matrix-tags/*/*.txt | sort | uniq | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_ENV
 
       - name: detect other changes
         run: |
-          other_changes=$(echo '${{ env.tags }}' | jq .[] | grep -v "breaking-change" | grep -v "enhancement" | grep -v "bug")
+          other_changes=$(echo '${{ env.labels }}' | jq .[] | grep -v "breaking change" | grep -v "enhancement" | grep -v "bug")
           if [ -n "$other_changes" ]; then
             echo "other_changes=1" >> $GITHUB_ENV
           fi
@@ -132,7 +132,7 @@ jobs:
 
       - name: detect bug fixes
         run: |
-          bug_fixes=$(echo '${{ env.tags }}' | jq .[] | sed -n -E -e '/bug/p')
+          bug_fixes=$(echo '${{ env.labels }}' | jq .[] | sed -n -E -e '/bug/p')
           if [ -n "$bug_fixes" ]; then
             echo "bug_fixes=1" >> $GITHUB_ENV
           fi
@@ -144,7 +144,7 @@ jobs:
 
       - name: detect new features
         run: |
-          new_features=$(echo '${{ env.tags }}' | jq .[] | sed -n -E -e '/enhancement/p')
+          new_features=$(echo '${{ env.labels }}' | jq .[] | sed -n -E -e '/enhancement/p')
           echo $new_features
           if [ -n "$new_features" ]; then
             echo "new_features=1" >> $GITHUB_ENV
@@ -159,7 +159,7 @@ jobs:
         shell: bash
         run: |
           echo "start breaking changes"
-          breaking_changes=$(echo '${{ env.tags }}' | jq .[] | sed -n -E -e '/breaking-changes/p')
+          breaking_changes=$(echo '${{ env.labels }}' | jq .[] | sed -n -E -e '/breaking change/p')
           echo "breaking changes processing"
           echo "; $breaking_changes"
           if [ -n "$breaking_changes" ]; then
