@@ -199,3 +199,5 @@ jobs:
           title: Bump version from ${{ needs.detect-current-version.version }} to ${{ needs.select-version.version }}
           branch: bump-version-${{ needs.select-version.outputs.version }}
           base: main
+          labels: |
+            bump version
