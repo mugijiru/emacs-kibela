@@ -5,7 +5,7 @@
 ;; Author: mugijiru <106833+mugijiru@users.noreply.github.com>
 ;; Maintainer: mugijiru <106833+mugijiru@users.noreply.github.com>
 ;; URL: https://github.com/mugijiru/emacs-kibela
-;; Version: 0.2.0
+;; Version: 0.3.0
 ;; Package-Requires: ((emacs "26.1") (graphql "0.1.1") (request "0.3.3") (markdown-mode "2.5") (edit-indirect "0.1.10"))
 ;; Keywords: kibela, tools
 
