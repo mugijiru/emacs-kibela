@@ -189,10 +189,10 @@
       (should (string-equal expected-buffer-name (buffer-name)))
       (should (string-equal major-mode "kibela-list-mode"))
       (let ((content (buffer-substring-no-properties (point-min) (point-max))))
-        (should (string-match "Test note1" content))
-        (should (string-match "2000-01-01" content))
-        (should (string-match "Test note2" content))
-        (should (string-match "2000-01-02" content))))
+        (should (string-match-p "Test note1" content))
+        (should (string-match-p "2000-01-01" content))
+        (should (string-match-p "Test note2" content))
+        (should (string-match-p "2000-01-02" content))))
 
     ;; Show note
     (let ((response '(note (id . "NoteID2")
@@ -239,10 +239,10 @@
       (should (string-equal expected-buffer-name (buffer-name)))
       (should (string-equal major-mode "kibela-recent-browsing-notes-mode"))
       (let ((content (buffer-substring-no-properties (point-min) (point-max))))
-        (should (string-match "Test note1" content))
-        (should (string-match "2000-01-01" content))
-        (should (string-match "Test note2" content))
-        (should (string-match "2000-01-02" content))))))
+        (should (string-match-p "Test note1" content))
+        (should (string-match-p "2000-01-01" content))
+        (should (string-match-p "Test note2" content))
+        (should (string-match-p "2000-01-02" content))))))
 
 ;; note-new
 
