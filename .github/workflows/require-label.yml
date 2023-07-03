@@ -15,6 +15,7 @@ jobs:
           count: 1
           labels: |
             bug
+            refactoring
             maintenance
             documentation
             enhancement
