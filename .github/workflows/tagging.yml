@@ -1,23 +1,21 @@
 name: tagging
 
 on:
-  # pull_request:
-  #   branches:
-  #     - master
-  #   types: [closed]
   pull_request:
+    branches:
+      - master
+    types: [closed]
 
 jobs:
-  # テスト中はコメントアウト
-  # test:
-    # if: contains( github.event.pull_request.labels.*.name, 'bump version')
-    # uses: ./.github/workflows/test.yml
-    # secrets: inherit
+  test:
+    if: contains( github.event.pull_request.labels.*.name, 'bump version')
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
 
   # copy from bump-version.yml
+  # FIXME: reusing workflow か action として定義し直して再利用する
   detect-current-version:
-    # テスト中はコメントアウト
-    # if: contains( github.event.pull_request.labels.*.name, 'bump version')
+    if: contains( github.event.pull_request.labels.*.name, 'bump version')
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.detect-current-version.outputs.version }}
@@ -37,8 +35,7 @@ jobs:
   tag:
     runs-on: ubuntu-latest
     needs:
-      # テスト中はコメントアウト
-      # - test
+      - test
       - detect-current-version
 
     permissions:
@@ -68,8 +65,8 @@ jobs:
       # テスト中はコメントアウト
       - name: set tag
         run: |
-          # git tag v${{ needs.detect-current-version.outputs.version }}
-          # git push origin --tags
+          git tag v${{ needs.detect-current-version.outputs.version }}
+          git push origin --tags
           echo "release_tag=v${{ needs.detect-current-version.outputs.version }}" >> $GITHUB_ENV
 
       # タグのテストが完了したらコメントアウトを外す
