@@ -19,8 +19,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
 
     - name: detect current version
       id: detect-current-version
@@ -39,6 +37,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: detect merged pull requests
       id: detect-prs
