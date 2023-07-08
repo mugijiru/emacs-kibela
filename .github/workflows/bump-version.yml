@@ -49,6 +49,7 @@ jobs:
         IFS=$'\n' pr_refs=$(git ls-remote origin refs/pull/*/head)
 
         echo "git log --merges --pretty=format:%P v${{ needs.detect-current-version.outputs.version }}..main | cut -d ' ' -f 2"
+        git log --merges --pretty=format:%P v${{ needs.detect-current-version.outputs.version }}..main
         git log --merges --pretty=format:%P v${{ needs.detect-current-version.outputs.version }}..main | cut -d ' ' -f 2
         git ls-remote origin refs/pull/*/head
 
