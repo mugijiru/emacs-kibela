@@ -19,6 +19,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: detect current version
       id: detect-current-version
@@ -42,7 +44,6 @@ jobs:
       id: detect-prs
       shell: bash
       run: |
-        git pull origin main
         git fetch -t
         touch prs.txt
         merged_refs=$(git log --merges --pretty=format:%P refs/tags/v${{ needs.detect-current-version.outputs.version }}..origin/main | cut -d ' ' -f 2)
