@@ -66,26 +66,26 @@ jobs:
           echo "version=${{ needs.detect-current-version.outputs.version }}"
 
       # テスト中はコメントアウト
-      # - name: set tag
-      #   run: |
-      #     git tag v${{ needs.detect-current-version.outputs.version }}
-      #     git push origin --tags
-      #     echo "release_tag=v${{ needs.detect-current-version.outputs.version }}" >> $GITHUB_ENV
+      - name: set tag
+        run: |
+          # git tag v${{ needs.detect-current-version.outputs.version }}
+          # git push origin --tags
+          echo "release_tag=v${{ needs.detect-current-version.outputs.version }}" >> $GITHUB_ENV
 
       # タグのテストが完了したらコメントアウトを外す
-      - name: Generate release note contents
-        id: release_note
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const result = await github.rest.repos.generateReleaseNotes({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag_name: 'v${{ needs.detect-current-version.outputs.version }}',
-              previous_tag_name: 'v0.2.0'
-            })
-            console.log(result.data.body)
-            return result.data.body
+      # - name: Generate release note contents
+      #   id: release_note
+      #   uses: actions/github-script@v6
+      #   with:
+      #     script: |
+      #       const result = await github.rest.repos.generateReleaseNotes({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         tag_name: 'v${{ needs.detect-current-version.outputs.version }}',
+      #         previous_tag_name: '{{ steps.latest-tag.outputs.result }}'
+      #       })
+      #       console.log(result.data.body)
+      #       return result.data.body
 
       # - name: Create release
       #   uses: actions/github-script@v6
