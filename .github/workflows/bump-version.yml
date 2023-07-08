@@ -49,11 +49,6 @@ jobs:
         merged_refs=$(git log --merges --pretty=format:%P refs/tags/v${{ needs.detect-current-version.outputs.version }}..origin/main | cut -d ' ' -f 2)
         IFS=$'\n' pr_refs=$(git ls-remote origin refs/pull/*/head)
 
-        echo "git log --merges --pretty=format:%P v${{ needs.detect-current-version.outputs.version }}..main | cut -d ' ' -f 2"
-        git log --merges v${{ needs.detect-current-version.outputs.version }}..main
-        git log --merges --pretty=format:%P v${{ needs.detect-current-version.outputs.version }}..main | cut -d ' ' -f 2
-        git ls-remote origin refs/pull/*/head
-
         for merged_ref in $merged_refs
         do
           for pr_ref in $pr_refs
@@ -201,10 +196,10 @@ jobs:
           sed -i -e "2s/${{ needs.detect-current-version.outputs.version }}/${{ needs.select-version.outputs.version }}/" Eask
           git add kibela.el Eask
 
-      # - uses: peter-evans/create-pull-request@v4
-      #   with:
-      #     title: Bump version from ${{ needs.detect-current-version.version }} to ${{ needs.select-version.version }}
-      #     branch: bump-version-${{ needs.select-version.outputs.version }}
-      #     base: main
-      #     labels: |
-      #       bump version
+      - uses: peter-evans/create-pull-request@v4
+        with:
+          title: Bump version from ${{ needs.detect-current-version.version }} to ${{ needs.select-version.version }}
+          branch: bump-version-${{ needs.select-version.outputs.version }}
+          base: main
+          labels: |
+            bump version
