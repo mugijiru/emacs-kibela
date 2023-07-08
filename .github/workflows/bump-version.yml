@@ -198,7 +198,7 @@ jobs:
 
       - uses: peter-evans/create-pull-request@v4
         with:
-          title: Bump version from ${{ needs.detect-current-version.version }} to ${{ needs.select-version.version }}
+          title: Bump version from ${{ needs.detect-current-version.outputs.version }} to ${{ needs.select-version.outputs.version }}
           branch: bump-version-${{ needs.select-version.outputs.version }}
           base: main
           labels: |
