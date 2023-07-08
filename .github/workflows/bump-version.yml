@@ -48,6 +48,7 @@ jobs:
         merged_refs=$(git log --merges --pretty=format:%P refs/tags/v${{ needs.detect-current-version.outputs.version }}..origin/main | cut -d ' ' -f 2)
         IFS=$'\n' pr_refs=$(git ls-remote origin refs/pull/*/head)
 
+        echo "git log --merges --pretty=format:%P refs/tags/v${{ needs.detect-current-version.outputs.version }}..origin/main | cut -d ' ' -f 2"
         git log --merges --pretty=format:%P refs/tags/v${{ needs.detect-current-version.outputs.version }}..origin/main | cut -d ' ' -f 2
         git ls-remote origin refs/pull/*/head
 
