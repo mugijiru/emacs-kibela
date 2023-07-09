@@ -184,6 +184,7 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
                 content
                 coediting
                 canBeUpdated
+                isLikedByCurrentUser
                 url
                 (groups id name)
                 (folders
@@ -273,7 +274,6 @@ SUCCESS はリクエストが成功した時の処理."
       :headers (kibela-headers)
       :success success
       :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
-                            (pp args)
                             (message "Got error: %S" error-thrown))))))
 
 ;;;###autoload
@@ -589,7 +589,7 @@ DATA はリクエスト成功時の JSON."
     (kibela-recent-browsing-notes-mode)
     (kibela-recent-browsing-notes-refresh)))
 
-(cl-defun kibela--build-header-line (groups &optional (folders '()))
+(cl-defun kibela--build-header-line (groups &optional (folders '()) &key (liked-by-me-p nil) (exist-note-p nil))
   "グループ/フォルダ情報から header-line 用の文字列を構築する.
 edit と new from template で利用している.
 
@@ -615,7 +615,13 @@ FOLDERS はその記事が収められているフォルダの一覧.
          (group-names (mapcar (lambda (group)
                                 (assoc-default 'name group))
                               groups-without-folder))
-         (names (append group-names folder-names)))
+         (like-button (if exist-note-p
+                          (if liked-by-me-p
+                              "♥"
+                            "♡")
+                        nil))
+         (names (cl-remove-if #'null
+                           (append `(,like-button) group-names folder-names))))
     (string-join names " | ")))
 
 (declare-function kibela--build-header-line "kibela")
@@ -723,6 +729,7 @@ URL などからではなく GraphQL で取得すること."
                                (content (assoc-default 'content note))
                                (coediting (assoc-default 'coediting note))
                                (can-be-updated (eq t (assoc-default 'canBeUpdated note)))
+                               (liked-by-me-p (eq t (assoc-default 'isLikedByCurrentUser note)))
                                (url (assoc-default 'url note))
                                (groups (assoc-default 'groups note))
                                (group-ids (mapcar (lambda (group) (assoc-default 'id group)) groups))
@@ -743,7 +750,7 @@ URL などからではなく GraphQL で取得すること."
                           (insert (concat "# " title "\n\n" content))
                           (kibela-markdown-view-mode)
                           (setq header-line-format
-                                (kibela--build-header-line groups folders))
+                                (kibela--build-header-line groups folders :liked-by-me-p liked-by-me-p :exist-note-p t))
                           (setq kibela-note-can-be-updated can-be-updated)
                           (setq kibela-note-url url)
                           (setq kibela-note-base
