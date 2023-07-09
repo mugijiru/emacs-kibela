@@ -41,6 +41,9 @@ jobs:
       contents: write
       packages: write
 
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+
     steps:
       - uses: actions/checkout@v3
 
@@ -61,39 +64,15 @@ jobs:
           echo "latest_tag=${{ steps.latest-tag.outputs.result }}"
           echo "version=${{ needs.detect-current-version.outputs.version }}"
 
-      # テスト中はコメントアウト
       - name: set tag
         run: |
           git tag v${{ needs.detect-current-version.outputs.version }}
           git push origin --tags
-          echo "release_tag=v${{ needs.detect-current-version.outputs.version }}" >> $GITHUB_ENV
+          echo "tag=v${{ needs.detect-current-version.outputs.version }}" >> $GITHUB_OUTPUT
 
-      # タグのテストが完了したらコメントアウトを外す
-      # - name: Generate release note contents
-      #   id: release_note
-      #   uses: actions/github-script@v6
-      #   with:
-      #     script: |
-      #       const result = await github.rest.repos.generateReleaseNotes({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         tag_name: 'v${{ needs.detect-current-version.outputs.version }}',
-      #         previous_tag_name: '{{ steps.latest-tag.outputs.result }}'
-      #       })
-      #       console.log(result.data.body)
-      #       return result.data.body
-
-      # - name: Create release
-      #   uses: actions/github-script@v6
-      #   with:
-      #     script: |
-      #       const release = await github.rest.repos.createRelease({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         tag_name: 'v${{ needs.detect-current-version.outputs.version }}',
-      #         name: 'v${{ needs.detect-current-version.outputs.version }}',
-      #         body: ${{ steps.release_note.outputs.result }},
-      #         draft: false,
-      #         prerelease: true,
-      #       })
-      #       return release.data
+  call-create-release:
+    needs: tag
+    secrets: inherit
+    uses: ./.github/workflows/create-release.yml
+    with:
+      tag: ${{ needs.tag.outputs.version }}
