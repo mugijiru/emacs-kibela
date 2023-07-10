@@ -450,7 +450,9 @@ kibela からのレスポンスを completing-read で絞り込んで
           (should (string-equal (buffer-name) "*Kibela* NoteID"))
           (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
                                 "# posted note\n\nposted content"))
-          (should (string-equal header-line-format "♥ | Home > foo > bar")))
+          (should (string-equal header-line-format "♥ | Home > foo > bar"))
+          (kibela-unlike) ;; クリックはシミュレートできないので直接呼び出している
+          (should (string-equal (substring-no-properties header-line-format) "♡ | Home > foo > bar")))
 
       (kill-matching-buffers "^\\*Kibela\\*" nil t))))
 
@@ -476,7 +478,11 @@ kibela からのレスポンスを completing-read で絞り込んで
           (should (string-equal (buffer-name) "*Kibela* NoteID"))
           (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
                                 "# posted note\n\nposted content"))
-          (should (string-equal header-line-format "♡ | Home > foo > bar")))
+          (should (string-equal (substring-no-properties header-line-format) "♡ | Home > foo > bar"))
+
+          (let* ((like-response)))
+          (kibela-like) ;; クリックはシミュレートできないので直接呼び出している
+          (should (string-equal (substring-no-properties header-line-format) "♥ | Home > foo > bar")))
       (kill-matching-buffers "^\\*Kibela\\*" nil t))))
 
 ;; create

@@ -62,6 +62,10 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
 (defvar-local kibela-note-url nil
   "記事 URL を保存する変数.")
 
+(defvar-local kibela-note-groups nil)
+(defvar-local kibela-note-folders nil)
+(defvar-local kibela-note-liked-by-me nil)
+
 (defcustom kibela-per-page 40
   "記事一覧など、複数件のデータを取得する時の最大値"
   :group 'kibela
@@ -589,6 +593,32 @@ DATA はリクエスト成功時の JSON."
     (kibela-recent-browsing-notes-mode)
     (kibela-recent-browsing-notes-refresh)))
 
+(defun kibela-like ()
+  (interactive)
+  (let ((groups kibela-note-groups)
+        (folders kibela-note-folders))
+    (setq header-line-format
+          (kibela--build-header-line groups folders :liked-by-me-p t :exist-note-p t))))
+
+(defun kibela-unlike ()
+  (interactive)
+  (let ((groups kibela-note-groups)
+        (folders kibela-note-folders))
+    (setq header-line-format
+          (kibela--build-header-line groups folders :liked-by-me-p nil :exist-note-p t))))
+
+(defvar kibela-like-button-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [header-line mouse1] 'kibela-like)
+    map)
+  "Keymap for 'kibela-like-button'.")
+
+(defvar kibela-unlike-button-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [header-line mouse1] 'kibela-unlike)
+    map)
+  "Keymap for 'kibela-unlike-button'.")
+
 (cl-defun kibela--build-header-line (groups &optional (folders '()) &key (liked-by-me-p nil) (exist-note-p nil))
   "グループ/フォルダ情報から header-line 用の文字列を構築する.
 edit と new from template で利用している.
@@ -615,13 +645,15 @@ FOLDERS はその記事が収められているフォルダの一覧.
          (group-names (mapcar (lambda (group)
                                 (assoc-default 'name group))
                               groups-without-folder))
-         (like-button (if exist-note-p
-                          (if liked-by-me-p
-                              "♥"
-                            "♡")
-                        nil))
+         (like-button (propertize "♥" 'pointer 'hand 'keymap kibela-like-button-map))
+         (unlike-button (propertize "♡" 'pointer 'hand 'keymap kibela-unlike-button-map))
+         (like-button-or-nil (if exist-note-p
+                                 (if liked-by-me-p
+                                     like-button
+                                   unlike-button)
+                               nil))
          (names (cl-remove-if #'null
-                           (append `(,like-button) group-names folder-names))))
+                           (append `(,like-button-or-nil) group-names folder-names))))
     (string-join names " | ")))
 
 (declare-function kibela--build-header-line "kibela")
@@ -753,6 +785,9 @@ URL などからではなく GraphQL で取得すること."
                                 (kibela--build-header-line groups folders :liked-by-me-p liked-by-me-p :exist-note-p t))
                           (setq kibela-note-can-be-updated can-be-updated)
                           (setq kibela-note-url url)
+                          (setq kibela-note-groups groups)
+                          (setq kibela-note-folders folders)
+                          (setq kibela-note-liked-by-me liked-by-me-p)
                           (setq kibela-note-base
                                 `(("title" . ,title)
                                   ("content" . ,content)
