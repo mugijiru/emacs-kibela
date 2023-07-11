@@ -451,6 +451,13 @@ kibela からのレスポンスを completing-read で絞り込んで
           (should (string-equal (buffer-substring-no-properties (point-min) (point-max))
                                 "# posted note\n\nposted content"))
           (should (string-equal header-line-format "♥ | Home > foo > bar"))
+
+          (let* ((unlike-response '(unlike
+                                    (likers
+                                     (totalCount: 0)
+                                     (edges . [])))))
+            (kibela-test--use-response-stub unlike-response
+              (kibela-unlike)))
           (kibela-unlike) ;; クリックはシミュレートできないので直接呼び出している
           (should (string-equal (substring-no-properties header-line-format) "♡ | Home > foo > bar")))
 
@@ -480,10 +487,53 @@ kibela からのレスポンスを completing-read で絞り込んで
                                 "# posted note\n\nposted content"))
           (should (string-equal (substring-no-properties header-line-format) "♡ | Home > foo > bar"))
 
-          (let* ((like-response)))
-          (kibela-like) ;; クリックはシミュレートできないので直接呼び出している
+          (let* ((like-response '(like
+                                  (likers
+                                   (totalCount: 1)
+                                   (edges . [((node
+                                               id . "UserId1"))])))))
+            (kibela-test--use-response-stub like-response
+              (kibela-like))) ;; クリックはシミュレートできないので直接呼び出している
+
           (should (string-equal (substring-no-properties header-line-format) "♥ | Home > foo > bar")))
       (kill-matching-buffers "^\\*Kibela\\*" nil t))))
+
+;; like/unlike
+
+(ert-deftest test-kibela-like ()
+  (with-temp-buffer
+    (let ((kibela-note-groups '(((id . "GroupID1")
+                                 (name . "Home"))))
+          (kibela-note-folders '(((id . "FolderID1")
+                                  (folderName . "foo/bar")
+                                  (group . ((id . "GroupID1")
+                                            (name . "Home"))))))
+          (response '(like
+                      (likers
+                       (totalCount: 1)
+                       (edges . [((node
+                                   id . "UserId1"))])))))
+
+      (kibela-test--use-response-stub response
+        (kibela-like))
+      (should (string-equal (substring-no-properties header-line-format) "♥ | Home > foo > bar")))))
+
+(ert-deftest test-kibela-unlike ()
+  (with-temp-buffer
+    (let ((kibela-note-groups '(((id . "GroupID1")
+                                 (name . "Home"))))
+          (kibela-note-folders '(((id . "FolderID1")
+                                  (folderName . "foo/bar")
+                                  (group . ((id . "GroupID1")
+                                            (name . "Home"))))))
+          (response '(like
+                      (likers
+                       (totalCount: 0)
+                       (edges . [])))))
+
+      (kibela-test--use-response-stub response
+        (kibela-unlike))
+      (should (string-equal (substring-no-properties header-line-format) "♡ | Home > foo > bar")))))
 
 ;; create
 
