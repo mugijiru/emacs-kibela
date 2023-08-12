@@ -9,6 +9,7 @@ on:
       - 'Eask'
       - '*.el'
       - 'test/*-test.el'
+      - '.github/workflows/test.yml'
   workflow_dispatch:
   workflow_call:
 
