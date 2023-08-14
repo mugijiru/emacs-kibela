@@ -17,6 +17,7 @@ jobs:
             bug
             refactoring
             maintenance
+            dependencies
             documentation
             enhancement
             breaking change
