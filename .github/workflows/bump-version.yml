@@ -196,7 +196,7 @@ jobs:
           sed -i -e "2s/${{ needs.detect-current-version.outputs.version }}/${{ needs.select-version.outputs.version }}/" Eask
           git add kibela.el Eask
 
-      - uses: peter-evans/create-pull-request@v4
+      - uses: peter-evans/create-pull-request@v5
         with:
           title: Bump version from ${{ needs.detect-current-version.outputs.version }} to ${{ needs.select-version.outputs.version }}
           branch: bump-version-${{ needs.select-version.outputs.version }}
