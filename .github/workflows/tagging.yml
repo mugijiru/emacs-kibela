@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    if: github.event.pull_request.merged == true && startsWith(github.head_ref, "bump-version")
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'bump-version')
 
     uses: ./.github/workflows/test.yml
     secrets: inherit
@@ -17,7 +17,7 @@ jobs:
   # copy from bump-version.yml
   # FIXME: reusing workflow か action として定義し直して再利用する
   detect-current-version:
-    if: github.event.pull_request.merged == true && startsWith(github.head_ref, "bump-version")
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'bump-version')
 
     runs-on: ubuntu-latest
     outputs:
