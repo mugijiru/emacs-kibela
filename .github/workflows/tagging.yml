@@ -69,6 +69,7 @@ jobs:
           echo "version=${{ needs.detect-current-version.outputs.version }}"
 
       - name: set tag
+        id: tag
         run: |
           git tag v${{ needs.detect-current-version.outputs.version }}
           git push origin --tags
