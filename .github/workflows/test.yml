@@ -29,7 +29,9 @@ jobs:
           - 28.2
           - 29.1
           - snapshot
-
+        exclude:
+          - os: macos-latest
+            emacs-version: 27.2
     steps:
     - uses: actions/checkout@v3
 
