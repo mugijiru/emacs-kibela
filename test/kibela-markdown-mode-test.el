@@ -12,12 +12,19 @@
                              (name . "Home"))))
                  (folders . ())))
          (kibela-note-base (copy-alist note))
-         (kibela-note-can-be-updated t))
+         (kibela-note-can-be-updated t)
+         (kibela-note-groups '(((id . "GroupID1")
+                                (name . "Home"))))
+         (kibela-note-folders '(((id . "FolderID1")
+                                  (folderName . "foo/bar")
+                                  (group . ((id . "GroupID1")
+                                            (name . "Home")))))))
     (with-temp-buffer
       (insert (concat "# " (assoc-default 'title note) "\n\n" (assoc-default 'content note)))
       (kibela-markdown-view-mode)
       (ert-with-message-capture messages
         (kibela-markdown--show-to-edit)
+        (should (string-equal header-line-format "Home > foo > bar"))
         (should (string-equal major-mode "kibela-markdown-mode"))
         (should (string-empty-p messages))))))
 

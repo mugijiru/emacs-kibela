@@ -42,12 +42,16 @@
 (defun kibela-markdown--show-to-edit ()
   (interactive)
   (let* ((base kibela-note-base)
+         (groups kibela-note-groups)
+         (folders kibela-note-folders)
          (url kibela-note-url))
     (cond
      (kibela-note-can-be-updated
       (kibela-markdown-mode)
       (setq kibela-note-base base)
-      (setq kibela-note-url url))
+      (setq kibela-note-url url)
+      (setq header-line-format
+            (kibela--build-header-line groups folders)))
      (t
       (message "cannot edit this note.")))))
 
