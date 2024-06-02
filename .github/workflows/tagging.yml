@@ -54,7 +54,7 @@ jobs:
       # 要らないかも?
       - name: get latest tag
         id: latest-tag
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const result = await github.rest.repos.getLatestRelease({
