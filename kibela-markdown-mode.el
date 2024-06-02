@@ -39,6 +39,8 @@
       (kibela-note-update)
     (kibela-note-create)))
 
+(declare-function kibela--build-header-line "kibela")
+
 (defun kibela-markdown--show-to-edit ()
   (interactive)
   (let* ((base kibela-note-base)
