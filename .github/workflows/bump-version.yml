@@ -111,7 +111,7 @@ jobs:
         run: npm install -g semver
 
       - name: download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: matrix-tags
       - name: merge
