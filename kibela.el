@@ -31,6 +31,7 @@
 (require 'graphql)
 (require 'request)
 (require 'json)
+(require 'tabulated-list)
 (require 'kibela-markdown-mode)
 
 (defcustom kibela-auth-list nil
