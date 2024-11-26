@@ -12,7 +12,7 @@
 (source "gnu")
 (source "melpa")
 
-(depends-on "emacs" "26.1")
+(depends-on "emacs" "28.2")
 (depends-on "graphql" "0.1.1")
 (depends-on "request" "0.3.3")
 (depends-on "markdown-mode" "2.5")
