@@ -42,6 +42,7 @@
 (declare-function kibela--build-header-line "kibela")
 
 (defun kibela-markdown--show-to-edit ()
+  "Show edit buffer from view buffer."
   (interactive)
   (let* ((base kibela-note-base)
          (groups kibela-note-groups)
@@ -58,12 +59,14 @@
       (message "cannot edit this note.")))))
 
 (defun kibela-markdown-open-in-browser ()
+  "Open note in browser."
   (interactive)
   (if kibela-note-url
       (browse-url kibela-note-url)
     (message "URL is not exists")))
 
 (defun kibela-markdown--kill-edit-buffer ()
+  "Kill edit buffer."
   (interactive)
   (if kibela-note-base
       (let ((base kibela-note-base)
