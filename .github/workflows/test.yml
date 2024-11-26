@@ -124,7 +124,7 @@ jobs:
     - name: Run lint
       run: |
         eask clean all
-        eask lint indent
+        eask lint indent --strict
 
   lint-checkdoc:
     runs-on: ubuntu-latest
