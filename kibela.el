@@ -70,7 +70,7 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
 (defvar-local kibela-note-liked-by-me nil)
 
 (defcustom kibela-per-page 40
-  "記事一覧など、複数件のデータを取得する時の最大値"
+  "記事一覧など、複数件のデータを取得する時の最大値."
   :group 'kibela
   :type 'integer)
 
@@ -445,7 +445,9 @@ DATA はリクエスト成功時の JSON."
     (tabulated-list-print)))
 
 (defun kibela-note-show-from-list (marker)
-  "記事一覧から記事を開くためのアクション."
+  "記事一覧から記事を開くためのアクション.
+
+MARKER には記事一覧のカーソル位置が渡されてくる."
   (let* ((pos (marker-position marker))
          (id (get-text-property pos 'id)))
     (kibela-note-show id)))
@@ -670,7 +672,10 @@ edit と new from template で利用している.
 
 GROUPS はその記事が所属しているグループの一覧.
 FOLDERS はその記事が収められているフォルダの一覧.
-これら二つの値から header line を構築する."
+これら二つの値から header line を構築する.
+
+LIKED-BY-ME-P は自分がその記事を Like しているかどうか.
+EXIST-NOTE-P はその記事が存在するかどうか."
   (let* ((groups-without-folder (seq-remove (lambda (group)
                                               (seq-find (lambda (folder)
                                                           (let* ((folder-group (assoc-default 'group folder))
