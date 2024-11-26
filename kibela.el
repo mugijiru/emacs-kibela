@@ -212,8 +212,8 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
 (defconst kibela-graphql-query-default-group
   (graphql-query
    ((defaultGroup
-      id
-      name)))
+     id
+     name)))
   "デフォルトの投稿先グループを取得するためのクエリ.")
 
 (defconst kibela-graphql-query-note-templates
@@ -702,10 +702,10 @@ EXIST-NOTE-P はその記事が存在するかどうか."
          (liked-button (propertize "♥" 'pointer 'hand 'keymap kibela-unlike-button-map)) ;; Like 済なのでクリック時は unlike する
          (unliked-button (propertize "♡" 'pointer 'hand 'keymap kibela-like-button-map)) ;; Like していないのでクリック時は like する
          (liked-button-or-nil (if exist-note-p
-                                 (if liked-by-me-p
-                                     liked-button
-                                   unliked-button)
-                               nil))
+                                  (if liked-by-me-p
+                                      liked-button
+                                    unliked-button)
+                                nil))
          (names (cl-remove-if #'null
                               (append `(,liked-button-or-nil) group-names folder-names))))
     (string-join names " | ")))
