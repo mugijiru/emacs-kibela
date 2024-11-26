@@ -6,7 +6,7 @@
 ;; Maintainer: mugijiru <106833+mugijiru@users.noreply.github.com>
 ;; URL: https://github.com/mugijiru/emacs-kibela
 ;; Version: 1.0.0
-;; Package-Requires: ((emacs "26.1") (graphql "0.1.1") (request "0.3.3") (markdown-mode "2.5") (edit-indirect "0.1.10"))
+;; Package-Requires: ((emacs "28.2") (graphql "0.1.1") (request "0.3.3") (markdown-mode "2.5") (edit-indirect "0.1.10"))
 ;; Keywords: kibela, tools
 
 ;; This program is free software; you can redistribute it and/or modify
