@@ -25,13 +25,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         emacs-version:
-          - 27.2
           - 28.2
           - 29.4
           - snapshot
-        exclude:
-          - os: macos-latest
-            emacs-version: 27.2
     steps:
     - uses: actions/checkout@v4
 
