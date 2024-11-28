@@ -412,8 +412,7 @@ SELECTED は選択した記事テンプレート."
   "グループとその配下の Notes を取得する処理.
 
 DATA はリクエスト成功時の JSON."
-  (let* ((response-data (assoc-default 'data (graphql-simplify-response-edges data)))
-         (row-data (assoc-default 'data data))
+  (let* ((row-data (assoc-default 'data data))
          (row-group (assoc-default 'group row-data))
          (row-notes (assoc-default 'notes row-group))
 
@@ -527,8 +526,7 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
   "最近見た Notes を取得する処理.
 
 DATA はリクエスト成功時の JSON."
-  (let* ((response-data (assoc-default 'data (graphql-simplify-response-edges data)))
-         (row-data (assoc-default 'data data))
+  (let* ((row-data (assoc-default 'data data))
          (row-note-browsing-histories (assoc-default 'noteBrowsingHistories row-data))
 
          (page-info (assoc-default 'pageInfo row-note-browsing-histories))
@@ -736,7 +734,6 @@ TEMPLATE は記事作成時に利用するテンプレート."
   (let* ((title (plist-get template :title))
          (content (plist-get template :content))
          (groups (plist-get template :groups))
-         (group-ids (plist-get template :group-ids))
          (folders (plist-get template :folders))
          (buffer (get-buffer-create "*Kibela* newnote")))
     (switch-to-buffer buffer)
