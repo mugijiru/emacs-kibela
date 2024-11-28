@@ -58,6 +58,8 @@
      (kibela-note-can-be-updated
       (kibela-markdown-mode)
       (setq kibela-note-base base)
+      (setq kibela-note-groups groups)
+      (setq kibela-note-folders folders)
       (setq kibela-note-url url)
       (setq header-line-format
             (kibela--build-header-line groups folders)))
@@ -75,12 +77,18 @@
   "Kill edit buffer."
   (interactive)
   (if kibela-note-base
-      (let ((base kibela-note-base))
+      (let ((base kibela-note-base)
+            (groups kibela-note-groups)
+            (folders kibela-note-folders))
         (erase-buffer)
         (insert (concat "# " (assoc-default "title" base) "\n\n" (assoc-default "content" base)))
         (kibela-markdown-view-mode)
         (setq kibela-note-base base)
-        (setq kibela-note-can-be-updated t))
+        (setq kibela-note-can-be-updated t)
+        (setq kibela-note-groups groups)
+        (setq kibela-note-folders folders)
+        (setq header-line-format
+              (kibela--build-header-line groups folders)))
     (kill-current-buffer)))
 
 (defvar kibela-markdown-mode-map
