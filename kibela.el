@@ -493,7 +493,7 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
     (define-key map (kbd ">") 'kibela-group-notes-next-page)
     (define-key map (kbd "<") 'kibela-group-notes-prev-page)
     map)
-  "Keymap for 'kibela-list-mode'.")
+  "Keymap for \\='kibela-list-mode\\='.")
 
 (define-derived-mode kibela-list-mode tabulated-list-mode "Kibela list"
   "Kibela list view."
@@ -599,7 +599,7 @@ DATA はリクエスト成功時の JSON."
     (define-key map (kbd ">") 'kibela-recent-browsing-notes-next-page)
     (define-key map (kbd "<") 'kibela-recent-browsing-notes-prev-page)
     map)
-  "Keymap for 'kibela-recent-browsing-notes-mode'.")
+  "Keymap for \\='kibela-recent-browsing-notes-mode\\='.")
 
 (define-derived-mode kibela-recent-browsing-notes-mode tabulated-list-mode "Kibela recent browsing notes"
   "Kibela list view for recent browsing notes."
@@ -655,13 +655,13 @@ DATA はリクエスト成功時の JSON."
   (let ((map (make-sparse-keymap)))
     (define-key map [header-line mouse-1] 'kibela-like)
     map)
-  "Keymap for 'kibela-like-button'.")
+  "Keymap for \\='kibela-like-button\\='.")
 
 (defvar kibela-unlike-button-map
   (let ((map (make-sparse-keymap)))
     (define-key map [header-line mouse-1] 'kibela-unlike)
     map)
-  "Keymap for 'kibela-unlike-button'.")
+  "Keymap for \\='kibela-unlike-button\\='.")
 
 (cl-defun kibela--build-header-line (groups &optional (folders '()) &key (liked-by-me-p nil) (exist-note-p nil))
   "グループ/フォルダ情報から header-line 用の文字列を構築する.
