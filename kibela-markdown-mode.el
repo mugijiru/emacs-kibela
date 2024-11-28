@@ -32,6 +32,12 @@
 (declare-function kibela-note-create "kibela")
 (declare-function kibela-note-update "kibela")
 
+(defvar kibela-note-base)
+(defvar kibela-note-groups)
+(defvar kibela-note-folders)
+(defvar kibela-note-url)
+(defvar kibela-note-can-be-updated)
+
 (defun kibela-markdown-post ()
   "Kibela に投稿する処理."
   (interactive)
