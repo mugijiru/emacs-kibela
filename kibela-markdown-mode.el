@@ -69,8 +69,7 @@
   "Kill edit buffer."
   (interactive)
   (if kibela-note-base
-      (let ((base kibela-note-base)
-            (url kibela-note-url))
+      (let ((base kibela-note-base))
         (erase-buffer)
         (insert (concat "# " (assoc-default "title" base) "\n\n" (assoc-default "content" base)))
         (kibela-markdown-view-mode)
