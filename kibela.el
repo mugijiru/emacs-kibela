@@ -565,8 +565,8 @@ DATA はリクエスト成功時の JSON."
     (tabulated-list-print)))
 
 (defun kibela-recent-browsing-notes-refresh ()
-  "記事一覧を読み込み直す処理."
-  (message "Fetch default recent browsing notes...")
+  "最近見た記事一覧を読み込み直す処理."
+  (message "Fetch recent browsing notes...")
   (let* ((query kibela-graphql-query-recent-browsing-notes-next)
          (variables `((perPage . ,kibela-per-page))))
     (kibela--request query variables #'kibela--recent-browsing-notes-success)))
@@ -608,11 +608,6 @@ DATA はリクエスト成功時の JSON."
   (add-hook 'tabulated-list-revert-hook 'kibela-recent-browsing-notes-refresh nil t)
   (use-local-map kibela-recent-browsing-notes-mode-map))
 
-(defun kibela-recent-browsing-notes-refresh ()
-  "最近見た記事一覧を読み込み直す処理."
-  (let* ((query kibela-graphql-query-recent-browsing-notes-next)
-         (variables `((perPage . ,kibela-per-page))))
-    (kibela--request query variables #'kibela--recent-browsing-notes-success)))
 
 ;;;###autoload
 (defun kibela-recent-browsing-notes ()
