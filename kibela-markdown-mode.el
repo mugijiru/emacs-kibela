@@ -105,11 +105,11 @@
 See also `gfm-mode-map'.")
 
 (define-derived-mode
- kibela-markdown-mode
- gfm-mode
- "Kibela Markdown"
- "Major mode for editing Kibela Markdown files."
- (use-local-map kibela-markdown-mode-map))
+  kibela-markdown-mode
+  gfm-mode
+  "Kibela Markdown"
+  "Major mode for editing Kibela Markdown files."
+  (use-local-map kibela-markdown-mode-map))
 
 (defvar kibela-markdown-view-mode-map
   (let ((map (make-sparse-keymap)))
@@ -122,11 +122,11 @@ See also `gfm-mode-map'.")
 See also `gfm-view-mode-map'.")
 
 (define-derived-mode
- kibela-markdown-view-mode
- gfm-view-mode
- "Kibela Markdown View"
- "Major mode for viewing Kibela Markdown files."
- (use-local-map kibela-markdown-view-mode-map))
+  kibela-markdown-view-mode
+  gfm-view-mode
+  "Kibela Markdown View"
+  "Major mode for viewing Kibela Markdown files."
+  (use-local-map kibela-markdown-view-mode-map))
 
 (provide 'kibela-markdown-mode)
 ;;; kibela-markdown-mode.el ends here

@@ -243,17 +243,17 @@ VARIABLES は GraphQL の Variables.
 SUCCESS はリクエストが成功した時の処理."
   (let ((data (json-encode `((query . ,query) (variables . ,variables)))))
     (request
-     (kibela-endpoint)
-     :type "POST"
-     :data data
-     :parser 'json-read
-     :encoding 'utf-8
-     :headers (kibela-headers)
-     :success success
-     :error
-     (cl-function
-      (lambda (&rest args &key error-thrown &allow-other-keys)
-        (message "Got error: %S" error-thrown))))))
+      (kibela-endpoint)
+      :type "POST"
+      :data data
+      :parser 'json-read
+      :encoding 'utf-8
+      :headers (kibela-headers)
+      :success success
+      :error
+      (cl-function
+       (lambda (&rest args &key error-thrown &allow-other-keys)
+         (message "Got error: %S" error-thrown))))))
 
 ;;;###autoload
 (defun kibela-switch-team ()
@@ -273,13 +273,13 @@ SUCCESS はリクエストが成功した時の処理."
       (message "No match team.")))))
 
 (cl-defun
- kibela--store-default-group-success (&key data &allow-other-keys)
- "デフォルトグループ取得リクエスト成功後のデータ格納処理.
+    kibela--store-default-group-success (&key data &allow-other-keys)
+  "デフォルトグループ取得リクエスト成功後のデータ格納処理.
 
 DATA はリクエスト成功時の JSON."
- (let* ((response-data (assoc-default 'data data))
-        (group (assoc-default 'defaultGroup response-data)))
-   (setq kibela-default-group group)))
+  (let* ((response-data (assoc-default 'data data))
+         (group (assoc-default 'defaultGroup response-data)))
+    (setq kibela-default-group group)))
 
 (defun kibela-store-default-group ()
   "デフォルトの投稿先グループを取得する."
@@ -362,44 +362,44 @@ SELECTED は選択した記事テンプレート."
     t))
 
 (cl-defun
- kibela--group-notes-success (&key data &allow-other-keys)
- "グループとその配下の Notes を取得する処理.
+    kibela--group-notes-success (&key data &allow-other-keys)
+  "グループとその配下の Notes を取得する処理.
 
 DATA はリクエスト成功時の JSON."
- (let* ((row-data (assoc-default 'data data))
-        (row-group (assoc-default 'group row-data))
-        (row-notes (assoc-default 'notes row-group))
+  (let* ((row-data (assoc-default 'data data))
+         (row-group (assoc-default 'group row-data))
+         (row-notes (assoc-default 'notes row-group))
 
-        (page-info (assoc-default 'pageInfo row-notes))
-        (has-prev-page (assoc-default 'hasPreviousPage page-info))
-        (has-next-page (assoc-default 'hasNextPage page-info))
-        (edges (assoc-default 'edges row-notes))
-        (first-note (elt edges 0))
-        (first-cursor (assoc-default 'cursor first-note))
-        (last-note (elt (reverse edges) 0))
-        (last-cursor (assoc-default 'cursor last-note)))
-   (setq tabulated-list-entries nil)
-   (mapc
-    (lambda (note)
-      (let* ((node (assoc-default 'node note))
-             (id (assoc-default 'id node))
-             (title (assoc-default 'title node))
-             (updated-at (assoc-default 'contentUpdatedAt node))
-             (entry
-              `(id
-                [(,title
-                  .
-                  (face default action kibela-note-show-from-list id ,id))
-                 (,updated-at
-                  . (face default action kibela-note-show-from-list id ,id))])))
-        (push entry tabulated-list-entries)))
-    edges)
-   (setq kibela-first-cursor first-cursor)
-   (setq kibela-last-cursor last-cursor)
-   (setq kibela-has-prev-page (equal has-prev-page t))
-   (setq kibela-has-next-page (equal has-next-page t))
-   (tabulated-list-init-header)
-   (tabulated-list-print)))
+         (page-info (assoc-default 'pageInfo row-notes))
+         (has-prev-page (assoc-default 'hasPreviousPage page-info))
+         (has-next-page (assoc-default 'hasNextPage page-info))
+         (edges (assoc-default 'edges row-notes))
+         (first-note (elt edges 0))
+         (first-cursor (assoc-default 'cursor first-note))
+         (last-note (elt (reverse edges) 0))
+         (last-cursor (assoc-default 'cursor last-note)))
+    (setq tabulated-list-entries nil)
+    (mapc
+     (lambda (note)
+       (let* ((node (assoc-default 'node note))
+              (id (assoc-default 'id node))
+              (title (assoc-default 'title node))
+              (updated-at (assoc-default 'contentUpdatedAt node))
+              (entry
+               `(id
+                 [(,title
+                   .
+                   (face default action kibela-note-show-from-list id ,id))
+                  (,updated-at
+                   . (face default action kibela-note-show-from-list id ,id))])))
+         (push entry tabulated-list-entries)))
+     edges)
+    (setq kibela-first-cursor first-cursor)
+    (setq kibela-last-cursor last-cursor)
+    (setq kibela-has-prev-page (equal has-prev-page t))
+    (setq kibela-has-next-page (equal has-next-page t))
+    (tabulated-list-init-header)
+    (tabulated-list-print)))
 
 (defun kibela-note-show-from-list (marker)
   "記事一覧から記事を開くためのアクション.
@@ -456,14 +456,14 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
   "Keymap for \\='kibela-list-mode\\='.")
 
 (define-derived-mode
- kibela-list-mode
- tabulated-list-mode
- "Kibela list"
- "Kibela list view."
- (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
- (setq tabulated-list-sort-key '("UpdatedAt" . t))
- (add-hook 'tabulated-list-revert-hook 'kibela-group-notes-refresh nil t)
- (use-local-map kibela-list-mode-map))
+  kibela-list-mode
+  tabulated-list-mode
+  "Kibela list"
+  "Kibela list view."
+  (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
+  (setq tabulated-list-sort-key '("UpdatedAt" . t))
+  (add-hook 'tabulated-list-revert-hook 'kibela-group-notes-refresh nil t)
+  (use-local-map kibela-list-mode-map))
 
 ;;;###autoload
 (defun kibela-group-notes ()
@@ -486,48 +486,48 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
       (kibela-group-notes-refresh)))))
 
 (cl-defun
- kibela--recent-browsing-notes-success (&key data &allow-other-keys)
- "最近見た Notes を取得する処理.
+    kibela--recent-browsing-notes-success (&key data &allow-other-keys)
+  "最近見た Notes を取得する処理.
 
 DATA はリクエスト成功時の JSON."
- (let* ((row-data (assoc-default 'data data))
-        (row-note-browsing-histories
-         (assoc-default 'noteBrowsingHistories row-data))
+  (let* ((row-data (assoc-default 'data data))
+         (row-note-browsing-histories
+          (assoc-default 'noteBrowsingHistories row-data))
 
-        (page-info (assoc-default 'pageInfo row-note-browsing-histories))
-        (has-prev-page (assoc-default 'hasPreviousPage page-info))
-        (has-next-page (assoc-default 'hasNextPage page-info))
-        (edges (assoc-default 'edges row-note-browsing-histories))
-        (first-note-browsing-history (elt edges 0))
-        (first-cursor (assoc-default 'cursor first-note-browsing-history))
-        (last-note-browsing-history (elt (reverse edges) 0))
-        (last-cursor (assoc-default 'cursor last-note-browsing-history))
-        (entries nil))
-   (setq tabulated-list-entries nil)
+         (page-info (assoc-default 'pageInfo row-note-browsing-histories))
+         (has-prev-page (assoc-default 'hasPreviousPage page-info))
+         (has-next-page (assoc-default 'hasNextPage page-info))
+         (edges (assoc-default 'edges row-note-browsing-histories))
+         (first-note-browsing-history (elt edges 0))
+         (first-cursor (assoc-default 'cursor first-note-browsing-history))
+         (last-note-browsing-history (elt (reverse edges) 0))
+         (last-cursor (assoc-default 'cursor last-note-browsing-history))
+         (entries nil))
+    (setq tabulated-list-entries nil)
 
-   (mapc
-    (lambda (note-browsing-history)
-      (let* ((node (assoc-default 'node note-browsing-history))
-             (note (assoc-default 'note node))
-             (id (assoc-default 'id note))
-             (title (assoc-default 'title note))
-             (updated-at (assoc-default 'contentUpdatedAt note))
-             (entry
-              `(id
-                [(,title
-                  .
-                  (face default action kibela-note-show-from-list id ,id))
-                 (,updated-at
-                  . (face default action kibela-note-show-from-list id ,id))])))
-        (push entry entries)))
-    edges)
-   (setq tabulated-list-entries (nreverse entries))
-   (setq kibela-first-cursor first-cursor)
-   (setq kibela-last-cursor last-cursor)
-   (setq kibela-has-prev-page (equal has-prev-page t))
-   (setq kibela-has-next-page (equal has-next-page t))
-   (tabulated-list-init-header)
-   (tabulated-list-print)))
+    (mapc
+     (lambda (note-browsing-history)
+       (let* ((node (assoc-default 'node note-browsing-history))
+              (note (assoc-default 'note node))
+              (id (assoc-default 'id note))
+              (title (assoc-default 'title note))
+              (updated-at (assoc-default 'contentUpdatedAt note))
+              (entry
+               `(id
+                 [(,title
+                   .
+                   (face default action kibela-note-show-from-list id ,id))
+                  (,updated-at
+                   . (face default action kibela-note-show-from-list id ,id))])))
+         (push entry entries)))
+     edges)
+    (setq tabulated-list-entries (nreverse entries))
+    (setq kibela-first-cursor first-cursor)
+    (setq kibela-last-cursor last-cursor)
+    (setq kibela-has-prev-page (equal has-prev-page t))
+    (setq kibela-has-next-page (equal has-next-page t))
+    (tabulated-list-init-header)
+    (tabulated-list-print)))
 
 (defun kibela-recent-browsing-notes-refresh ()
   "最近見た記事一覧を読み込み直す処理."
@@ -571,15 +571,15 @@ DATA はリクエスト成功時の JSON."
   "Keymap for \\='kibela-recent-browsing-notes-mode\\='.")
 
 (define-derived-mode
- kibela-recent-browsing-notes-mode
- tabulated-list-mode
- "Kibela recent browsing notes"
- "Kibela list view for recent browsing notes."
- (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
- (setq tabulated-list-sort-key nil)
- (add-hook 'tabulated-list-revert-hook 'kibela-recent-browsing-notes-refresh
-           nil t)
- (use-local-map kibela-recent-browsing-notes-mode-map))
+  kibela-recent-browsing-notes-mode
+  tabulated-list-mode
+  "Kibela recent browsing notes"
+  "Kibela list view for recent browsing notes."
+  (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
+  (setq tabulated-list-sort-key nil)
+  (add-hook 'tabulated-list-revert-hook 'kibela-recent-browsing-notes-refresh
+            nil t)
+  (use-local-map kibela-recent-browsing-notes-mode-map))
 
 
 ;;;###autoload
@@ -595,17 +595,17 @@ DATA はリクエスト成功時の JSON."
     (kibela-recent-browsing-notes-refresh)))
 
 (cl-defun
- kibela--like-success (&key _data &allow-other-keys)
- "記事に Like をつけるリクエストが成功した時の処理.
+    kibela--like-success (&key _data &allow-other-keys)
+  "記事に Like をつけるリクエストが成功した時の処理.
 リクエストが成功したら中身を確認せず like したように表示を切り替える"
- (let ((groups kibela-note-groups)
-       (folders kibela-note-folders))
-   (setq header-line-format
-         (kibela--build-header-line
-          groups
-          folders
-          :liked-by-me-p t
-          :exist-note-p t))))
+  (let ((groups kibela-note-groups)
+        (folders kibela-note-folders))
+    (setq header-line-format
+          (kibela--build-header-line
+           groups
+           folders
+           :liked-by-me-p t
+           :exist-note-p t))))
 
 (defun kibela-like ()
   "記事に Like をつける処理."
@@ -615,17 +615,17 @@ DATA はリクエスト成功時の JSON."
     (kibela--request query variables #'kibela--like-success)))
 
 (cl-defun
- kibela--unlike-success (&key _data &allow-other-keys)
- "記事に Like を外すリクエストが成功した時の処理.
+    kibela--unlike-success (&key _data &allow-other-keys)
+  "記事に Like を外すリクエストが成功した時の処理.
 リクエストが成功したら中身を確認せず like を外したように表示を切り替える"
- (let ((groups kibela-note-groups)
-       (folders kibela-note-folders))
-   (setq header-line-format
-         (kibela--build-header-line
-          groups
-          folders
-          :liked-by-me-p nil
-          :exist-note-p t))))
+  (let ((groups kibela-note-groups)
+        (folders kibela-note-folders))
+    (setq header-line-format
+          (kibela--build-header-line
+           groups
+           folders
+           :liked-by-me-p nil
+           :exist-note-p t))))
 
 (defun kibela-unlike ()
   "記事の Like を外す処理."
@@ -647,9 +647,9 @@ DATA はリクエスト成功時の JSON."
   "Keymap for \\='kibela-unlike-button\\='.")
 
 (cl-defun
- kibela--build-header-line
- (groups &optional (folders '()) &key (liked-by-me-p nil) (exist-note-p nil))
- "グループ/フォルダ情報から header-line 用の文字列を構築する.
+    kibela--build-header-line
+    (groups &optional (folders '()) &key (liked-by-me-p nil) (exist-note-p nil))
+  "グループ/フォルダ情報から header-line 用の文字列を構築する.
 edit と new from template で利用している.
 
 GROUPS はその記事が所属しているグループの一覧.
@@ -658,45 +658,45 @@ FOLDERS はその記事が収められているフォルダの一覧.
 
 LIKED-BY-ME-P は自分がその記事を Like しているかどうか.
 EXIST-NOTE-P はその記事が存在するかどうか."
- (let*
-     ((groups-without-folder
-       (seq-remove
-        (lambda (group)
-          (seq-find
-           (lambda (folder)
-             (let* ((folder-group (assoc-default 'group folder))
-                    (folder-group-id (assoc-default 'id folder-group))
-                    (group-id (assoc-default 'id group)))
-               (string-equal folder-group-id group-id)))
-           folders))
-        groups))
-      (folder-names
-       (mapcar
-        (lambda (folder)
-          (let* ((group (assoc-default 'group folder))
-                 (kibela-group-name (assoc-default 'name group))
-                 (full-name (assoc-default 'folderName folder))
-                 (folder-paths (split-string full-name "/"))
-                 (full-paths (append `(,kibela-group-name) folder-paths)))
-            (string-join full-paths " > ")))
-        folders))
-      (group-names
-       (mapcar
-        (lambda (group) (assoc-default 'name group)) groups-without-folder))
-      (liked-button
-       (propertize "♥" 'pointer 'hand 'keymap kibela-unlike-button-map)) ;; Like 済なのでクリック時は unlike する
-      (unliked-button
-       (propertize "♡" 'pointer 'hand 'keymap kibela-like-button-map)) ;; Like していないのでクリック時は like する
-      (liked-button-or-nil
-       (if exist-note-p
-           (if liked-by-me-p
-               liked-button
-             unliked-button)
-         nil))
-      (names
-       (cl-remove-if
-        #'null (append `(,liked-button-or-nil) group-names folder-names))))
-   (string-join names " | ")))
+  (let*
+      ((groups-without-folder
+        (seq-remove
+         (lambda (group)
+           (seq-find
+            (lambda (folder)
+              (let* ((folder-group (assoc-default 'group folder))
+                     (folder-group-id (assoc-default 'id folder-group))
+                     (group-id (assoc-default 'id group)))
+                (string-equal folder-group-id group-id)))
+            folders))
+         groups))
+       (folder-names
+        (mapcar
+         (lambda (folder)
+           (let* ((group (assoc-default 'group folder))
+                  (kibela-group-name (assoc-default 'name group))
+                  (full-name (assoc-default 'folderName folder))
+                  (folder-paths (split-string full-name "/"))
+                  (full-paths (append `(,kibela-group-name) folder-paths)))
+             (string-join full-paths " > ")))
+         folders))
+       (group-names
+        (mapcar
+         (lambda (group) (assoc-default 'name group)) groups-without-folder))
+       (liked-button
+        (propertize "♥" 'pointer 'hand 'keymap kibela-unlike-button-map)) ;; Like 済なのでクリック時は unlike する
+       (unliked-button
+        (propertize "♡" 'pointer 'hand 'keymap kibela-like-button-map)) ;; Like していないのでクリック時は like する
+       (liked-button-or-nil
+        (if exist-note-p
+            (if liked-by-me-p
+                liked-button
+              unliked-button)
+          nil))
+       (names
+        (cl-remove-if
+         #'null (append `(,liked-button-or-nil) group-names folder-names))))
+    (string-join names " | ")))
 
 (declare-function kibela--build-header-line "kibela")
 
