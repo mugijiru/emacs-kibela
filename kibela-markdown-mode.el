@@ -61,8 +61,7 @@
       (setq kibela-note-groups groups)
       (setq kibela-note-folders folders)
       (setq kibela-note-url url)
-      (setq header-line-format
-            (kibela--build-header-line groups folders)))
+      (setq header-line-format (kibela--build-header-line groups folders)))
      (t
       (message "cannot edit this note.")))))
 
@@ -81,14 +80,18 @@
             (groups kibela-note-groups)
             (folders kibela-note-folders))
         (erase-buffer)
-        (insert (concat "# " (assoc-default "title" base) "\n\n" (assoc-default "content" base)))
+        (insert
+         (concat
+          "# "
+          (assoc-default "title" base)
+          "\n\n"
+          (assoc-default "content" base)))
         (kibela-markdown-view-mode)
         (setq kibela-note-base base)
         (setq kibela-note-can-be-updated t)
         (setq kibela-note-groups groups)
         (setq kibela-note-folders folders)
-        (setq header-line-format
-              (kibela--build-header-line groups folders)))
+        (setq header-line-format (kibela--build-header-line groups folders)))
     (kill-current-buffer)))
 
 (defvar kibela-markdown-mode-map
@@ -101,9 +104,12 @@
   "Keymap for `kibela-markdown-mode'.
 See also `gfm-mode-map'.")
 
-(define-derived-mode kibela-markdown-mode gfm-mode "Kibela Markdown"
-  "Major mode for editing Kibela Markdown files."
-  (use-local-map kibela-markdown-mode-map))
+(define-derived-mode
+ kibela-markdown-mode
+ gfm-mode
+ "Kibela Markdown"
+ "Major mode for editing Kibela Markdown files."
+ (use-local-map kibela-markdown-mode-map))
 
 (defvar kibela-markdown-view-mode-map
   (let ((map (make-sparse-keymap)))
@@ -115,9 +121,12 @@ See also `gfm-mode-map'.")
   "Keymap for `kibela-markdown-view-mode'.
 See also `gfm-view-mode-map'.")
 
-(define-derived-mode kibela-markdown-view-mode gfm-view-mode "Kibela Markdown View"
-  "Major mode for viewing Kibela Markdown files."
-  (use-local-map kibela-markdown-view-mode-map))
+(define-derived-mode
+ kibela-markdown-view-mode
+ gfm-view-mode
+ "Kibela Markdown View"
+ "Major mode for viewing Kibela Markdown files."
+ (use-local-map kibela-markdown-view-mode-map))
 
 (provide 'kibela-markdown-mode)
 ;;; kibela-markdown-mode.el ends here
