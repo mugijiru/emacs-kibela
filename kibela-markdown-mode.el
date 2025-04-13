@@ -6,6 +6,7 @@
 ;; Maintainer: mugijiru <106833+mugijiru@users.noreply.github.com>
 ;; URL: https://github.com/mugijiru/emacs-kibela
 ;; Version: 0.2.0
+;; Package-Requires: ((emacs "28.2") (markdown-mode "2.5"))
 ;; Keywords: kibela, markdown, tools
 
 ;; This program is free software; you can redistribute it and/or modify
