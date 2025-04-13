@@ -94,126 +94,88 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
 
 (defconst kibela-graphql-query-group-notes-prev
   (graphql-query
-   (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
-               (group
-                :arguments ((id . ($ id)))
-                (notes
-                 :arguments((last . ($ perPage))
-                            (before . ($ cursor))
-                            (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
-                 (pageInfo
-                  hasNextPage
-                  hasPreviousPage)
-                 (edges
-                  cursor
-                  (node
-                   id
-                   title
-                   content
-                   contentUpdatedAt
-                   coediting
-                   canBeUpdated
-                   url))))))
+   (:arguments
+    (($id . ID!) ($perPage . Int!) ($cursor . String))
+    (group
+     :arguments ((id . ($ id)))
+     (notes
+      :arguments
+      ((last . ($ perPage))
+       (before . ($ cursor))
+       (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+      (pageInfo hasNextPage hasPreviousPage)
+      (edges
+       cursor
+       (node id title content contentUpdatedAt coediting canBeUpdated url))))))
   "グループ配下の指定した記事よりも前の記事を取得するためのクエリ.
 グループの記事一覧のページ送りで利用している")
 
 (defconst kibela-graphql-query-group-notes-next
   (graphql-query
-   (:arguments (($id . ID!) ($perPage . Int!) ($cursor . String))
-               (group
-                :arguments ((id . ($ id)))
-                (notes
-                 :arguments((first . ($ perPage))
-                            (after . ($ cursor))
-                            (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
-                 (pageInfo
-                  hasNextPage
-                  hasPreviousPage)
-                 (edges
-                  cursor
-                  (node
-                   id
-                   title
-                   content
-                   contentUpdatedAt
-                   coediting
-                   canBeUpdated
-                   url))))))
+   (:arguments
+    (($id . ID!) ($perPage . Int!) ($cursor . String))
+    (group
+     :arguments ((id . ($ id)))
+     (notes
+      :arguments
+      ((first . ($ perPage))
+       (after . ($ cursor))
+       (orderBy . ((field . CONTENT_UPDATED_AT) (direction . DESC))))
+      (pageInfo hasNextPage hasPreviousPage)
+      (edges
+       cursor
+       (node id title content contentUpdatedAt coediting canBeUpdated url))))))
   "グループ配下の Note を取得するためのクエリ.")
 
 (defconst kibela-graphql-query-recent-browsing-notes-prev
   (graphql-query
-   (:arguments (($perPage . Int!) ($cursor . String))
-               (noteBrowsingHistories
-                :arguments((last . ($ perPage))
-                           (before . ($ cursor)))
-                (pageInfo
-                 hasNextPage
-                 hasPreviousPage)
-                (edges
-                 cursor
-                 (node
-                  (note
-                   id
-                   title
-                   content
-                   contentUpdatedAt
-                   coediting
-                   canBeUpdated
-                   url))))))
+   (:arguments
+    (($perPage . Int!) ($cursor . String))
+    (noteBrowsingHistories
+     :arguments
+     ((last . ($ perPage)) (before . ($ cursor)))
+     (pageInfo hasNextPage hasPreviousPage)
+     (edges
+      cursor
+      (node
+       (note id title content contentUpdatedAt coediting canBeUpdated url))))))
   "最近見た Note を取得するためのクエリ.
 ページ送りで利用している")
 
 (defconst kibela-graphql-query-recent-browsing-notes-next
   (graphql-query
-   (:arguments (($perPage . Int!) ($cursor . String))
-               (noteBrowsingHistories
-                :arguments((first . ($ perPage))
-                           (after . ($ cursor)))
-                (pageInfo
-                 hasNextPage
-                 hasPreviousPage)
-                (edges
-                 cursor
-                 (node
-                  (note
-                   id
-                   title
-                   content
-                   contentUpdatedAt
-                   coediting
-                   canBeUpdated
-                   url))))))
+   (:arguments
+    (($perPage . Int!) ($cursor . String))
+    (noteBrowsingHistories
+     :arguments
+     ((first . ($ perPage)) (after . ($ cursor)))
+     (pageInfo hasNextPage hasPreviousPage)
+     (edges
+      cursor
+      (node
+       (note id title content contentUpdatedAt coediting canBeUpdated url))))))
   "最近見た Note を取得するためのクエリ.")
 
 (defconst kibela-graphql-query-note
   (graphql-query
-   (:arguments (($id . ID!))
-               (note
-                :arguments ((id . ($ id)))
-                title
-                content
-                coediting
-                canBeUpdated
-                isLikedByCurrentUser
-                url
-                (groups id name)
-                (folders
-                 :arguments((first . 100))
-                 (edges
-                  (node
-                   id
-                   fullName
-                   (group
-                    id
-                    name)))))))
+   (:arguments
+    (($id . ID!))
+    (note
+     :arguments
+     ((id . ($ id)))
+     title
+     content
+     coediting
+     canBeUpdated
+     isLikedByCurrentUser
+     url
+     (groups id name)
+     (folders
+      :arguments ((first . 100)) (edges (node id fullName (group id name)))))))
   "Note を取得するためのクエリ.")
 
 (defconst kibela-graphql-query-default-group
-  (graphql-query
-   ((defaultGroup
-     id
-     name)))
+  (graphql-query ((defaultGroup id name)))
   "デフォルトの投稿先グループを取得するためのクエリ.")
 
 (defconst kibela-graphql-query-note-templates
@@ -227,62 +189,40 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
        title
        evaluatedTitle
        content
-       (groups
-        id
-        name)
-       (folders
-        id
-        fullName
-        evaluatedFullName
-        (group
-         id
-         name)))))))
+       (groups id name)
+       (folders id fullName evaluatedFullName (group id name)))))))
   "記事テンプレート一覧を取得するクエリ.")
 
 (defconst kibela-graphql-mutation-create-note
   (graphql-mutation
-   (:arguments (($input . CreateNoteInput!))
-               (createNote
-                :arguments ((input . ($ input)))
-                (note
-                 title
-                 content))))
+   (:arguments
+    (($input . CreateNoteInput!))
+    (createNote :arguments ((input . ($ input))) (note title content))))
   "Note を作成するためのクエリ.")
 
 (defconst kibela-graphql-mutation-update-note
   (graphql-mutation
-   (:arguments (($input . UpdateNoteInput!))
-               (updateNote
-                :arguments ((input . ($ input)))
-                (note
-                 title
-                 content))))
+   (:arguments
+    (($input . UpdateNoteInput!))
+    (updateNote :arguments ((input . ($ input))) (note title content))))
   "Note を更新するためのクエリ.")
 
 (defconst kibela-graphql-mutation-like-note
   (graphql-mutation
-   (:arguments (($input . LikeInput!))
-               (like
-                :arguments ((input . ($ input)))
-                (likers
-                 :arguments ((first . 100))
-                 (totalCount)
-                 (edges
-                  (node
-                   id))))))
+   (:arguments
+    (($input . LikeInput!))
+    (like
+     :arguments ((input . ($ input)))
+     (likers :arguments ((first . 100)) (totalCount) (edges (node id))))))
   "Note をいいねするためのクエリ.")
 
 (defconst kibela-graphql-mutation-unlike-note
   (graphql-mutation
-   (:arguments (($input . UnlikeInput!))
-               (unlike
-                :arguments ((input . ($ input)))
-                (likers
-                 :arguments ((first . 100))
-                 (totalCount)
-                 (edges
-                  (node
-                   id))))))
+   (:arguments
+    (($input . UnlikeInput!))
+    (unlike
+     :arguments ((input . ($ input)))
+     (likers :arguments ((first . 100)) (totalCount) (edges (node id))))))
   "Note のいいねを取り消すためのクエリ.")
 
 (defun kibela-endpoint ()
@@ -310,8 +250,10 @@ SUCCESS はリクエストが成功した時の処理."
       :encoding 'utf-8
       :headers (kibela-headers)
       :success success
-      :error (cl-function (lambda (&rest args &key error-thrown &allow-other-keys)
-                            (message "Got error: %S" error-thrown))))))
+      :error
+      (cl-function
+       (lambda (&rest args &key error-thrown &allow-other-keys)
+         (message "Got error: %S" error-thrown))))))
 
 ;;;###autoload
 (defun kibela-switch-team ()
@@ -330,7 +272,8 @@ SUCCESS はリクエストが成功した時の処理."
      (t
       (message "No match team.")))))
 
-(cl-defun kibela--store-default-group-success (&key data &allow-other-keys)
+(cl-defun
+    kibela--store-default-group-success (&key data &allow-other-keys)
   "デフォルトグループ取得リクエスト成功後のデータ格納処理.
 
 DATA はリクエスト成功時の JSON."
@@ -345,39 +288,47 @@ DATA はリクエスト成功時の JSON."
     nil)
    (t
     (let* ((query kibela-graphql-query-default-group))
-      (kibela--request query
-                       nil
-                       #'kibela--store-default-group-success)))))
+      (kibela--request query nil #'kibela--store-default-group-success)))))
 
 (defun kibela-build-collection-from-note-templates (note-templates)
   "記事テンプレート一覧から collection を生成する関数.
 
 NOTE-TEMPLATES は Kibela に登録されている記事テンプレートの配列."
-  (mapcar (lambda (note-template)
-            (let* ((name (assoc-default 'name note-template))
-                   (title (assoc-default 'evaluatedTitle note-template))
-                   (content (assoc-default 'content note-template))
-                   (original-coediting (assoc-default 'coediting note-template))
-                   (coediting (if (or (null original-coediting) (eq original-coediting json-false))
-                                  nil
-                                t))
-                   (groups (assoc-default 'groups note-template))
-                   (group-ids (mapcar (lambda (group) (assoc-default 'id group)) groups))
-                   (row-folders (assoc-default 'folders note-template))
-                   (folders (mapcar (lambda (folder)
-                                      (let* ((folder-name (assoc-default 'evaluatedFullName folder))
-                                             (group (assoc-default 'group folder))
-                                             (group-id (assoc-default 'id group)))
-                                        `((groupId . ,group-id) (group . ,group) (folderName . ,folder-name))))
-                                    row-folders))
-                   (template `(:title ,title
-                                      :content ,content
-                                      :coediting ,coediting
-                                      :group-ids ,group-ids
-                                      :groups ,groups
-                                      :folders ,folders)))
-              (propertize name 'template template)))
-          note-templates))
+  (mapcar
+   (lambda (note-template)
+     (let* ((name (assoc-default 'name note-template))
+            (title (assoc-default 'evaluatedTitle note-template))
+            (content (assoc-default 'content note-template))
+            (original-coediting (assoc-default 'coediting note-template))
+            (coediting
+             (if (or (null original-coediting)
+                     (eq original-coediting json-false))
+                 nil
+               t))
+            (groups (assoc-default 'groups note-template))
+            (group-ids
+             (mapcar (lambda (group) (assoc-default 'id group)) groups))
+            (row-folders (assoc-default 'folders note-template))
+            (folders
+             (mapcar
+              (lambda (folder)
+                (let* ((folder-name (assoc-default 'evaluatedFullName folder))
+                       (group (assoc-default 'group folder))
+                       (group-id (assoc-default 'id group)))
+                  `((groupId . ,group-id)
+                    (group . ,group)
+                    (folderName . ,folder-name))))
+              row-folders))
+            (template
+             `(:title
+               ,title
+               :content ,content
+               :coediting ,coediting
+               :group-ids ,group-ids
+               :groups ,groups
+               :folders ,folders)))
+       (propertize name 'template template)))
+   note-templates))
 
 (defun kibela-select-note-template-action (selected)
   "記事テンプレート選択時の処理.
@@ -394,21 +345,24 @@ SELECTED は選択した記事テンプレート."
   (unless (and kibela-team kibela-access-token)
     (kibela-switch-team))
   (let ((query kibela-graphql-query-note-templates))
-    (kibela--request query
-                     nil
-                     (cl-function
-                      (lambda (&key data &allow-other-keys)
-                        (let* ((response-data (assq 'data (graphql-simplify-response-edges data)))
-                               (note-templates (assoc-default 'noteTemplates response-data))
-                               (collection (kibela-build-collection-from-note-templates note-templates))
-                               (selected-key (completing-read "Note templates: " collection))
-                               (selected (seq-find (lambda (elt)
-                                                     (string-equal elt selected-key))
-                                                   collection)))
-                          (kibela-select-note-template-action selected)))))
+    (kibela--request
+     query nil
+     (cl-function
+      (lambda (&key data &allow-other-keys)
+        (let* ((response-data
+                (assq 'data (graphql-simplify-response-edges data)))
+               (note-templates (assoc-default 'noteTemplates response-data))
+               (collection
+                (kibela-build-collection-from-note-templates note-templates))
+               (selected-key (completing-read "Note templates: " collection))
+               (selected
+                (seq-find
+                 (lambda (elt) (string-equal elt selected-key)) collection)))
+          (kibela-select-note-template-action selected)))))
     t))
 
-(cl-defun kibela--group-notes-success (&key data &allow-other-keys)
+(cl-defun
+    kibela--group-notes-success (&key data &allow-other-keys)
   "グループとその配下の Notes を取得する処理.
 
 DATA はリクエスト成功時の JSON."
@@ -425,21 +379,21 @@ DATA はリクエスト成功時の JSON."
          (last-note (elt (reverse edges) 0))
          (last-cursor (assoc-default 'cursor last-note)))
     (setq tabulated-list-entries nil)
-    (mapc (lambda (note)
-            (let* ((node (assoc-default 'node note))
-                   (id (assoc-default 'id node))
-                   (title (assoc-default 'title node))
-                   (updated-at (assoc-default 'contentUpdatedAt node))
-                   (entry `(id
-                            [(,title . (face default
-                                             action kibela-note-show-from-list
-                                             id ,id))
-                             (,updated-at . (face default
-                                                  action kibela-note-show-from-list
-                                                  id ,id))])))
-              (push entry
-                    tabulated-list-entries)))
-          edges)
+    (mapc
+     (lambda (note)
+       (let* ((node (assoc-default 'node note))
+              (id (assoc-default 'id node))
+              (title (assoc-default 'title node))
+              (updated-at (assoc-default 'contentUpdatedAt node))
+              (entry
+               `(id
+                 [(,title
+                   .
+                   (face default action kibela-note-show-from-list id ,id))
+                  (,updated-at
+                   . (face default action kibela-note-show-from-list id ,id))])))
+         (push entry tabulated-list-entries)))
+     edges)
     (setq kibela-first-cursor first-cursor)
     (setq kibela-last-cursor last-cursor)
     (setq kibela-has-prev-page (equal has-prev-page t))
@@ -470,7 +424,10 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
    (kibela-has-next-page
     (let* ((group-id (assoc-default 'id kibela-default-group))
            (query kibela-graphql-query-group-notes-next)
-           (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
+           (variables
+            `((id . ,group-id)
+              (perPage . ,kibela-per-page)
+              (cursor . ,kibela-last-cursor))))
       (kibela--request query variables #'kibela--group-notes-success)))
    (t
     (message "Current page is last"))))
@@ -482,7 +439,10 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
    (kibela-has-prev-page
     (let* ((group-id (assoc-default 'id kibela-default-group))
            (query kibela-graphql-query-group-notes-prev)
-           (variables `((id . ,group-id) (perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
+           (variables
+            `((id . ,group-id)
+              (perPage . ,kibela-per-page)
+              (cursor . ,kibela-first-cursor))))
       (kibela--request query variables #'kibela--group-notes-success)))
    (t
     (message "Current page is first"))))
@@ -495,7 +455,10 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
     map)
   "Keymap for \\='kibela-list-mode\\='.")
 
-(define-derived-mode kibela-list-mode tabulated-list-mode "Kibela list"
+(define-derived-mode
+  kibela-list-mode
+  tabulated-list-mode
+  "Kibela list"
   "Kibela list view."
   (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
   (setq tabulated-list-sort-key '("UpdatedAt" . t))
@@ -522,12 +485,14 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
       (kibela-list-mode)
       (kibela-group-notes-refresh)))))
 
-(cl-defun kibela--recent-browsing-notes-success (&key data &allow-other-keys)
+(cl-defun
+    kibela--recent-browsing-notes-success (&key data &allow-other-keys)
   "最近見た Notes を取得する処理.
 
 DATA はリクエスト成功時の JSON."
   (let* ((row-data (assoc-default 'data data))
-         (row-note-browsing-histories (assoc-default 'noteBrowsingHistories row-data))
+         (row-note-browsing-histories
+          (assoc-default 'noteBrowsingHistories row-data))
 
          (page-info (assoc-default 'pageInfo row-note-browsing-histories))
          (has-prev-page (assoc-default 'hasPreviousPage page-info))
@@ -540,22 +505,22 @@ DATA はリクエスト成功時の JSON."
          (entries nil))
     (setq tabulated-list-entries nil)
 
-    (mapc (lambda (note-browsing-history)
-            (let* ((node (assoc-default 'node note-browsing-history))
-                   (note (assoc-default 'note node))
-                   (id (assoc-default 'id note))
-                   (title (assoc-default 'title note))
-                   (updated-at (assoc-default 'contentUpdatedAt note))
-                   (entry `(id
-                            [(,title . (face default
-                                             action kibela-note-show-from-list
-                                             id ,id))
-                             (,updated-at . (face default
-                                                  action kibela-note-show-from-list
-                                                  id ,id))])))
-              (push entry
-                    entries)))
-          edges)
+    (mapc
+     (lambda (note-browsing-history)
+       (let* ((node (assoc-default 'node note-browsing-history))
+              (note (assoc-default 'note node))
+              (id (assoc-default 'id note))
+              (title (assoc-default 'title note))
+              (updated-at (assoc-default 'contentUpdatedAt note))
+              (entry
+               `(id
+                 [(,title
+                   .
+                   (face default action kibela-note-show-from-list id ,id))
+                  (,updated-at
+                   . (face default action kibela-note-show-from-list id ,id))])))
+         (push entry entries)))
+     edges)
     (setq tabulated-list-entries (nreverse entries))
     (setq kibela-first-cursor first-cursor)
     (setq kibela-last-cursor last-cursor)
@@ -577,8 +542,10 @@ DATA はリクエスト成功時の JSON."
   (cond
    (kibela-has-next-page
     (let* ((query kibela-graphql-query-recent-browsing-notes-next)
-           (variables `((perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
-      (kibela--request query variables #'kibela--recent-browsing-notes-success)))
+           (variables
+            `((perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
+      (kibela--request
+       query variables #'kibela--recent-browsing-notes-success)))
    (t
     (message "Current page is last"))))
 
@@ -588,8 +555,10 @@ DATA はリクエスト成功時の JSON."
   (cond
    (kibela-has-prev-page
     (let* ((query kibela-graphql-query-recent-browsing-notes-prev)
-           (variables `((perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
-      (kibela--request query variables #'kibela--recent-browsing-notes-success)))
+           (variables
+            `((perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
+      (kibela--request
+       query variables #'kibela--recent-browsing-notes-success)))
    (t
     (message "Current page is first"))))
 
@@ -601,11 +570,15 @@ DATA はリクエスト成功時の JSON."
     map)
   "Keymap for \\='kibela-recent-browsing-notes-mode\\='.")
 
-(define-derived-mode kibela-recent-browsing-notes-mode tabulated-list-mode "Kibela recent browsing notes"
+(define-derived-mode
+  kibela-recent-browsing-notes-mode
+  tabulated-list-mode
+  "Kibela recent browsing notes"
   "Kibela list view for recent browsing notes."
   (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
   (setq tabulated-list-sort-key nil)
-  (add-hook 'tabulated-list-revert-hook 'kibela-recent-browsing-notes-refresh nil t)
+  (add-hook 'tabulated-list-revert-hook 'kibela-recent-browsing-notes-refresh
+            nil t)
   (use-local-map kibela-recent-browsing-notes-mode-map))
 
 
@@ -621,13 +594,18 @@ DATA はリクエスト成功時の JSON."
     (kibela-recent-browsing-notes-mode)
     (kibela-recent-browsing-notes-refresh)))
 
-(cl-defun kibela--like-success (&key _data &allow-other-keys)
+(cl-defun
+    kibela--like-success (&key _data &allow-other-keys)
   "記事に Like をつけるリクエストが成功した時の処理.
 リクエストが成功したら中身を確認せず like したように表示を切り替える"
   (let ((groups kibela-note-groups)
         (folders kibela-note-folders))
     (setq header-line-format
-          (kibela--build-header-line groups folders :liked-by-me-p t :exist-note-p t))))
+          (kibela--build-header-line
+           groups
+           folders
+           :liked-by-me-p t
+           :exist-note-p t))))
 
 (defun kibela-like ()
   "記事に Like をつける処理."
@@ -636,13 +614,18 @@ DATA はリクエスト成功時の JSON."
         (variables `((input . ((likableId . ,kibela-note-id))))))
     (kibela--request query variables #'kibela--like-success)))
 
-(cl-defun kibela--unlike-success (&key _data &allow-other-keys)
+(cl-defun
+    kibela--unlike-success (&key _data &allow-other-keys)
   "記事に Like を外すリクエストが成功した時の処理.
 リクエストが成功したら中身を確認せず like を外したように表示を切り替える"
   (let ((groups kibela-note-groups)
         (folders kibela-note-folders))
     (setq header-line-format
-          (kibela--build-header-line groups folders :liked-by-me-p nil :exist-note-p t))))
+          (kibela--build-header-line
+           groups
+           folders
+           :liked-by-me-p nil
+           :exist-note-p t))))
 
 (defun kibela-unlike ()
   "記事の Like を外す処理."
@@ -663,7 +646,9 @@ DATA はリクエスト成功時の JSON."
     map)
   "Keymap for \\='kibela-unlike-button\\='.")
 
-(cl-defun kibela--build-header-line (groups &optional (folders '()) &key (liked-by-me-p nil) (exist-note-p nil))
+(cl-defun
+    kibela--build-header-line
+    (groups &optional (folders '()) &key (liked-by-me-p nil) (exist-note-p nil))
   "グループ/フォルダ情報から header-line 用の文字列を構築する.
 edit と new from template で利用している.
 
@@ -673,34 +658,44 @@ FOLDERS はその記事が収められているフォルダの一覧.
 
 LIKED-BY-ME-P は自分がその記事を Like しているかどうか.
 EXIST-NOTE-P はその記事が存在するかどうか."
-  (let* ((groups-without-folder (seq-remove (lambda (group)
-                                              (seq-find (lambda (folder)
-                                                          (let* ((folder-group (assoc-default 'group folder))
-                                                                 (folder-group-id (assoc-default 'id folder-group))
-                                                                 (group-id (assoc-default 'id group)))
-                                                            (string-equal folder-group-id group-id)))
-                                                        folders))
-                                            groups))
-         (folder-names (mapcar (lambda (folder)
-                                 (let* ((group (assoc-default 'group folder))
-                                        (kibela-group-name (assoc-default 'name group))
-                                        (full-name (assoc-default 'folderName folder))
-                                        (folder-paths (split-string full-name "/"))
-                                        (full-paths (append `(,kibela-group-name) folder-paths)))
-                                   (string-join full-paths " > ")))
-                               folders))
-         (group-names (mapcar (lambda (group)
-                                (assoc-default 'name group))
-                              groups-without-folder))
-         (liked-button (propertize "♥" 'pointer 'hand 'keymap kibela-unlike-button-map)) ;; Like 済なのでクリック時は unlike する
-         (unliked-button (propertize "♡" 'pointer 'hand 'keymap kibela-like-button-map)) ;; Like していないのでクリック時は like する
-         (liked-button-or-nil (if exist-note-p
-                                  (if liked-by-me-p
-                                      liked-button
-                                    unliked-button)
-                                nil))
-         (names (cl-remove-if #'null
-                              (append `(,liked-button-or-nil) group-names folder-names))))
+  (let*
+      ((groups-without-folder
+        (seq-remove
+         (lambda (group)
+           (seq-find
+            (lambda (folder)
+              (let* ((folder-group (assoc-default 'group folder))
+                     (folder-group-id (assoc-default 'id folder-group))
+                     (group-id (assoc-default 'id group)))
+                (string-equal folder-group-id group-id)))
+            folders))
+         groups))
+       (folder-names
+        (mapcar
+         (lambda (folder)
+           (let* ((group (assoc-default 'group folder))
+                  (kibela-group-name (assoc-default 'name group))
+                  (full-name (assoc-default 'folderName folder))
+                  (folder-paths (split-string full-name "/"))
+                  (full-paths (append `(,kibela-group-name) folder-paths)))
+             (string-join full-paths " > ")))
+         folders))
+       (group-names
+        (mapcar
+         (lambda (group) (assoc-default 'name group)) groups-without-folder))
+       (liked-button
+        (propertize "♥" 'pointer 'hand 'keymap kibela-unlike-button-map)) ;; Like 済なのでクリック時は unlike する
+       (unliked-button
+        (propertize "♡" 'pointer 'hand 'keymap kibela-like-button-map)) ;; Like していないのでクリック時は like する
+       (liked-button-or-nil
+        (if exist-note-p
+            (if liked-by-me-p
+                liked-button
+              unliked-button)
+          nil))
+       (names
+        (cl-remove-if
+         #'null (append `(,liked-button-or-nil) group-names folder-names))))
     (string-join names " | ")))
 
 (declare-function kibela--build-header-line "kibela")
@@ -734,8 +729,7 @@ TEMPLATE は記事作成時に利用するテンプレート."
     (switch-to-buffer buffer)
     (insert (concat "# " title "\n\n" content))
     (kibela-markdown-mode)
-    (setq header-line-format
-          (kibela--build-header-line groups folders))
+    (setq header-line-format (kibela--build-header-line groups folders))
     (setq kibela-note-template template)))
 
 (defun kibela-note-create ()
@@ -743,48 +737,59 @@ TEMPLATE は記事作成時に利用するテンプレート."
   (interactive)
   (let* ((query kibela-graphql-mutation-create-note)
          (buffer-content (substring-no-properties (buffer-string)))
-         (title (substring-no-properties (cl-first (split-string buffer-content "\n")) 2))
+         (title
+          (substring-no-properties (cl-first (split-string buffer-content "\n"))
+                                   2))
          (content (string-join (cddr (split-string buffer-content "\n")) "\n"))
-         (coediting (if kibela-note-template
-                        (if (plist-get kibela-note-template :coediting) t
-                          json-false)
-                      t))
-         (draft (if kibela-note-template
-                    (plist-get kibela-note-template :draft)
-                  json-false))
-         (group-ids (if kibela-note-template
-                        (plist-get kibela-note-template :group-ids)
-                      `(,(assoc-default 'id kibela-default-group))))
-         (folders (if kibela-note-template
-                      (plist-get kibela-note-template :folders)))
-         (variables `((input . ((title . ,title)
-                                (content . ,content)
-                                (groupIds . ,group-ids)
-                                (folders . ,(mapcar (lambda (folder)
-                                                      (assq-delete-all 'group folder))
-                                                    folders))
-                                (coediting . ,coediting)
-                                (draft . ,draft))))))
-    (kibela--request query
-                     variables
-                     (cl-function
-                      (lambda (&key data &allow-other-keys)
-                        (let* ((errors (assoc-default 'errors data)))
-                          (cond (errors
-                                 (let* ((message (mapconcat (lambda (error)
-                                                              (assoc-default 'message error))
-                                                            errors
-                                                            "\n")))
-                                   (message (concat "Error: " message))))
-                                (t
-                                 (let* ((json-data (assoc-default 'data data))
-                                        (create-note (assoc-default 'createNote json-data))
-                                        (note (assoc-default 'note create-note))
-                                        (title (assoc-default 'title note))
-                                        (buffer (get-buffer-create "*Kibela* newnote")))
-                                   (kill-buffer buffer)
-                                   (setq kibela-note-template nil)
-                                   (message (concat "create note '" title "' has succeed.")))))))))))
+         (coediting
+          (if kibela-note-template
+              (if (plist-get kibela-note-template :coediting)
+                  t
+                json-false)
+            t))
+         (draft
+          (if kibela-note-template
+              (plist-get kibela-note-template :draft)
+            json-false))
+         (group-ids
+          (if kibela-note-template
+              (plist-get kibela-note-template :group-ids)
+            `(,(assoc-default 'id kibela-default-group))))
+         (folders
+          (if kibela-note-template
+              (plist-get kibela-note-template :folders)))
+         (variables
+          `((input
+             .
+             ((title . ,title)
+              (content . ,content) (groupIds . ,group-ids)
+              (folders
+               .
+               ,(mapcar
+                 (lambda (folder) (assq-delete-all 'group folder)) folders))
+              (coediting . ,coediting) (draft . ,draft))))))
+    (kibela--request
+     query variables
+     (cl-function
+      (lambda (&key data &allow-other-keys)
+        (let* ((errors (assoc-default 'errors data)))
+          (cond
+           (errors
+            (let* ((message
+                    (mapconcat (lambda (error)
+                                 (assoc-default 'message error))
+                               errors
+                               "\n")))
+              (message (concat "Error: " message))))
+           (t
+            (let* ((json-data (assoc-default 'data data))
+                   (create-note (assoc-default 'createNote json-data))
+                   (note (assoc-default 'note create-note))
+                   (title (assoc-default 'title note))
+                   (buffer (get-buffer-create "*Kibela* newnote")))
+              (kill-buffer buffer)
+              (setq kibela-note-template nil)
+              (message (concat "create note '" title "' has succeed.")))))))))))
 
 ;;;###autoload
 (defun kibela-note-show (id)
@@ -797,51 +802,61 @@ URL などからではなく GraphQL で取得すること."
     (kibela-switch-team))
   (let ((query kibela-graphql-query-note)
         (variables `((id . ,id))))
-    (kibela--request query
-                     variables
-                     (cl-function
-                      (lambda (&key data &allow-other-keys)
-                        (let* ((json-data (assoc-default 'data (graphql-simplify-response-edges data)))
-                               (note (assoc-default 'note json-data))
-                               (title (assoc-default 'title note))
-                               (content (assoc-default 'content note))
-                               (coediting (assoc-default 'coediting note))
-                               (can-be-updated (eq t (assoc-default 'canBeUpdated note)))
-                               (liked-by-me-p (eq t (assoc-default 'isLikedByCurrentUser note)))
-                               (url (assoc-default 'url note))
-                               (groups (assoc-default 'groups note))
-                               (group-ids (mapcar (lambda (group) (assoc-default 'id group)) groups))
-                               (row-folders (assoc-default 'folders note))
-                               (folders (mapcar (lambda (folder)
-                                                  (let* ((folder-name (assoc-default 'fullName folder))
-                                                         (group (assoc-default 'group folder))
-                                                         (group-id (assoc-default 'id group)))
-                                                    `((groupId . ,group-id)
-                                                      (group . ,group)
-                                                      (folderName . ,folder-name))))
-                                                row-folders))
-                               (folders-for-base (mapcar (lambda (folder)
-                                                           (assq-delete-all 'group folder))
-                                                         (copy-alist folders)))
-                               (buffer (get-buffer-create (concat "*Kibela* " id))))
-                          (switch-to-buffer buffer)
-                          (insert (concat "# " title "\n\n" content))
-                          (kibela-markdown-view-mode)
-                          (setq header-line-format
-                                (kibela--build-header-line groups folders :liked-by-me-p liked-by-me-p :exist-note-p t))
-                          (setq kibela-note-can-be-updated can-be-updated)
-                          (setq kibela-note-id id)
-                          (setq kibela-note-url url)
-                          (setq kibela-note-groups groups)
-                          (setq kibela-note-folders folders)
-                          (setq kibela-note-liked-by-me liked-by-me-p)
-                          (setq kibela-note-base
-                                `(("title" . ,title)
-                                  ("content" . ,content)
-                                  ("coediting" . ,coediting)
-                                  ("coediting" . ,coediting)
-                                  ("groupIds" . ,group-ids)
-                                  ("folders" . ,folders-for-base)))))))
+    (kibela--request
+     query variables
+     (cl-function
+      (lambda (&key data &allow-other-keys)
+        (let* ((json-data
+                (assoc-default 'data (graphql-simplify-response-edges data)))
+               (note (assoc-default 'note json-data))
+               (title (assoc-default 'title note))
+               (content (assoc-default 'content note))
+               (coediting (assoc-default 'coediting note))
+               (can-be-updated (eq t (assoc-default 'canBeUpdated note)))
+               (liked-by-me-p (eq t (assoc-default 'isLikedByCurrentUser note)))
+               (url (assoc-default 'url note))
+               (groups (assoc-default 'groups note))
+               (group-ids
+                (mapcar (lambda (group) (assoc-default 'id group)) groups))
+               (row-folders (assoc-default 'folders note))
+               (folders
+                (mapcar
+                 (lambda (folder)
+                   (let* ((folder-name (assoc-default 'fullName folder))
+                          (group (assoc-default 'group folder))
+                          (group-id (assoc-default 'id group)))
+                     `((groupId . ,group-id)
+                       (group . ,group)
+                       (folderName . ,folder-name))))
+                 row-folders))
+               (folders-for-base
+                (mapcar
+                 (lambda (folder)
+                   (assq-delete-all 'group folder))
+                 (copy-alist folders)))
+               (buffer (get-buffer-create (concat "*Kibela* " id))))
+          (switch-to-buffer buffer)
+          (insert (concat "# " title "\n\n" content))
+          (kibela-markdown-view-mode)
+          (setq header-line-format
+                (kibela--build-header-line
+                 groups
+                 folders
+                 :liked-by-me-p liked-by-me-p
+                 :exist-note-p t))
+          (setq kibela-note-can-be-updated can-be-updated)
+          (setq kibela-note-id id)
+          (setq kibela-note-url url)
+          (setq kibela-note-groups groups)
+          (setq kibela-note-folders folders)
+          (setq kibela-note-liked-by-me liked-by-me-p)
+          (setq kibela-note-base
+                `(("title" . ,title)
+                  ("content" . ,content)
+                  ("coediting" . ,coediting)
+                  ("coediting" . ,coediting)
+                  ("groupIds" . ,group-ids)
+                  ("folders" . ,folders-for-base)))))))
     t))
 
 (defun kibela-note-update ()
@@ -850,39 +865,46 @@ URL などからではなく GraphQL で取得すること."
   (let* ((query kibela-graphql-mutation-update-note)
          (id (cl-second (split-string (buffer-name))))
          (buffer-content (substring-no-properties (buffer-string)))
-         (title (substring-no-properties (cl-first (split-string buffer-content "\n")) 2))
+         (title
+          (substring-no-properties (cl-first (split-string buffer-content "\n"))
+                                   2))
          (content (string-join (cddr (split-string buffer-content "\n")) "\n"))
          (coediting (assoc-default "coediting" kibela-note-base))
          (group-ids (assoc-default "groupIds" kibela-note-base))
          (folders (assoc-default "folders" kibela-note-base))
-         (variables `((input . (("id" . ,id)
-                                ("newNote" . (("title" . ,title)
-                                              ("content" . ,content)
-                                              ("groupIds" . ,group-ids)
-                                              ("folders" . ,folders)
-                                              ("coediting" . ,coediting)))
-                                ("baseNote" . ,kibela-note-base)
-                                ("draft" . ,json-false))))))
-    (kibela--request query
-                     variables
-                     (cl-function
-                      (lambda (&key data &allow-other-keys)
-                        (let* ((errors (assoc-default 'errors data)))
-                          (cond (errors
-                                 (let* ((message (mapconcat (lambda (error)
-                                                              (assoc-default 'message error))
-                                                            errors
-                                                            "\n")))
-                                   (message (concat "Error: " message))))
-                                (t
-                                 (let* ((json-data (assoc-default 'data data))
-                                        (update-note (assoc-default 'updateNote json-data))
-                                        (note (assoc-default 'note update-note))
-                                        (title (assoc-default 'title note))
-                                        (buffer (get-buffer-create (concat "*Kibela* " id))))
-                                   (setq kibela-note-base nil)
-                                   (kill-buffer buffer)
-                                   (message (concat "update note '" title "' has succeed.")))))))))
+         (variables
+          `((input
+             .
+             (("id" . ,id)
+              ("newNote" .
+               (("title" . ,title)
+                ("content" . ,content)
+                ("groupIds" . ,group-ids)
+                ("folders" . ,folders)
+                ("coediting" . ,coediting)))
+              ("baseNote" . ,kibela-note-base) ("draft" . ,json-false))))))
+    (kibela--request
+     query variables
+     (cl-function
+      (lambda (&key data &allow-other-keys)
+        (let* ((errors (assoc-default 'errors data)))
+          (cond
+           (errors
+            (let* ((message
+                    (mapconcat (lambda (error)
+                                 (assoc-default 'message error))
+                               errors
+                               "\n")))
+              (message (concat "Error: " message))))
+           (t
+            (let* ((json-data (assoc-default 'data data))
+                   (update-note (assoc-default 'updateNote json-data))
+                   (note (assoc-default 'note update-note))
+                   (title (assoc-default 'title note))
+                   (buffer (get-buffer-create (concat "*Kibela* " id))))
+              (setq kibela-note-base nil)
+              (kill-buffer buffer)
+              (message (concat "update note '" title "' has succeed.")))))))))
     t))
 
 (provide 'kibela)
