@@ -88,7 +88,7 @@ jobs:
 
             fs.writeFileSync("${{ github.workspace }}/tags.txt", tags)
       - name: upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
         with:
           name: pr-${{matrix.pr_number}}-labels
           path: ${{ github.workspace }}/tags.txt
@@ -111,7 +111,7 @@ jobs:
         run: npm install -g semver
 
       - name: download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
         with:
           path: matrix-tags
       - name: merge
