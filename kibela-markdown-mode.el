@@ -1,4 +1,4 @@
-;;; kibela-markdown.el --- major-mode for kibela markdown  -*- lexical-binding: t; -*-
+;;; kibela-markdown-mode.el --- Major-mode for kibela markdown  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2023  Mugijiru
 
@@ -23,7 +23,7 @@
 
 ;;; Commentary:
 
-;;
+;; See the README.org file for details.
 
 ;;; Code:
 
