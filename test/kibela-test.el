@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t; -*-
+
 (require 'kibela)
 (require 'ert)
 (require 'ert-x)

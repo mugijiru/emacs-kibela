@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t; -*-
+
 (require 'kibela-markdown-mode)
 (require 'ert)
 (require 'ert-x)
