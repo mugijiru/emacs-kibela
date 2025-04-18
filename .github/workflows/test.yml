@@ -36,7 +36,7 @@ jobs:
       with:
         version: ${{ matrix.emacs-version }}
 
-    - uses: emacs-eask/setup-eask@master
+    - uses: emacs-eask/setup-eask@6eb69769d8b3532d18a1b354f876bb2477081b7d
       with:
         version: 'snapshot'
 
@@ -59,7 +59,7 @@ jobs:
       with:
         version: 30.1
 
-    - uses: emacs-eask/setup-eask@master
+    - uses: emacs-eask/setup-eask@6eb69769d8b3532d18a1b354f876bb2477081b7d
       with:
         version: 'snapshot'
 
@@ -99,7 +99,7 @@ jobs:
       with:
         version: 30.1
 
-    - uses: emacs-eask/setup-eask@master
+    - uses: emacs-eask/setup-eask@6eb69769d8b3532d18a1b354f876bb2477081b7d
       with:
         version: 'snapshot'
 
@@ -118,7 +118,7 @@ jobs:
       with:
         version: 30.1
 
-    - uses: emacs-eask/setup-eask@master
+    - uses: emacs-eask/setup-eask@6eb69769d8b3532d18a1b354f876bb2477081b7d
       with:
         version: 'snapshot'
 
@@ -137,7 +137,7 @@ jobs:
       with:
         version: 30.1
 
-    - uses: emacs-eask/setup-eask@master
+    - uses: emacs-eask/setup-eask@6eb69769d8b3532d18a1b354f876bb2477081b7d
       with:
         version: 'snapshot'
 
@@ -156,7 +156,7 @@ jobs:
       with:
         version: 30.1
 
-    - uses: emacs-eask/setup-eask@master
+    - uses: emacs-eask/setup-eask@6eb69769d8b3532d18a1b354f876bb2477081b7d
       with:
         version: 'snapshot'
 
@@ -176,7 +176,7 @@ jobs:
       with:
         version: 30.1
 
-    - uses: emacs-eask/setup-eask@master
+    - uses: emacs-eask/setup-eask@6eb69769d8b3532d18a1b354f876bb2477081b7d
       with:
         version: 'snapshot'
 
