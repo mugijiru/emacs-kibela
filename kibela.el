@@ -702,8 +702,6 @@ EXIST-NOTE-P はその記事が存在するかどうか."
          #'null (append `(,liked-button-or-nil) group-names folder-names))))
     (string-join names " | ")))
 
-(declare-function kibela--build-header-line "kibela")
-
 ;;;###autoload
 (defun kibela-note-new (title)
   "記事を作成するバッファを用意する.
