@@ -391,7 +391,8 @@ DATA はリクエスト成功時の JSON."
                    .
                    (face default action kibela-note-show-from-list id ,id))
                   (,updated-at
-                   . (face default action kibela-note-show-from-list id ,id))])))
+                   .
+                   (face default action kibela-note-show-from-list id ,id))])))
          (push entry tabulated-list-entries)))
      edges)
     (setq kibela-first-cursor first-cursor)
@@ -518,7 +519,8 @@ DATA はリクエスト成功時の JSON."
                    .
                    (face default action kibela-note-show-from-list id ,id))
                   (,updated-at
-                   . (face default action kibela-note-show-from-list id ,id))])))
+                   .
+                   (face default action kibela-note-show-from-list id ,id))])))
          (push entry entries)))
      edges)
     (setq tabulated-list-entries (nreverse entries))
@@ -684,9 +686,11 @@ EXIST-NOTE-P はその記事が存在するかどうか."
         (mapcar
          (lambda (group) (assoc-default 'name group)) groups-without-folder))
        (liked-button
-        (propertize "♥" 'pointer 'hand 'keymap kibela-unlike-button-map)) ;; Like 済なのでクリック時は unlike する
+        ;; Like 済なのでクリック時は unlike する
+        (propertize "♥" 'pointer 'hand 'keymap kibela-unlike-button-map))
        (unliked-button
-        (propertize "♡" 'pointer 'hand 'keymap kibela-like-button-map)) ;; Like していないのでクリック時は like する
+        ;; Like していないのでクリック時は like する
+        (propertize "♡" 'pointer 'hand 'keymap kibela-like-button-map))
        (liked-button-or-nil
         (if exist-note-p
             (if liked-by-me-p
