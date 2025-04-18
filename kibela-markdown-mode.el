@@ -45,7 +45,7 @@
       (kibela-note-update)
     (kibela-note-create)))
 
-(declare-function kibela--build-header-line "kibela")
+(declare-function kibela--build-header-line "kibela" t t)
 
 (defun kibela-markdown--show-to-edit ()
   "Show edit buffer from view buffer."
