@@ -265,7 +265,7 @@ SUCCESS はリクエストが成功した時の処理."
          (access-token (cl-second auth)))
     (cond
      (auth
-      (kill-matching-buffers "\\\*Kibela\\\*" nil t)
+      (kill-matching-buffers "\\*Kibela\\*" nil t)
       (setq kibela-team team)
       (setq kibela-access-token access-token)
       (setq kibela-default-group nil))
