@@ -90,7 +90,7 @@ Used to advance to the next page.")
   "Whether the next page exists in the note list.")
 
 (defvar-local kibela-has-prev-page nil
-  "記事一覧で前のページが存在するかどうか.")
+  "Whether the previous page exists in the note list.")
 
 (defconst kibela-graphql-query-group-notes-prev
   (graphql-query
