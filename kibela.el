@@ -198,14 +198,14 @@ Used for pagination.")
    (:arguments
     (($input . CreateNoteInput!))
     (createNote :arguments ((input . ($ input))) (note title content))))
-  "Note を作成するためのクエリ.")
+  "Query to create a note.")
 
 (defconst kibela-graphql-mutation-update-note
   (graphql-mutation
    (:arguments
     (($input . UpdateNoteInput!))
     (updateNote :arguments ((input . ($ input))) (note title content))))
-  "Note を更新するためのクエリ.")
+  "Query to update a note.")
 
 (defconst kibela-graphql-mutation-like-note
   (graphql-mutation
