@@ -363,9 +363,9 @@ SELECTED is the selected note template."
 
 (cl-defun
     kibela--group-notes-success (&key data &allow-other-keys)
-  "グループとその配下の Notes を取得する処理.
+  "Process to fetch group and its notes.
 
-DATA はリクエスト成功時の JSON."
+DATA is the JSON from a successful request."
   (let* ((row-data (assoc-default 'data data))
          (row-group (assoc-default 'group row-data))
          (row-notes (assoc-default 'notes row-group))
