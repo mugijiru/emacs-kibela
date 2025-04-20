@@ -172,7 +172,7 @@ Used for pagination.")
      (groups id name)
      (folders
       :arguments ((first . 100)) (edges (node id fullName (group id name)))))))
-  "Note を取得するためのクエリ.")
+  "Query to retrieve a Note.")
 
 (defconst kibela-graphql-query-default-group
   (graphql-query ((defaultGroup id name)))
