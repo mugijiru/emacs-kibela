@@ -67,7 +67,7 @@ Used when creating a note from a template.")
   "Variable to store the note ID.")
 
 (defvar-local kibela-note-url nil
-  "記事 URL を保存する変数.")
+  "Variable to store the note URL.")
 
 (defvar-local kibela-note-groups nil)
 (defvar-local kibela-note-folders nil)
