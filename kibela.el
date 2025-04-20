@@ -139,8 +139,8 @@ Used for pagination in the group's note list.")
       cursor
       (node
        (note id title content contentUpdatedAt coediting canBeUpdated url))))))
-  "最近見た Note を取得するためのクエリ.
-ページ送りで利用している")
+  "Query to retrieve recently viewed notes.
+Used for pagination.")
 
 (defconst kibela-graphql-query-recent-browsing-notes-next
   (graphql-query
