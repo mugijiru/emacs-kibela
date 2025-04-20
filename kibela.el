@@ -125,7 +125,7 @@ Used for pagination in the group's note list.")
       (edges
        cursor
        (node id title content contentUpdatedAt coediting canBeUpdated url))))))
-  "グループ配下の Note を取得するためのクエリ.")
+  "Query to retrieve notes within a group.")
 
 (defconst kibela-graphql-query-recent-browsing-notes-prev
   (graphql-query
