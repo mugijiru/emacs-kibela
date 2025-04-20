@@ -403,15 +403,15 @@ DATA is the JSON from a successful request."
     (tabulated-list-print)))
 
 (defun kibela-note-show-from-list (marker)
-  "記事一覧から記事を開くためのアクション.
+  "Action to open a note from the list.
 
-MARKER には記事一覧のカーソル位置が渡されてくる."
+MARKER contains the cursor position in the note list."
   (let* ((pos (marker-position marker))
          (id (get-text-property pos 'id)))
     (kibela-note-show id)))
 
 (defun kibela-group-notes-refresh ()
-  "記事一覧を読み込み直す処理."
+  "Process to reload the note list."
   (message "Fetch default group notes...")
   (let* ((group-id (assoc-default 'id kibela-default-group))
          (query kibela-graphql-query-group-notes-next)
@@ -419,7 +419,7 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
     (kibela--request query variables #'kibela--group-notes-success)))
 
 (defun kibela-group-notes-next-page ()
-  "記事一覧で次のページを取得する処理."
+  "Process to fetch the next page of notes."
   (interactive)
   (cond
    (kibela-has-next-page
@@ -434,7 +434,7 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
     (message "Current page is last"))))
 
 (defun kibela-group-notes-prev-page ()
-  "記事一覧で前のページを取得する処理."
+  "Process to fetch the previous page of notes."
   (interactive)
   (cond
    (kibela-has-prev-page
@@ -460,7 +460,7 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
   kibela-list-mode
   tabulated-list-mode
   "Kibela list"
-  "Kibela list view."
+  "Major mode for browsing Kibela notes list.\n\n\\{kibela-list-mode-map}"
   (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
   (setq tabulated-list-sort-key '("UpdatedAt" . t))
   (add-hook 'tabulated-list-revert-hook 'kibela-group-notes-refresh nil t)
@@ -586,7 +586,7 @@ DATA はリクエスト成功時の JSON."
 
 ;;;###autoload
 (defun kibela-recent-browsing-notes ()
-  "最近見た記事一覧を開くコマンド."
+  "Command to open the list of recently viewed notes."
   (interactive)
   (unless (and kibela-team kibela-access-token)
     (kibela-switch-team))
