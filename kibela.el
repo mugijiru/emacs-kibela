@@ -488,9 +488,9 @@ MARKER contains the cursor position in the note list."
 
 (cl-defun
     kibela--recent-browsing-notes-success (&key data &allow-other-keys)
-  "最近見た Notes を取得する処理.
+  "Process to fetch recently viewed notes.
 
-DATA はリクエスト成功時の JSON."
+DATA is the JSON from a successful request."
   (let* ((row-data (assoc-default 'data data))
          (row-note-browsing-histories
           (assoc-default 'noteBrowsingHistories row-data))
@@ -532,14 +532,14 @@ DATA はリクエスト成功時の JSON."
     (tabulated-list-print)))
 
 (defun kibela-recent-browsing-notes-refresh ()
-  "最近見た記事一覧を読み込み直す処理."
+  "Process to reload the list of recently viewed notes."
   (message "Fetch recent browsing notes...")
   (let* ((query kibela-graphql-query-recent-browsing-notes-next)
          (variables `((perPage . ,kibela-per-page))))
     (kibela--request query variables #'kibela--recent-browsing-notes-success)))
 
 (defun kibela-recent-browsing-notes-next-page ()
-  "記事一覧で次のページを取得する処理."
+  "Process to fetch the next page of recently viewed notes."
   (interactive)
   (cond
    (kibela-has-next-page
@@ -552,7 +552,7 @@ DATA はリクエスト成功時の JSON."
     (message "Current page is last"))))
 
 (defun kibela-recent-browsing-notes-prev-page ()
-  "記事一覧で前のページを取得する処理."
+  "Process to fetch the previous page of recently viewed notes."
   (interactive)
   (cond
    (kibela-has-prev-page
@@ -795,11 +795,11 @@ TEMPLATE は記事作成時に利用するテンプレート."
 
 ;;;###autoload
 (defun kibela-note-show (id)
-  "記事表示.
+  "Display a note.
 
-ID は記事の id.
-GraphQL で扱う ID は数字ではなく何らかの変換をされた文字列のようなので
-URL などからではなく GraphQL で取得すること."
+ID is the note's identifier. 
+Note that GraphQL uses encoded string IDs rather than numeric ones,
+so IDs should be obtained through GraphQL queries rather than from URLs."
   (unless (and kibela-team kibela-access-token)
     (kibela-switch-team))
   (let ((query kibela-graphql-query-note)
