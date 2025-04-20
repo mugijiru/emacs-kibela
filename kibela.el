@@ -735,7 +735,7 @@ TEMPLATE は記事作成時に利用するテンプレート."
     (setq kibela-note-template template)))
 
 (defun kibela-note-create ()
-  "記事作成."
+  "Create a note."
   (interactive)
   (let* ((query kibela-graphql-mutation-create-note)
          (buffer-content (substring-no-properties (buffer-string)))
