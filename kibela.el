@@ -214,7 +214,7 @@ Used for pagination.")
     (like
      :arguments ((input . ($ input)))
      (likers :arguments ((first . 100)) (totalCount) (edges (node id))))))
-  "Note をいいねするためのクエリ.")
+  "Query to like a note.")
 
 (defconst kibela-graphql-mutation-unlike-note
   (graphql-mutation
@@ -223,7 +223,7 @@ Used for pagination.")
     (unlike
      :arguments ((input . ($ input)))
      (likers :arguments ((first . 100)) (totalCount) (edges (node id))))))
-  "Note のいいねを取り消すためのクエリ.")
+  "Query to unlike a note.")
 
 (defun kibela-endpoint ()
   "API endpoint."
