@@ -236,11 +236,11 @@ Used for pagination.")
     ("Authorization" . ,(concat "Bearer " kibela-access-token))))
 
 (defun kibela--request (query variables success)
-  "Kibela へのリクエストを飛ばすための関数.
+  "Function to send requests to Kibela.
 
-QUERY は GraphQL のクエリで
-VARIABLES は GraphQL の Variables.
-SUCCESS はリクエストが成功した時の処理."
+QUERY is the GraphQL query.
+VARIABLES are the GraphQL variables.
+SUCCESS is the handler for when the request succeeds."
   (let ((data (json-encode `((query . ,query) (variables . ,variables)))))
     (request
       (kibela-endpoint)
