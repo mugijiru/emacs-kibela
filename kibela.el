@@ -58,7 +58,7 @@ Used when updating the note.")
 Used when creating a note from a template.")
 
 (defvar kibela-default-group nil
-  "デフォルトの投稿先グループを保存する変数.")
+  "Variable to store the default posting group.")
 
 (defvar-local kibela-note-can-be-updated nil
   "記事が編集可能かどうかを保存する変数.")
