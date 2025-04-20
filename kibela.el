@@ -83,8 +83,8 @@ Used when creating a note from a template.")
 Used to return to the previous page.")
 
 (defvar-local kibela-last-cursor nil
-  "記事一覧で表示している中で先頭の記事の cursor を保存する.
-前ページに戻るために利用する.")
+  "Stores the cursor of the last note displayed in the note list.
+Used to advance to the next page.")
 
 (defvar-local kibela-has-next-page nil
   "記事一覧で次のページが存在するかどうか.")
