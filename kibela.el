@@ -274,9 +274,9 @@ SUCCESS is the handler for when the request succeeds."
 
 (cl-defun
     kibela--store-default-group-success (&key data &allow-other-keys)
-  "デフォルトグループ取得リクエスト成功後のデータ格納処理.
+  "Data storage process after successful default group fetch request.
 
-DATA はリクエスト成功時の JSON."
+DATA is the JSON from the successful request."
   (let* ((response-data (assoc-default 'data data))
          (group (assoc-default 'defaultGroup response-data)))
     (setq kibela-default-group group)))
