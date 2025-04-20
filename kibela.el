@@ -191,7 +191,7 @@ Used for pagination.")
        content
        (groups id name)
        (folders id fullName evaluatedFullName (group id name)))))))
-  "記事テンプレート一覧を取得するクエリ.")
+  "Query to retrieve a list of note templates.")
 
 (defconst kibela-graphql-mutation-create-note
   (graphql-mutation
