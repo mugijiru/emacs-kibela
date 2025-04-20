@@ -38,8 +38,8 @@
 (defvar tabulated-list-sort-key)
 
 (defcustom kibela-auth-list nil
-  "Kibela の認証情報.
-Each element has the form (NAME TEAM ACCESS-TOKEN)"
+  "Authentication information for Kibela.
+Each element has the form (NAME TEAM ACCESS-TOKEN)."
   :group 'kibela
   :type '(alist :value-type (string string string)))
 
