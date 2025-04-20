@@ -340,7 +340,7 @@ SELECTED is the selected note template."
 
 ;;;###autoload
 (defun kibela-note-new-from-template ()
-  "記事テンプレートから選択したら新規作成用のバッファを表示するコマンド."
+  "Command to display a new note buffer from a selected template."
   (interactive)
   (unless (and kibela-team kibela-access-token)
     (kibela-switch-team))
