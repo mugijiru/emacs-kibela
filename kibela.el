@@ -331,9 +331,9 @@ NOTE-TEMPLATES is an array of note templates registered in Kibela."
    note-templates))
 
 (defun kibela-select-note-template-action (selected)
-  "記事テンプレート選択時の処理.
+  "Handler for note template selection.
 
-SELECTED は選択した記事テンプレート."
+SELECTED is the selected note template."
   (let ((template (get-text-property 0 'template selected)))
     (if template
         (kibela--new-note-from-template template))))
