@@ -468,8 +468,8 @@ MARKER contains the cursor position in the note list."
 
 ;;;###autoload
 (defun kibela-group-notes ()
-  "記事一覧を開くコマンド.
-現在はデフォルトグループの記事一覧のみ開けるようになっている."
+  "Open a list of notes.
+Currently only shows notes from the default group."
   (interactive)
   (unless (and kibela-team kibela-access-token)
     (kibela-switch-team))
@@ -704,9 +704,9 @@ EXIST-NOTE-P indicates if the note actually exists."
 
 ;;;###autoload
 (defun kibela-note-new (title)
-  "記事を作成するバッファを用意する.
+  "Prepare a buffer for creating a new note.
 
-TITLE は新しく作成する記事のタイトル."
+TITLE is the title of the new note to create."
   (interactive "stitle: ")
   (unless (and kibela-team kibela-access-token)
     (kibela-switch-team))
@@ -720,9 +720,9 @@ TITLE は新しく作成する記事のタイトル."
     t))
 
 (defun kibela--new-note-from-template (template)
-  "記事を作成するバッファを用意する.
+  "Prepare a buffer for creating a note from a template.
 
-TEMPLATE は記事作成時に利用するテンプレート."
+TEMPLATE is the note template to use for creation."
   (let* ((title (plist-get template :title))
          (content (plist-get template :content))
          (groups (plist-get template :groups))
@@ -862,7 +862,7 @@ so IDs should be obtained through GraphQL queries rather than from URLs."
     t))
 
 (defun kibela-note-update ()
-  "記事更新."
+  "Update the current note."
   (interactive)
   (let* ((query kibela-graphql-mutation-update-note)
          (id (cl-second (split-string (buffer-name))))
