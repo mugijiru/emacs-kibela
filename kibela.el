@@ -291,9 +291,9 @@ DATA is the JSON from the successful request."
       (kibela--request query nil #'kibela--store-default-group-success)))))
 
 (defun kibela-build-collection-from-note-templates (note-templates)
-  "記事テンプレート一覧から collection を生成する関数.
+  "Function to generate a collection from note templates.
 
-NOTE-TEMPLATES は Kibela に登録されている記事テンプレートの配列."
+NOTE-TEMPLATES is an array of note templates registered in Kibela."
   (mapcar
    (lambda (note-template)
      (let* ((name (assoc-default 'name note-template))
