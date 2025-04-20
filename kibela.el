@@ -107,8 +107,8 @@ Used to advance to the next page.")
       (edges
        cursor
        (node id title content contentUpdatedAt coediting canBeUpdated url))))))
-  "グループ配下の指定した記事よりも前の記事を取得するためのクエリ.
-グループの記事一覧のページ送りで利用している")
+  "Query to retrieve notes preceding the specified note within a group.
+Used for pagination in the group's note list.")
 
 (defconst kibela-graphql-query-group-notes-next
   (graphql-query
