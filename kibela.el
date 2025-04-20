@@ -651,15 +651,15 @@ Updates display to show unliked status without verifying response."
 (cl-defun
     kibela--build-header-line
     (groups &optional (folders '()) &key (liked-by-me-p nil) (exist-note-p nil))
-  "グループ/フォルダ情報から header-line 用の文字列を構築する.
-edit と new from template で利用している.
+  "Build header-line string from group/folder information.
+Used in edit and new-from-template modes.
 
-GROUPS はその記事が所属しているグループの一覧.
-FOLDERS はその記事が収められているフォルダの一覧.
-これら二つの値から header line を構築する.
+GROUPS is a list of groups the note belongs to.
+FOLDERS is a list of folders containing the note.
+These values are used to construct the header line.
 
-LIKED-BY-ME-P は自分がその記事を Like しているかどうか.
-EXIST-NOTE-P はその記事が存在するかどうか."
+LIKED-BY-ME-P indicates if the current user has liked the note.
+EXIST-NOTE-P indicates if the note actually exists."
   (let*
       ((groups-without-folder
         (seq-remove
