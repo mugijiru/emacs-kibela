@@ -54,8 +54,8 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)."
 Used when updating the note.")
 
 (defvar-local kibela-note-template nil
-  "使用する記事テンプレートを保持する.
-テンプレートから記事を作成する時に利用する.")
+  "Holds the note template to be used.
+Used when creating a note from a template.")
 
 (defvar kibela-default-group nil
   "デフォルトの投稿先グループを保存する変数.")
