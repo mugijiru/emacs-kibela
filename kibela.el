@@ -176,7 +176,7 @@ Used for pagination.")
 
 (defconst kibela-graphql-query-default-group
   (graphql-query ((defaultGroup id name)))
-  "デフォルトの投稿先グループを取得するためのクエリ.")
+  "Query to retrieve the default posting group.")
 
 (defconst kibela-graphql-query-note-templates
   (graphql-query
