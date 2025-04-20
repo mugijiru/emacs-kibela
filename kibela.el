@@ -79,8 +79,8 @@ Used when creating a note from a template.")
   :type 'integer)
 
 (defvar-local kibela-first-cursor nil
-  "記事一覧で表示している中で先頭の記事の cursor を保存する.
-前ページに戻るために利用する.")
+  "Stores the cursor of the first note displayed in the note list.
+Used to return to the previous page.")
 
 (defvar-local kibela-last-cursor nil
   "記事一覧で表示している中で先頭の記事の cursor を保存する.
