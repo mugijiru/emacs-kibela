@@ -87,7 +87,7 @@ Used to return to the previous page.")
 Used to advance to the next page.")
 
 (defvar-local kibela-has-next-page nil
-  "記事一覧で次のページが存在するかどうか.")
+  "Whether the next page exists in the note list.")
 
 (defvar-local kibela-has-prev-page nil
   "記事一覧で前のページが存在するかどうか.")
