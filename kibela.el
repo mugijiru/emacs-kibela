@@ -50,8 +50,8 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)."
   "Kibela access token for login.")
 
 (defvar-local kibela-note-base nil
-  "記事取得時の状態を保持する.
-記事更新時に利用する.")
+  "Holds the state of the note when it was retrieved.
+Used when updating the note.")
 
 (defvar-local kibela-note-template nil
   "使用する記事テンプレートを保持する.
