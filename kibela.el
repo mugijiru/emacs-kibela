@@ -61,7 +61,7 @@ Used when creating a note from a template.")
   "Variable to store the default posting group.")
 
 (defvar-local kibela-note-can-be-updated nil
-  "記事が編集可能かどうかを保存する変数.")
+  "Variable to store whether the note can be updated.")
 
 (defvar-local kibela-note-id nil
   "記事 ID を保存する変数.")
