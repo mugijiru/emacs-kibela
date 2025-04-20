@@ -282,7 +282,7 @@ DATA is the JSON from the successful request."
     (setq kibela-default-group group)))
 
 (defun kibela-store-default-group ()
-  "デフォルトの投稿先グループを取得する."
+  "Fetch the default posting group."
   (cond
    (kibela-default-group
     nil)
