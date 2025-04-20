@@ -598,8 +598,8 @@ DATA is the JSON from a successful request."
 
 (cl-defun
     kibela--like-success (&key _data &allow-other-keys)
-  "記事に Like をつけるリクエストが成功した時の処理.
-リクエストが成功したら中身を確認せず like したように表示を切り替える"
+  "Handler for successful like request.
+Updates display to show liked status without verifying response."
   (let ((groups kibela-note-groups)
         (folders kibela-note-folders))
     (setq header-line-format
@@ -610,7 +610,7 @@ DATA is the JSON from a successful request."
            :exist-note-p t))))
 
 (defun kibela-like ()
-  "記事に Like をつける処理."
+  "Add a like to the current note."
   (interactive "e")
   (let ((query kibela-graphql-mutation-like-note)
         (variables `((input . ((likableId . ,kibela-note-id))))))
@@ -618,8 +618,8 @@ DATA is the JSON from a successful request."
 
 (cl-defun
     kibela--unlike-success (&key _data &allow-other-keys)
-  "記事に Like を外すリクエストが成功した時の処理.
-リクエストが成功したら中身を確認せず like を外したように表示を切り替える"
+  "Handler for successful unlike request.
+Updates display to show unliked status without verifying response."
   (let ((groups kibela-note-groups)
         (folders kibela-note-folders))
     (setq header-line-format
@@ -630,7 +630,7 @@ DATA is the JSON from a successful request."
            :exist-note-p t))))
 
 (defun kibela-unlike ()
-  "記事の Like を外す処理."
+  "Remove a like from the current note."
   (interactive "e")
   (let ((query kibela-graphql-mutation-unlike-note)
         (variables `((input . ((likableId . ,kibela-note-id))))))
