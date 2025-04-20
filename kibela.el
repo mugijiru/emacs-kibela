@@ -74,7 +74,7 @@ Used when creating a note from a template.")
 (defvar-local kibela-note-liked-by-me nil)
 
 (defcustom kibela-per-page 40
-  "記事一覧など、複数件のデータを取得する時の最大値."
+  "Maximum number of items to retrieve at once, such as in a list of notes."
   :group 'kibela
   :type 'integer)
 
