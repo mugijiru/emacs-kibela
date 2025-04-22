@@ -38,8 +38,8 @@
 (defvar tabulated-list-sort-key)
 
 (defcustom kibela-auth-list nil
-  "Kibela の認証情報.
-Each element has the form (NAME TEAM ACCESS-TOKEN)"
+  "Authentication information for Kibela.
+Each element has the form (NAME TEAM ACCESS-TOKEN)."
   :group 'kibela
   :type '(alist :value-type (string string string)))
 
@@ -50,47 +50,47 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
   "Kibela access token for login.")
 
 (defvar-local kibela-note-base nil
-  "記事取得時の状態を保持する.
-記事更新時に利用する.")
+  "Holds the state of the note when it was retrieved.
+Used when updating the note.")
 
 (defvar-local kibela-note-template nil
-  "使用する記事テンプレートを保持する.
-テンプレートから記事を作成する時に利用する.")
+  "Holds the note template to be used.
+Used when creating a note from a template.")
 
 (defvar kibela-default-group nil
-  "デフォルトの投稿先グループを保存する変数.")
+  "Variable to store the default posting group.")
 
 (defvar-local kibela-note-can-be-updated nil
-  "記事が編集可能かどうかを保存する変数.")
+  "Variable to store whether the note can be updated.")
 
 (defvar-local kibela-note-id nil
-  "記事 ID を保存する変数.")
+  "Variable to store the note ID.")
 
 (defvar-local kibela-note-url nil
-  "記事 URL を保存する変数.")
+  "Variable to store the note URL.")
 
 (defvar-local kibela-note-groups nil)
 (defvar-local kibela-note-folders nil)
 (defvar-local kibela-note-liked-by-me nil)
 
 (defcustom kibela-per-page 40
-  "記事一覧など、複数件のデータを取得する時の最大値."
+  "Maximum number of items to retrieve at once, such as in a list of notes."
   :group 'kibela
   :type 'integer)
 
 (defvar-local kibela-first-cursor nil
-  "記事一覧で表示している中で先頭の記事の cursor を保存する.
-前ページに戻るために利用する.")
+  "Stores the cursor of the first note displayed in the note list.
+Used to return to the previous page.")
 
 (defvar-local kibela-last-cursor nil
-  "記事一覧で表示している中で先頭の記事の cursor を保存する.
-前ページに戻るために利用する.")
+  "Stores the cursor of the last note displayed in the note list.
+Used to advance to the next page.")
 
 (defvar-local kibela-has-next-page nil
-  "記事一覧で次のページが存在するかどうか.")
+  "Whether the next page exists in the note list.")
 
 (defvar-local kibela-has-prev-page nil
-  "記事一覧で前のページが存在するかどうか.")
+  "Whether the previous page exists in the note list.")
 
 (defconst kibela-graphql-query-group-notes-prev
   (graphql-query
@@ -107,8 +107,8 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
       (edges
        cursor
        (node id title content contentUpdatedAt coediting canBeUpdated url))))))
-  "グループ配下の指定した記事よりも前の記事を取得するためのクエリ.
-グループの記事一覧のページ送りで利用している")
+  "Query to retrieve notes preceding the specified note within a group.
+Used for pagination in the group's note list.")
 
 (defconst kibela-graphql-query-group-notes-next
   (graphql-query
@@ -125,7 +125,7 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
       (edges
        cursor
        (node id title content contentUpdatedAt coediting canBeUpdated url))))))
-  "グループ配下の Note を取得するためのクエリ.")
+  "Query to retrieve notes within a group.")
 
 (defconst kibela-graphql-query-recent-browsing-notes-prev
   (graphql-query
@@ -139,8 +139,8 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
       cursor
       (node
        (note id title content contentUpdatedAt coediting canBeUpdated url))))))
-  "最近見た Note を取得するためのクエリ.
-ページ送りで利用している")
+  "Query to retrieve recently viewed notes.
+Used for pagination.")
 
 (defconst kibela-graphql-query-recent-browsing-notes-next
   (graphql-query
@@ -154,7 +154,7 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
       cursor
       (node
        (note id title content contentUpdatedAt coediting canBeUpdated url))))))
-  "最近見た Note を取得するためのクエリ.")
+  "Query to retrieve recently viewed notes.")
 
 (defconst kibela-graphql-query-note
   (graphql-query
@@ -172,11 +172,11 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
      (groups id name)
      (folders
       :arguments ((first . 100)) (edges (node id fullName (group id name)))))))
-  "Note を取得するためのクエリ.")
+  "Query to retrieve a Note.")
 
 (defconst kibela-graphql-query-default-group
   (graphql-query ((defaultGroup id name)))
-  "デフォルトの投稿先グループを取得するためのクエリ.")
+  "Query to retrieve the default posting group.")
 
 (defconst kibela-graphql-query-note-templates
   (graphql-query
@@ -191,21 +191,21 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
        content
        (groups id name)
        (folders id fullName evaluatedFullName (group id name)))))))
-  "記事テンプレート一覧を取得するクエリ.")
+  "Query to retrieve a list of note templates.")
 
 (defconst kibela-graphql-mutation-create-note
   (graphql-mutation
    (:arguments
     (($input . CreateNoteInput!))
     (createNote :arguments ((input . ($ input))) (note title content))))
-  "Note を作成するためのクエリ.")
+  "Query to create a note.")
 
 (defconst kibela-graphql-mutation-update-note
   (graphql-mutation
    (:arguments
     (($input . UpdateNoteInput!))
     (updateNote :arguments ((input . ($ input))) (note title content))))
-  "Note を更新するためのクエリ.")
+  "Query to update a note.")
 
 (defconst kibela-graphql-mutation-like-note
   (graphql-mutation
@@ -214,7 +214,7 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
     (like
      :arguments ((input . ($ input)))
      (likers :arguments ((first . 100)) (totalCount) (edges (node id))))))
-  "Note をいいねするためのクエリ.")
+  "Query to like a note.")
 
 (defconst kibela-graphql-mutation-unlike-note
   (graphql-mutation
@@ -223,7 +223,7 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
     (unlike
      :arguments ((input . ($ input)))
      (likers :arguments ((first . 100)) (totalCount) (edges (node id))))))
-  "Note のいいねを取り消すためのクエリ.")
+  "Query to unlike a note.")
 
 (defun kibela-endpoint ()
   "API endpoint."
@@ -236,11 +236,11 @@ Each element has the form (NAME TEAM ACCESS-TOKEN)"
     ("Authorization" . ,(concat "Bearer " kibela-access-token))))
 
 (defun kibela--request (query variables success)
-  "Kibela へのリクエストを飛ばすための関数.
+  "Function to send requests to Kibela.
 
-QUERY は GraphQL のクエリで
-VARIABLES は GraphQL の Variables.
-SUCCESS はリクエストが成功した時の処理."
+QUERY is the GraphQL query.
+VARIABLES are the GraphQL variables.
+SUCCESS is the handler for when the request succeeds."
   (let ((data (json-encode `((query . ,query) (variables . ,variables)))))
     (request
       (kibela-endpoint)
@@ -274,15 +274,15 @@ SUCCESS はリクエストが成功した時の処理."
 
 (cl-defun
     kibela--store-default-group-success (&key data &allow-other-keys)
-  "デフォルトグループ取得リクエスト成功後のデータ格納処理.
+  "Data storage process after successful default group fetch request.
 
-DATA はリクエスト成功時の JSON."
+DATA is the JSON from the successful request."
   (let* ((response-data (assoc-default 'data data))
          (group (assoc-default 'defaultGroup response-data)))
     (setq kibela-default-group group)))
 
 (defun kibela-store-default-group ()
-  "デフォルトの投稿先グループを取得する."
+  "Fetch the default posting group."
   (cond
    (kibela-default-group
     nil)
@@ -291,9 +291,9 @@ DATA はリクエスト成功時の JSON."
       (kibela--request query nil #'kibela--store-default-group-success)))))
 
 (defun kibela-build-collection-from-note-templates (note-templates)
-  "記事テンプレート一覧から collection を生成する関数.
+  "Function to generate a collection from note templates.
 
-NOTE-TEMPLATES は Kibela に登録されている記事テンプレートの配列."
+NOTE-TEMPLATES is an array of note templates registered in Kibela."
   (mapcar
    (lambda (note-template)
      (let* ((name (assoc-default 'name note-template))
@@ -331,16 +331,16 @@ NOTE-TEMPLATES は Kibela に登録されている記事テンプレートの配
    note-templates))
 
 (defun kibela-select-note-template-action (selected)
-  "記事テンプレート選択時の処理.
+  "Handler for note template selection.
 
-SELECTED は選択した記事テンプレート."
+SELECTED is the selected note template."
   (let ((template (get-text-property 0 'template selected)))
     (if template
         (kibela--new-note-from-template template))))
 
 ;;;###autoload
 (defun kibela-note-new-from-template ()
-  "記事テンプレートから選択したら新規作成用のバッファを表示するコマンド."
+  "Command to display a new note buffer from a selected template."
   (interactive)
   (unless (and kibela-team kibela-access-token)
     (kibela-switch-team))
@@ -363,9 +363,9 @@ SELECTED は選択した記事テンプレート."
 
 (cl-defun
     kibela--group-notes-success (&key data &allow-other-keys)
-  "グループとその配下の Notes を取得する処理.
+  "Process to fetch group and its notes.
 
-DATA はリクエスト成功時の JSON."
+DATA is the JSON from a successful request."
   (let* ((row-data (assoc-default 'data data))
          (row-group (assoc-default 'group row-data))
          (row-notes (assoc-default 'notes row-group))
@@ -403,15 +403,15 @@ DATA はリクエスト成功時の JSON."
     (tabulated-list-print)))
 
 (defun kibela-note-show-from-list (marker)
-  "記事一覧から記事を開くためのアクション.
+  "Action to open a note from the list.
 
-MARKER には記事一覧のカーソル位置が渡されてくる."
+MARKER contains the cursor position in the note list."
   (let* ((pos (marker-position marker))
          (id (get-text-property pos 'id)))
     (kibela-note-show id)))
 
 (defun kibela-group-notes-refresh ()
-  "記事一覧を読み込み直す処理."
+  "Process to reload the note list."
   (message "Fetch default group notes...")
   (let* ((group-id (assoc-default 'id kibela-default-group))
          (query kibela-graphql-query-group-notes-next)
@@ -419,7 +419,7 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
     (kibela--request query variables #'kibela--group-notes-success)))
 
 (defun kibela-group-notes-next-page ()
-  "記事一覧で次のページを取得する処理."
+  "Process to fetch the next page of notes."
   (interactive)
   (cond
    (kibela-has-next-page
@@ -434,7 +434,7 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
     (message "Current page is last"))))
 
 (defun kibela-group-notes-prev-page ()
-  "記事一覧で前のページを取得する処理."
+  "Process to fetch the previous page of notes."
   (interactive)
   (cond
    (kibela-has-prev-page
@@ -459,7 +459,6 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
 (define-derived-mode
   kibela-list-mode
   tabulated-list-mode
-  "Kibela list"
   "Kibela list view."
   (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
   (setq tabulated-list-sort-key '("UpdatedAt" . t))
@@ -468,8 +467,8 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
 
 ;;;###autoload
 (defun kibela-group-notes ()
-  "記事一覧を開くコマンド.
-現在はデフォルトグループの記事一覧のみ開けるようになっている."
+  "Open a list of notes.
+Currently only shows notes from the default group."
   (interactive)
   (unless (and kibela-team kibela-access-token)
     (kibela-switch-team))
@@ -488,9 +487,9 @@ MARKER には記事一覧のカーソル位置が渡されてくる."
 
 (cl-defun
     kibela--recent-browsing-notes-success (&key data &allow-other-keys)
-  "最近見た Notes を取得する処理.
+  "Process to fetch recently viewed notes.
 
-DATA はリクエスト成功時の JSON."
+DATA is the JSON from a successful request."
   (let* ((row-data (assoc-default 'data data))
          (row-note-browsing-histories
           (assoc-default 'noteBrowsingHistories row-data))
@@ -532,14 +531,14 @@ DATA はリクエスト成功時の JSON."
     (tabulated-list-print)))
 
 (defun kibela-recent-browsing-notes-refresh ()
-  "最近見た記事一覧を読み込み直す処理."
+  "Process to reload the list of recently viewed notes."
   (message "Fetch recent browsing notes...")
   (let* ((query kibela-graphql-query-recent-browsing-notes-next)
          (variables `((perPage . ,kibela-per-page))))
     (kibela--request query variables #'kibela--recent-browsing-notes-success)))
 
 (defun kibela-recent-browsing-notes-next-page ()
-  "記事一覧で次のページを取得する処理."
+  "Process to fetch the next page of recently viewed notes."
   (interactive)
   (cond
    (kibela-has-next-page
@@ -552,7 +551,7 @@ DATA はリクエスト成功時の JSON."
     (message "Current page is last"))))
 
 (defun kibela-recent-browsing-notes-prev-page ()
-  "記事一覧で前のページを取得する処理."
+  "Process to fetch the previous page of recently viewed notes."
   (interactive)
   (cond
    (kibela-has-prev-page
@@ -586,7 +585,7 @@ DATA はリクエスト成功時の JSON."
 
 ;;;###autoload
 (defun kibela-recent-browsing-notes ()
-  "最近見た記事一覧を開くコマンド."
+  "Command to open the list of recently viewed notes."
   (interactive)
   (unless (and kibela-team kibela-access-token)
     (kibela-switch-team))
@@ -598,8 +597,8 @@ DATA はリクエスト成功時の JSON."
 
 (cl-defun
     kibela--like-success (&key _data &allow-other-keys)
-  "記事に Like をつけるリクエストが成功した時の処理.
-リクエストが成功したら中身を確認せず like したように表示を切り替える"
+  "Handler for successful like request.
+Updates display to show liked status without verifying response."
   (let ((groups kibela-note-groups)
         (folders kibela-note-folders))
     (setq header-line-format
@@ -610,7 +609,7 @@ DATA はリクエスト成功時の JSON."
            :exist-note-p t))))
 
 (defun kibela-like ()
-  "記事に Like をつける処理."
+  "Add a like to the current note."
   (interactive "e")
   (let ((query kibela-graphql-mutation-like-note)
         (variables `((input . ((likableId . ,kibela-note-id))))))
@@ -618,8 +617,8 @@ DATA はリクエスト成功時の JSON."
 
 (cl-defun
     kibela--unlike-success (&key _data &allow-other-keys)
-  "記事に Like を外すリクエストが成功した時の処理.
-リクエストが成功したら中身を確認せず like を外したように表示を切り替える"
+  "Handler for successful unlike request.
+Updates display to show unliked status without verifying response."
   (let ((groups kibela-note-groups)
         (folders kibela-note-folders))
     (setq header-line-format
@@ -630,7 +629,7 @@ DATA はリクエスト成功時の JSON."
            :exist-note-p t))))
 
 (defun kibela-unlike ()
-  "記事の Like を外す処理."
+  "Remove a like from the current note."
   (interactive "e")
   (let ((query kibela-graphql-mutation-unlike-note)
         (variables `((input . ((likableId . ,kibela-note-id))))))
@@ -651,15 +650,15 @@ DATA はリクエスト成功時の JSON."
 (cl-defun
     kibela--build-header-line
     (groups &optional (folders '()) &key (liked-by-me-p nil) (exist-note-p nil))
-  "グループ/フォルダ情報から header-line 用の文字列を構築する.
-edit と new from template で利用している.
+  "Build header-line string from group/folder information.
+Used in edit and new-from-template modes.
 
-GROUPS はその記事が所属しているグループの一覧.
-FOLDERS はその記事が収められているフォルダの一覧.
-これら二つの値から header line を構築する.
+GROUPS is a list of groups the note belongs to.
+FOLDERS is a list of folders containing the note.
+These values are used to construct the header line.
 
-LIKED-BY-ME-P は自分がその記事を Like しているかどうか.
-EXIST-NOTE-P はその記事が存在するかどうか."
+LIKED-BY-ME-P indicates if the current user has liked the note.
+EXIST-NOTE-P indicates if the note actually exists."
   (let*
       ((groups-without-folder
         (seq-remove
@@ -704,9 +703,9 @@ EXIST-NOTE-P はその記事が存在するかどうか."
 
 ;;;###autoload
 (defun kibela-note-new (title)
-  "記事を作成するバッファを用意する.
+  "Prepare a buffer for creating a new note.
 
-TITLE は新しく作成する記事のタイトル."
+TITLE is the title of the new note to create."
   (interactive "stitle: ")
   (unless (and kibela-team kibela-access-token)
     (kibela-switch-team))
@@ -720,9 +719,9 @@ TITLE は新しく作成する記事のタイトル."
     t))
 
 (defun kibela--new-note-from-template (template)
-  "記事を作成するバッファを用意する.
+  "Prepare a buffer for creating a note from a template.
 
-TEMPLATE は記事作成時に利用するテンプレート."
+TEMPLATE is the note template to use for creation."
   (let* ((title (plist-get template :title))
          (content (plist-get template :content))
          (groups (plist-get template :groups))
@@ -735,7 +734,7 @@ TEMPLATE は記事作成時に利用するテンプレート."
     (setq kibela-note-template template)))
 
 (defun kibela-note-create ()
-  "記事作成."
+  "Create a note."
   (interactive)
   (let* ((query kibela-graphql-mutation-create-note)
          (buffer-content (substring-no-properties (buffer-string)))
@@ -795,11 +794,11 @@ TEMPLATE は記事作成時に利用するテンプレート."
 
 ;;;###autoload
 (defun kibela-note-show (id)
-  "記事表示.
+  "Display a note.
 
-ID は記事の id.
-GraphQL で扱う ID は数字ではなく何らかの変換をされた文字列のようなので
-URL などからではなく GraphQL で取得すること."
+ID is the note's identifier.
+Note that GraphQL uses encoded string IDs rather than numeric ones,
+so IDs should be obtained through GraphQL queries rather than from URLs."
   (unless (and kibela-team kibela-access-token)
     (kibela-switch-team))
   (let ((query kibela-graphql-query-note)
@@ -862,7 +861,7 @@ URL などからではなく GraphQL で取得すること."
     t))
 
 (defun kibela-note-update ()
-  "記事更新."
+  "Update the current note."
   (interactive)
   (let* ((query kibela-graphql-mutation-update-note)
          (id (cl-second (split-string (buffer-name))))
