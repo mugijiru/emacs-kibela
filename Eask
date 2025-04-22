@@ -1,5 +1,5 @@
 (package "kibela"
-         "1.0.0"
+         "2.0.0"
          "Kibela client")
 
 (website-url "https://github.com/mugijiru/emacs-kibela")
