@@ -13,5 +13,5 @@ updates:
     groups:
       artifacts:
         patterns:
-          - "upload-artifact"
-          - "download-artifact"
+          - "actions/upload-artifact"
+          - "actions/download-artifact"
