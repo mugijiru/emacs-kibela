@@ -80,7 +80,7 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/create-release.yml
     with:
-      tag: ${{ needs.tag.outputs.version }}
+      tag: "${{ needs.tag.outputs.tag }}"
     permissions:
       contents: write
       packages: write
