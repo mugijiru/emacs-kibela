@@ -797,7 +797,7 @@ TEMPLATE is the note template to use for creation."
 (defun kibela-note-show (id)
   "Display a note.
 
-ID is the note's identifier. 
+ID is the note's identifier.
 Note that GraphQL uses encoded string IDs rather than numeric ones,
 so IDs should be obtained through GraphQL queries rather than from URLs."
   (unless (and kibela-team kibela-access-token)
