@@ -1,5 +1,6 @@
 .eask
 *.elc
+*-autoloads.el
 dist
 tmp
 .aider*
