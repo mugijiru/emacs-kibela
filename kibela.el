@@ -459,8 +459,7 @@ MARKER contains the cursor position in the note list."
 (define-derived-mode
   kibela-list-mode
   tabulated-list-mode
-  "Kibela list"
-  "Major mode for browsing Kibela notes list.\n\n\\{kibela-list-mode-map}"
+  "Kibela list view."
   (setq tabulated-list-format [("Title" 40 t) ("UpdatedAt" 20 t)])
   (setq tabulated-list-sort-key '("UpdatedAt" . t))
   (add-hook 'tabulated-list-revert-hook 'kibela-group-notes-refresh nil t)
