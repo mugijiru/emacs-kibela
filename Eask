@@ -1,3 +1,5 @@
+;; -*- mode: eask; lexical-binding: t -*-
+
 (package "kibela"
          "2.0.0"
          "Kibela client")
