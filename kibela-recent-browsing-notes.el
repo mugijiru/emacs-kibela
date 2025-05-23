@@ -28,8 +28,18 @@
 
 ;;; Code:
 
-(require 'kibela)
 (require 'tabulated-list)
+(declare-function kibela-note-show-from-list "kibela")
+(declare-function kibela-request "kibela-request")
+(defvar kibela-per-page)
+(defvar kibela-first-cursor)
+(defvar kibela-last-cursor)
+(defvar kibela-has-prev-page)
+(defvar kibela-has-next-page)
+(defvar kibela-team)
+(defvar kibela-access-token)
+(defvar kibela-graphql-query-recent-browsing-notes-next)
+(defvar kibela-graphql-query-recent-browsing-notes-prev)
 
 (cl-defun
     kibela--recent-browsing-notes-success (&key data &allow-other-keys)
