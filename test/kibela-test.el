@@ -9,14 +9,14 @@
 (defmacro kibela-test--use-response-stub (res &rest body)
   (declare (indent defun))
   `(noflet ((request () (error "Unexpected request call")) ;; Don't send request
-            (kibela--request (query variables success)
+            (kibela-request (query variables success)
                              (apply success :data `(((data (,@ (,@ res))))))))
      ,@body))
 
 (defmacro kibela-test--inspect-request-arguments (&rest body)
   (declare (indent defun))
   `(noflet ((request () (error "Unexpected request call")) ;; Don't send request
-            (kibela--request (query variables success)
+            (kibela-request (query variables success)
                              `(,query ,variables))) ;; FIXME: response argument is unused
      ,@body))
 

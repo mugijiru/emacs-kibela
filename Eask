@@ -8,7 +8,8 @@
 (keywords "kibela" "tools")
 
 (package-file "kibela.el")
-(files "kibela-markdown-mode.el")
+(files "kibela-markdown-mode.el"
+       "kibela-request.el")
 
 (script "test" "echo \"Error: no test specified\" && exit 1")
 
