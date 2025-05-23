@@ -229,7 +229,7 @@ Used for pagination.")
   "API endpoint."
   (concat "https://" kibela-team ".kibe.la/api/v1"))
 
-(defun kibela-headers ()
+(defun kibela--headers ()
   "HTTP request headers."
   `(("Content-Type" . "application/json")
     ("Accept" . "application/json")
@@ -248,7 +248,7 @@ SUCCESS is the handler for when the request succeeds."
       :data data
       :parser 'json-read
       :encoding 'utf-8
-      :headers (kibela-headers)
+      :headers (kibela--headers)
       :success success
       :error
       (cl-function
