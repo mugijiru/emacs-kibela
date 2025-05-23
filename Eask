@@ -9,7 +9,8 @@
 
 (package-file "kibela.el")
 (files "kibela-markdown-mode.el"
-       "kibela-request.el")
+       "kibela-request.el"
+       "kibela-recent-browsing-notes.el")
 
 (script "test" "echo \"Error: no test specified\" && exit 1")
 
