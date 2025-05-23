@@ -6,7 +6,7 @@
 ;; Maintainer: mugijiru <106833+mugijiru@users.noreply.github.com>
 ;; URL: https://github.com/mugijiru/emacs-kibela
 ;; Version: 2.0.0
-;; Package-Requires: ((emacs "28.2") (kibela "2.0.0"))
+;; Package-Requires: ((emacs "28.2") (kibela "2.0.0") (graphql "0.1.1"))
 ;; Keywords: kibela, tools
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'tabulated-list)
+(require 'graphql)
 (declare-function kibela-note-show-from-list "kibela")
 (declare-function kibela-request "kibela-request")
 (defvar kibela-per-page)
@@ -38,8 +39,35 @@
 (defvar kibela-has-next-page)
 (defvar kibela-team)
 (defvar kibela-access-token)
-(defvar kibela-graphql-query-recent-browsing-notes-next)
-(defvar kibela-graphql-query-recent-browsing-notes-prev)
+
+(defconst kibela-graphql-query-recent-browsing-notes-prev
+  (graphql-query
+   (:arguments
+    (($perPage . Int!) ($cursor . String))
+    (noteBrowsingHistories
+     :arguments
+     ((last . ($ perPage)) (before . ($ cursor)))
+     (pageInfo hasNextPage hasPreviousPage)
+     (edges
+      cursor
+      (node
+       (note id title content contentUpdatedAt coediting canBeUpdated url))))))
+  "Query to retrieve recently viewed notes.
+Used for pagination.")
+
+(defconst kibela-graphql-query-recent-browsing-notes-next
+  (graphql-query
+   (:arguments
+    (($perPage . Int!) ($cursor . String))
+    (noteBrowsingHistories
+     :arguments
+     ((first . ($ perPage)) (after . ($ cursor)))
+     (pageInfo hasNextPage hasPreviousPage)
+     (edges
+      cursor
+      (node
+       (note id title content contentUpdatedAt coediting canBeUpdated url))))))
+  "Query to retrieve recently viewed notes.")
 
 (cl-defun
     kibela--recent-browsing-notes-success (&key data &allow-other-keys)

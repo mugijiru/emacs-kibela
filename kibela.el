@@ -129,34 +129,6 @@ Used for pagination in the group's note list.")
        (node id title content contentUpdatedAt coediting canBeUpdated url))))))
   "Query to retrieve notes within a group.")
 
-(defconst kibela-graphql-query-recent-browsing-notes-prev
-  (graphql-query
-   (:arguments
-    (($perPage . Int!) ($cursor . String))
-    (noteBrowsingHistories
-     :arguments
-     ((last . ($ perPage)) (before . ($ cursor)))
-     (pageInfo hasNextPage hasPreviousPage)
-     (edges
-      cursor
-      (node
-       (note id title content contentUpdatedAt coediting canBeUpdated url))))))
-  "Query to retrieve recently viewed notes.
-Used for pagination.")
-
-(defconst kibela-graphql-query-recent-browsing-notes-next
-  (graphql-query
-   (:arguments
-    (($perPage . Int!) ($cursor . String))
-    (noteBrowsingHistories
-     :arguments
-     ((first . ($ perPage)) (after . ($ cursor)))
-     (pageInfo hasNextPage hasPreviousPage)
-     (edges
-      cursor
-      (node
-       (note id title content contentUpdatedAt coediting canBeUpdated url))))))
-  "Query to retrieve recently viewed notes.")
 
 (defconst kibela-graphql-query-note
   (graphql-query
