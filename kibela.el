@@ -235,7 +235,7 @@ Used for pagination.")
     ("Accept" . "application/json")
     ("Authorization" . ,(concat "Bearer " kibela-access-token))))
 
-(defun kibela--request (query variables success)
+(defun kibela-request (query variables success)
   "Function to send requests to Kibela.
 
 QUERY is the GraphQL query.
@@ -288,7 +288,7 @@ DATA is the JSON from the successful request."
     nil)
    (t
     (let* ((query kibela-graphql-query-default-group))
-      (kibela--request query nil #'kibela--store-default-group-success)))))
+      (kibela-request query nil #'kibela--store-default-group-success)))))
 
 (defun kibela-build-collection-from-note-templates (note-templates)
   "Function to generate a collection from note templates.
@@ -345,7 +345,7 @@ SELECTED is the selected note template."
   (unless (and kibela-team kibela-access-token)
     (kibela-switch-team))
   (let ((query kibela-graphql-query-note-templates))
-    (kibela--request
+    (kibela-request
      query nil
      (cl-function
       (lambda (&key data &allow-other-keys)
@@ -416,7 +416,7 @@ MARKER contains the cursor position in the note list."
   (let* ((group-id (assoc-default 'id kibela-default-group))
          (query kibela-graphql-query-group-notes-next)
          (variables `((id . ,group-id) (perPage . ,kibela-per-page))))
-    (kibela--request query variables #'kibela--group-notes-success)))
+    (kibela-request query variables #'kibela--group-notes-success)))
 
 (defun kibela-group-notes-next-page ()
   "Process to fetch the next page of notes."
@@ -429,7 +429,7 @@ MARKER contains the cursor position in the note list."
             `((id . ,group-id)
               (perPage . ,kibela-per-page)
               (cursor . ,kibela-last-cursor))))
-      (kibela--request query variables #'kibela--group-notes-success)))
+      (kibela-request query variables #'kibela--group-notes-success)))
    (t
     (message "Current page is last"))))
 
@@ -444,7 +444,7 @@ MARKER contains the cursor position in the note list."
             `((id . ,group-id)
               (perPage . ,kibela-per-page)
               (cursor . ,kibela-first-cursor))))
-      (kibela--request query variables #'kibela--group-notes-success)))
+      (kibela-request query variables #'kibela--group-notes-success)))
    (t
     (message "Current page is first"))))
 
@@ -535,7 +535,7 @@ DATA is the JSON from a successful request."
   (message "Fetch recent browsing notes...")
   (let* ((query kibela-graphql-query-recent-browsing-notes-next)
          (variables `((perPage . ,kibela-per-page))))
-    (kibela--request query variables #'kibela--recent-browsing-notes-success)))
+    (kibela-request query variables #'kibela--recent-browsing-notes-success)))
 
 (defun kibela-recent-browsing-notes-next-page ()
   "Process to fetch the next page of recently viewed notes."
@@ -545,7 +545,7 @@ DATA is the JSON from a successful request."
     (let* ((query kibela-graphql-query-recent-browsing-notes-next)
            (variables
             `((perPage . ,kibela-per-page) (cursor . ,kibela-last-cursor))))
-      (kibela--request
+      (kibela-request
        query variables #'kibela--recent-browsing-notes-success)))
    (t
     (message "Current page is last"))))
@@ -558,7 +558,7 @@ DATA is the JSON from a successful request."
     (let* ((query kibela-graphql-query-recent-browsing-notes-prev)
            (variables
             `((perPage . ,kibela-per-page) (cursor . ,kibela-first-cursor))))
-      (kibela--request
+      (kibela-request
        query variables #'kibela--recent-browsing-notes-success)))
    (t
     (message "Current page is first"))))
@@ -613,7 +613,7 @@ Updates display to show liked status without verifying response."
   (interactive "e")
   (let ((query kibela-graphql-mutation-like-note)
         (variables `((input . ((likableId . ,kibela-note-id))))))
-    (kibela--request query variables #'kibela--like-success)))
+    (kibela-request query variables #'kibela--like-success)))
 
 (cl-defun
     kibela--unlike-success (&key _data &allow-other-keys)
@@ -633,7 +633,7 @@ Updates display to show unliked status without verifying response."
   (interactive "e")
   (let ((query kibela-graphql-mutation-unlike-note)
         (variables `((input . ((likableId . ,kibela-note-id))))))
-    (kibela--request query variables #'kibela--unlike-success)))
+    (kibela-request query variables #'kibela--unlike-success)))
 
 (defvar kibela-like-button-map
   (let ((map (make-sparse-keymap)))
@@ -769,7 +769,7 @@ TEMPLATE is the note template to use for creation."
                ,(mapcar
                  (lambda (folder) (assq-delete-all 'group folder)) folders))
               (coediting . ,coediting) (draft . ,draft))))))
-    (kibela--request
+    (kibela-request
      query variables
      (cl-function
       (lambda (&key data &allow-other-keys)
@@ -803,7 +803,7 @@ so IDs should be obtained through GraphQL queries rather than from URLs."
     (kibela-switch-team))
   (let ((query kibela-graphql-query-note)
         (variables `((id . ,id))))
-    (kibela--request
+    (kibela-request
      query variables
      (cl-function
       (lambda (&key data &allow-other-keys)
@@ -884,7 +884,7 @@ so IDs should be obtained through GraphQL queries rather than from URLs."
                 ("folders" . ,folders)
                 ("coediting" . ,coediting)))
               ("baseNote" . ,kibela-note-base) ("draft" . ,json-false))))))
-    (kibela--request
+    (kibela-request
      query variables
      (cl-function
       (lambda (&key data &allow-other-keys)
