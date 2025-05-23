@@ -225,7 +225,7 @@ Used for pagination.")
      (likers :arguments ((first . 100)) (totalCount) (edges (node id))))))
   "Query to unlike a note.")
 
-(defun kibela-endpoint ()
+(defun kibela--endpoint ()
   "API endpoint."
   (concat "https://" kibela-team ".kibe.la/api/v1"))
 
@@ -243,7 +243,7 @@ VARIABLES are the GraphQL variables.
 SUCCESS is the handler for when the request succeeds."
   (let ((data (json-encode `((query . ,query) (variables . ,variables)))))
     (request
-      (kibela-endpoint)
+      (kibela--endpoint)
       :type "POST"
       :data data
       :parser 'json-read
