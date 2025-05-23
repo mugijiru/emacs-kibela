@@ -32,6 +32,7 @@
 (require 'request)
 (require 'json)
 (require 'tabulated-list)
+(require 'kibela-request)
 (require 'kibela-markdown-mode)
 
 (defvar tabulated-list-format)
@@ -224,36 +225,6 @@ Used for pagination.")
      :arguments ((input . ($ input)))
      (likers :arguments ((first . 100)) (totalCount) (edges (node id))))))
   "Query to unlike a note.")
-
-(defun kibela--endpoint ()
-  "API endpoint."
-  (concat "https://" kibela-team ".kibe.la/api/v1"))
-
-(defun kibela--headers ()
-  "HTTP request headers."
-  `(("Content-Type" . "application/json")
-    ("Accept" . "application/json")
-    ("Authorization" . ,(concat "Bearer " kibela-access-token))))
-
-(defun kibela-request (query variables success)
-  "Function to send requests to Kibela.
-
-QUERY is the GraphQL query.
-VARIABLES are the GraphQL variables.
-SUCCESS is the handler for when the request succeeds."
-  (let ((data (json-encode `((query . ,query) (variables . ,variables)))))
-    (request
-      (kibela--endpoint)
-      :type "POST"
-      :data data
-      :parser 'json-read
-      :encoding 'utf-8
-      :headers (kibela--headers)
-      :success success
-      :error
-      (cl-function
-       (lambda (&rest args &key error-thrown &allow-other-keys)
-         (message "Got error: %S" error-thrown))))))
 
 ;;;###autoload
 (defun kibela-switch-team ()
