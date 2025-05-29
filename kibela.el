@@ -32,23 +32,13 @@
 (require 'request)
 (require 'json)
 (require 'tabulated-list)
+(require 'kibela-auth)
 (require 'kibela-request)
 (require 'kibela-markdown-mode)
 
 (defvar tabulated-list-format)
 (defvar tabulated-list-sort-key)
 
-(defcustom kibela-auth-list nil
-  "Authentication information for Kibela.
-Each element has the form (NAME TEAM ACCESS-TOKEN)."
-  :group 'kibela
-  :type '(alist :value-type (string string string)))
-
-(defvar kibela-team nil
-  "Kibela team name for login.")
-
-(defvar kibela-access-token nil
-  "Kibela access token for login.")
 
 (defvar-local kibela-note-base nil
   "Holds the state of the note when it was retrieved.
@@ -226,22 +216,6 @@ Used for pagination.")
      (likers :arguments ((first . 100)) (totalCount) (edges (node id))))))
   "Query to unlike a note.")
 
-;;;###autoload
-(defun kibela-switch-team ()
-  "Switch between teams to operate."
-  (interactive)
-  (let* ((selected (completing-read "Select team: " kibela-auth-list))
-         (auth (assoc-default selected kibela-auth-list))
-         (team (cl-first auth))
-         (access-token (cl-second auth)))
-    (cond
-     (auth
-      (kill-matching-buffers "\\*Kibela\\*" nil t)
-      (setq kibela-team team)
-      (setq kibela-access-token access-token)
-      (setq kibela-default-group nil))
-     (t
-      (message "No match team.")))))
 
 (cl-defun
     kibela--store-default-group-success (&key data &allow-other-keys)
