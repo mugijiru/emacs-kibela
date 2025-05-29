@@ -27,6 +27,8 @@
 
 ;;; Code:
 
+(defvar kibela-default-group)
+
 (defcustom kibela-auth-list nil
   "Authentication information for Kibela.
 Each element has the form (NAME TEAM ACCESS-TOKEN)."
