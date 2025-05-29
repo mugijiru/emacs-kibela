@@ -6,7 +6,6 @@
 ;; Maintainer: mugijiru <106833+mugijiru@users.noreply.github.com>
 ;; URL: https://github.com/mugijiru/emacs-kibela
 ;; Version: 2.0.0
-;; Package-Requires: ((emacs "28.2"))
 ;; Keywords: kibela, tools
 
 ;; This file is part of Kibela client for Emacs.
