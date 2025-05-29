@@ -27,7 +27,7 @@
 
 ;;; Code:
 
-(defvar kibela-default-group)
+(require 'kibela-core)
 
 (defcustom kibela-auth-list nil
   "Authentication information for Kibela.

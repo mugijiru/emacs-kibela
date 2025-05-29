@@ -9,6 +9,7 @@
 
 (package-file "kibela.el")
 (files "kibela-auth.el"
+       "kibela-core.el"
        "kibela-markdown-mode.el"
        "kibela-request.el")
 
